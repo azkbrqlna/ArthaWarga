@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class KatKeg extends Model
+class RoleResource extends Model
 {
-    //
+    protected $table = 'role_rsc';
 }

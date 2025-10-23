@@ -12,9 +12,8 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create('id_ID'); // Gunakan locale Indonesia
+        $faker = Faker::create('id_ID'); 
 
-        // Pastikan roles tersedia
         if (Role::count() === 0) {
             $this->call(RoleSeeder::class);
         }
