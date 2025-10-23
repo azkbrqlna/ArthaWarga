@@ -10,9 +10,9 @@ class User extends Authenticatable
     use HasFactory;
 
     protected $fillable = [
-        'email', 'username', 'password', 'nama_lengkap', 'foto_profil', 'no_hp',
-        'provinsi_code', 'kota_kabupaten_code', 'kecamatan_code', 'desa_code',
-        'rt_rw', 'alamat_lengkap', 'kode_pos'
+        'email', 'no_kk','password', 'nm_lengkap', 'foto_profil', 'no_hp',
+        'kode_prov', 'kode_kota_kab', 'kode_kec', 'kode_desa',
+        'rt_rw','kode_pos'
     ];
 
     protected $hidden = ['password'];
