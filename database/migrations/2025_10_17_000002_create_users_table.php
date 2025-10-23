@@ -10,7 +10,7 @@ return new class extends Migration
     {
         Schema::create('usr', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('role_id')->constrained('roles')->cascadeOnDelete();
+            $table->foreignId('role_id')->constrained('role')->cascadeOnDelete();
             $table->string('email')->unique();
             $table->string('no_kk', 16)->unique();
             $table->string('password');
@@ -31,6 +31,6 @@ return new class extends Migration
 
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('usr');
     }
 };

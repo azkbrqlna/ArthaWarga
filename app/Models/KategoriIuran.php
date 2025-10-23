@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class KategoriIuran extends Model
 {
-    //
+    protected $table = 'kat_iuran';
 }
