@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id('id_total');
             $table->foreignId('id_masuk_iuran')->nullable()->constrained('masuk_iuran')->nullOnDelete();
             $table->foreignId('id_masuk_bop')->nullable()->constrained('masuk_bop')->nullOnDelete();
-            $table->foreignId('id_sumber')->nullable()->constrained('sumber')->nullOnDelete();
             $table->decimal('total', 12, 2)->default(0);
             $table->timestamps();
         });

@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('masuk_bop', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('sumber_id')->constrained('sumber')->cascadeOnDelete();
             $table->date('tgl');
             $table->decimal('nominal', 12,2);
             $table->text('ket');
