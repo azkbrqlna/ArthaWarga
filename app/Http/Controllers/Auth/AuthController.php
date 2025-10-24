@@ -11,7 +11,6 @@ class AuthController extends Controller
 {
     public function index()
     {
-        // Tampilkan halaman login (Inertia React component: resources/js/Pages/Login.jsx)
         return Inertia::render('Login');
     }
 
@@ -22,7 +21,6 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        // Coba login menggunakan Auth::attempt()
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
