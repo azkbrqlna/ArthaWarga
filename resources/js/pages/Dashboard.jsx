@@ -1,5 +1,11 @@
 import React from "react";
-import { Calendar, Home, Inbox, Search, Settings } from "lucide-react";
+import {
+    Calendar,
+    Home,
+    Inbox,
+    SquareCheckBig,
+    LayoutTemplate,
+} from "lucide-react";
 
 import {
     Sidebar,
@@ -15,11 +21,8 @@ import {
 
 // Menu items
 const items = [
-    { title: "Home", url: "#", icon: Home },
-    { title: "Inbox", url: "#", icon: Inbox },
-    { title: "Calendar", url: "#", icon: Calendar },
-    { title: "Search", url: "#", icon: Search },
-    { title: "Settings", url: "#", icon: Settings },
+    { title: "Ringkasan", url: "#", icon: LayoutTemplate },
+    { title: "Approval", url: "#", icon: SquareCheckBig },
 ];
 
 export default function Dashboard() {
@@ -28,7 +31,9 @@ export default function Dashboard() {
             <Sidebar>
                 <SidebarContent>
                     <SidebarGroup>
-                        <SidebarGroupLabel>Application</SidebarGroupLabel>
+                        <SidebarGroupLabel classname="font-bold text">
+                            ArthaWarga
+                        </SidebarGroupLabel>
                         <SidebarGroupContent>
                             <SidebarMenu>
                                 {items.map((item) => (
@@ -52,5 +57,3 @@ export default function Dashboard() {
         </SidebarProvider>
     );
 }
-
-
