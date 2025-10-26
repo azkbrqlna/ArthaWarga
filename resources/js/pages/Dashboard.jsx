@@ -21,7 +21,11 @@ import {
 
 // Menu items
 const items = [
-    { title: "Ringkasan", url: "#", icon: LayoutTemplate },
+    {
+        title: "Ringkasan",
+        url: "ringkasan/pemasukan-bop",
+        icon: LayoutTemplate,
+    },
     { title: "Approval", url: "#", icon: SquareCheckBig },
 ];
 
