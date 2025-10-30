@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Api\BopApiController;
+use App\Http\Controllers\Api\IuranApiController;
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
