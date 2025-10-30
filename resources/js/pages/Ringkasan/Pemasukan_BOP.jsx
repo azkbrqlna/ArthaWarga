@@ -46,11 +46,10 @@ export default function Pemasukan_BOP() {
                     <div className="relative w-full">
                         <Input
                             type="date"
-                            className="pr-10 w-full"
+                            className=" w-full"
                             value={tanggal}
                             onChange={(e) => setTanggal(e.target.value)}
                         />
-                        <CalendarDays className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
                     </div>
                 </div>
             </div>

@@ -26,9 +26,18 @@ export default function FormIuran({ tanggal }) {
     });
 
     const [preview, setPreview] = useState(null);
+    const [kategori, setKategori] = useState([]);
     const fileInputRef = useRef(null);
 
-    // update tanggal otomatis dari parent
+    // 🔹 ambil data kategori dari backend saat pertama kali mount
+    useEffect(() => {
+        fetch("/api/kategori-iuran")
+            .then((res) => res.json())
+            .then((data) => setKategori(data))
+            .catch((err) => console.error("Gagal memuat kategori:", err));
+    }, []);
+
+    // update tanggal otomatis
     useEffect(() => {
         setData("tgl", tanggal);
     }, [tanggal]);
@@ -43,18 +52,9 @@ export default function FormIuran({ tanggal }) {
         setData("total", total);
     }, [total]);
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setData("bkt_nota", file);
-            setPreview(URL.createObjectURL(file));
-        } else setPreview(null);
-    };
-
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // pastikan tanggal disinkronkan
         setData("tgl", tanggal);
 
         post(route("iuran.create"), {
@@ -64,6 +64,11 @@ export default function FormIuran({ tanggal }) {
                 reset();
                 setPreview(null);
                 if (fileInputRef.current) fileInputRef.current.value = null;
+            },
+            onError: (errors) => {
+                console.error("Error:", errors);
+                const pesan = Object.values(errors).join("\n");
+                alert("❌ Gagal menyimpan data Iuran:\n" + pesan);
             },
         });
     };
@@ -80,15 +85,20 @@ export default function FormIuran({ tanggal }) {
                         <SelectValue placeholder="Pilih jenis iuran" />
                     </SelectTrigger>
                     <SelectContent>
-                        <SelectItem value="1">Gizi</SelectItem>
-                        <SelectItem value="2">Sosial / Keamanan</SelectItem>
-                        <SelectItem value="3">Kas</SelectItem>
-                        <SelectItem value="4">Arisan</SelectItem>
-                        <SelectItem value="5">Kegiatan</SelectItem>
-                        <SelectItem value="6">
-                            Pembangunan / Perbaikan
-                        </SelectItem>
-                        <SelectItem value="7">Lingkungan</SelectItem>
+                        {kategori.length > 0 ? (
+                            kategori.map((kat) => (
+                                <SelectItem
+                                    key={kat.id}
+                                    value={kat.id.toString()}
+                                >
+                                    {kat.nm_kat}
+                                </SelectItem>
+                            ))
+                        ) : (
+                            <SelectItem disabled>
+                                Tidak ada data kategori
+                            </SelectItem>
+                        )}
                     </SelectContent>
                 </Select>
             </div>
@@ -130,7 +140,7 @@ export default function FormIuran({ tanggal }) {
             {/* Deskripsi */}
             <div className="mb-6">
                 <Label>
-                    Dekripsi <span className="text-red-500">*</span>
+                    Deskripsi <span className="text-red-500">*</span>
                 </Label>
                 <Textarea
                     placeholder="Keterangan atau deskripsi kegiatan"

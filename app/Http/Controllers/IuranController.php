@@ -38,7 +38,7 @@ class IuranController extends Controller
         foreach ($users as $user) {
             UserIuran::create([
                 'usr_id' => $user->id,
-                'masuk_iuran_id ' => $iuran->id,
+                'masuk_iuran_id' => $iuran->id,
                 'tgl' => now(),
                 'is_paid' => false,
                 'is_approved' => false

@@ -6,7 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranController;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
-use SebastianBergmann\CodeCoverage\Report\Html\Dashboard;
+use App\Models\KategoriIuran;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -19,7 +19,11 @@ Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard
 Route::get('/ringkasan/pemasukan-bop', [DashboardController::class, 'bop'])->name('bop');
 Route::get('/ringkasan/pemasukan-iuran', [DashboardController::class, 'iuran'])->name('iuran');
 
+
 Route::post('/bop/create', [BopController::class, 'bop_create'])->name('bop.create');
-Route::post('/iuran/create', [BopController::class, 'iuran_create'])->name('iuran.create');
+Route::post('/iuran/create', [IuranController::class, 'iuran_create'])->name('iuran.create');
 
 Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])->name('kat_iuran.create');
+Route::get('/api/kategori-iuran', function () {
+    return KategoriIuran::select('id', 'nm_kat')->get();
+});
