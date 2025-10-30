@@ -15,7 +15,7 @@ import {
 const items = [
     {
         title: "Ringkasan",
-        url: "ringkasan/pemasukan-bop",
+        url: "ringkasan/pemasukan",
         icon: LayoutTemplate,
     },
     { title: "Approval", url: "#", icon: SquareCheckBig },

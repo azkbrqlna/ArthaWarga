@@ -5,7 +5,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { Upload } from "lucide-react";
 import {
     Select,
     SelectContent,
@@ -14,7 +13,7 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 
-export default function FormIuran({ tanggal }) {
+export default function FormIuran({ tanggal, kategori_iuran = [] }) {
     const { data, setData, post, processing, reset } = useForm({
         kat_iuran_id: "",
         tgl: tanggal || "",
@@ -26,23 +25,14 @@ export default function FormIuran({ tanggal }) {
     });
 
     const [preview, setPreview] = useState(null);
-    const [kategori, setKategori] = useState([]);
     const fileInputRef = useRef(null);
 
-    // 🔹 ambil data kategori dari backend saat pertama kali mount
-    useEffect(() => {
-        fetch("/api/kategori-iuran")
-            .then((res) => res.json())
-            .then((data) => setKategori(data))
-            .catch((err) => console.error("Gagal memuat kategori:", err));
-    }, []);
-
-    // update tanggal otomatis
+    // Update tanggal otomatis saat berubah
     useEffect(() => {
         setData("tgl", tanggal);
     }, [tanggal]);
 
-    // kalkulasi total otomatis
+    // Hitung total otomatis
     const total =
         data.nominal && data.jml_kk
             ? parseFloat(data.nominal) * parseInt(data.jml_kk)
@@ -55,8 +45,6 @@ export default function FormIuran({ tanggal }) {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        setData("tgl", tanggal);
-
         post(route("iuran.create"), {
             forceFormData: true,
             onSuccess: () => {
@@ -66,7 +54,6 @@ export default function FormIuran({ tanggal }) {
                 if (fileInputRef.current) fileInputRef.current.value = null;
             },
             onError: (errors) => {
-                console.error("Error:", errors);
                 const pesan = Object.values(errors).join("\n");
                 alert("❌ Gagal menyimpan data Iuran:\n" + pesan);
             },
@@ -85,8 +72,8 @@ export default function FormIuran({ tanggal }) {
                         <SelectValue placeholder="Pilih jenis iuran" />
                     </SelectTrigger>
                     <SelectContent>
-                        {kategori.length > 0 ? (
-                            kategori.map((kat) => (
+                        {kategori_iuran.length > 0 ? (
+                            kategori_iuran.map((kat) => (
                                 <SelectItem
                                     key={kat.id}
                                     value={kat.id.toString()}
@@ -137,13 +124,14 @@ export default function FormIuran({ tanggal }) {
                 <Input type="number" readOnly value={total} />
             </div>
 
-            {/* Deskripsi */}
+            {/* Keterangan */}
             <div className="mb-6">
                 <Label>
-                    Deskripsi <span className="text-red-500">*</span>
+                    Deskripsi / Keterangan{" "}
+                    <span className="text-red-500">*</span>
                 </Label>
                 <Textarea
-                    placeholder="Keterangan atau deskripsi kegiatan"
+                    placeholder="Keterangan kegiatan"
                     value={data.ket}
                     onChange={(e) => setData("ket", e.target.value)}
                 />

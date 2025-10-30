@@ -14,16 +14,20 @@ class DashboardController extends Controller
         return Inertia::render('Dashboard');
     }
 
-    public function bop()
-    {
-        return Inertia::render('Ringkasan/Pemasukan_BOP');
-    }
+   public function pemasukan()
+{
+    $kategori_iuran = KategoriIuran::all();
+
+    return Inertia::render('Ringkasan/Pemasukan', [
+        'kategori_iuran' => $kategori_iuran
+    ]);
+}
 
     public function iuran()
     {
         $kategori_iuran = KategoriIuran::all();
 
-        return Inertia::render('Ringkasan/Pemasukan_Iuran',[
+        return Inertia::render('Ringkasan/FormIuran',[
             'kategori_iuran' => $kategori_iuran
         ]);
     }

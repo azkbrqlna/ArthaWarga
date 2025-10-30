@@ -17,7 +17,7 @@ import { usePage } from "@inertiajs/react";
 const items = [
     {
         title: "Ringkasan Keuangan",
-        url: "/ringkasan/pemasukan-bop",
+        url: "/ringkasan/pemasukan",
         icon: LayoutTemplate,
     },
     { title: "Approval", url: "/approval", icon: SquareCheckBig },
