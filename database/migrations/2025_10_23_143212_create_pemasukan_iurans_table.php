@@ -17,6 +17,8 @@ return new class extends Migration
             $table->date('tgl');
             $table->decimal('nominal', 12,2);
             $table->text('ket');
+            $table->integer('jml_kk');
+            $table->decimal('total', 12, 2);
             $table->timestamps();
         });
     }
