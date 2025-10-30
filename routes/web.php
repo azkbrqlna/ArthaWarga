@@ -22,3 +22,4 @@ Route::get('/ringkasan/pemasukan-iuran', [DashboardController::class, 'iuran'])-
 Route::post('/bop/create', [BopController::class, 'bop_create'])->name('bop.create');
 Route::post('/iuran/create', [BopController::class, 'iuran_create'])->name('iuran.create');
 
+Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])->name('kat_iuran.create');
