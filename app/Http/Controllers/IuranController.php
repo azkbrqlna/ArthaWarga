@@ -24,7 +24,7 @@ class IuranController extends Controller
     public function iuran_create(Request $request)
     {
         $validated = $request->validate([
-            'kat_iuran_id' => 'required|exists:kat_iuran,kat_iuran_id',
+            'kat_iuran_id' => 'required|exists:kat_iuran,id',
             'tgl' => 'required|date',
             'nominal' => 'required|numeric|min:0',
             'ket' => 'nullable|string',
