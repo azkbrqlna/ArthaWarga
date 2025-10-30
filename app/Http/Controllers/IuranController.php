@@ -10,28 +10,42 @@ use Illuminate\Http\Request;
 
 class IuranController extends Controller
 {
-    public function kat_iuran_create()
-    {
-        $validated = request()->validate([
-            'nm_kat' => 'required|string',
-        ]);
+ public function kat_iuran_create(Request $request)
+{
+    $validated = $request->validate([
+        'nm_kat' => 'required|string',
+    ]);
 
-        $kat_iuran =  KategoriIuran::create($validated);
+    $kat_iuran = KategoriIuran::create($validated);
 
-        return back()->with('success', 'Data kategori iuran berhasil disimpan.');
+    return response()->json([
+        'success' => true,
+        'message' => 'Kategori iuran berhasil disimpan.',
+        'data' => $kat_iuran,
+    ]);
+}
+
+
+
+   public function kat_iuran_delete($id)
+{
+    $kategori = KategoriIuran::find($id);
+
+    if (!$kategori) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Data kategori iuran tidak ditemukan.'
+        ], 404);
     }
 
-    public function kat_iuran_delete($id)
-    {
-        $kategori = KategoriIuran::find($id);
+    $kategori->delete();
 
-        if ($kategori) {
-            $kategori->delete();
-            return back()->with('success', 'Data kategori iuran berhasil dihapus.');
-        } else {
-            return back()->with('error', 'Data kategori iuran tidak ditemukan.');
-        }
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Data kategori iuran berhasil dihapus.'
+    ]);
+}
+
 
     public function iuran_create(Request $request)
     {

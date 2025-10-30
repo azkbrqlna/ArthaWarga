@@ -9,12 +9,11 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { usePage } from "@inertiajs/react";
-import AppLayout from "@/layouts/AppLayout";
+import AppLayout from "@/layouts/Applayout";
 import FormBOP from "./FormBOP";
 import FormIuran from "./FormIuran";
 
 export default function Pemasukan() {
-    // 🟢 ubah default state jadi "bop"
     const [jenis, setJenis] = useState("bop");
     const [tanggal, setTanggal] = useState("");
 
@@ -22,12 +21,15 @@ export default function Pemasukan() {
     const kategori_iuran = props.kategori_iuran || [];
 
     return (
-        <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden px-8 py-10 md:px-12 md:py-12">
-            <h1 className="text-3xl font-bold mb-10">TAMBAH PEMASUKAN</h1>
+        <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
+            {/* Judul */}
+            <h1 className="text-3xl font-bold mb-8">TAMBAH PEMASUKAN</h1>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 w-full">
-                <div>
-                    <Label className="mb-1 block">
+            {/* Pilihan jenis dan tanggal */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 w-full">
+                {/* Jenis Pemasukan */}
+                <div className="space-y-2">
+                    <Label>
                         Jenis Pemasukan <span className="text-red-500">*</span>
                     </Label>
                     <Select
@@ -44,8 +46,9 @@ export default function Pemasukan() {
                     </Select>
                 </div>
 
-                <div>
-                    <Label className="mb-1 block">
+                {/* Tanggal */}
+                <div className="space-y-2">
+                    <Label>
                         Tanggal <span className="text-red-500">*</span>
                     </Label>
                     <Input
@@ -57,11 +60,16 @@ export default function Pemasukan() {
                 </div>
             </div>
 
-            {/* tampilkan form sesuai jenis */}
-            {jenis === "bop" && <FormBOP tanggal={tanggal} />}
-            {jenis === "iuran" && (
-                <FormIuran tanggal={tanggal} kategori_iuran={kategori_iuran} />
-            )}
+            {/* Form dinamis */}
+            <div className="mt-6">
+                {jenis === "bop" && <FormBOP tanggal={tanggal} />}
+                {jenis === "iuran" && (
+                    <FormIuran
+                        tanggal={tanggal}
+                        kategori_iuran={kategori_iuran}
+                    />
+                )}
+            </div>
         </div>
     );
 }

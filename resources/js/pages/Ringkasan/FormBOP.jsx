@@ -45,9 +45,9 @@ export default function FormBOP({ tanggal }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="mt-8">
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
             {/* Nominal */}
-            <div className="mb-6">
+            <div className="space-y-2">
                 <Label>
                     Nominal <span className="text-red-500">*</span>
                 </Label>
@@ -60,7 +60,7 @@ export default function FormBOP({ tanggal }) {
             </div>
 
             {/* Deskripsi */}
-            <div className="mb-6">
+            <div className="space-y-2">
                 <Label>
                     Deskripsi <span className="text-red-500">*</span>
                 </Label>
@@ -71,14 +71,14 @@ export default function FormBOP({ tanggal }) {
                 />
             </div>
 
-            {/* Upload */}
-            <div className="mb-10">
+            {/* Upload Bukti */}
+            <div className="space-y-2">
                 <Label>
                     Bukti <span className="text-red-500">*</span>
                 </Label>
                 <label
                     htmlFor="bukti"
-                    className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg py-10 cursor-pointer hover:bg-gray-50"
+                    className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg py-10 cursor-pointer hover:bg-gray-50 transition-colors duration-200"
                 >
                     {preview ? (
                         <img
@@ -105,7 +105,8 @@ export default function FormBOP({ tanggal }) {
                 </label>
             </div>
 
-            <div className="flex justify-end gap-4">
+            {/* Tombol Aksi */}
+            <div className="flex justify-end gap-4 pt-2">
                 <Button
                     type="reset"
                     onClick={() => {
