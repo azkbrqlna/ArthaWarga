@@ -14,10 +14,10 @@ import FormBOP from "./FormBOP";
 import FormIuran from "./FormIuran";
 
 export default function Pemasukan() {
-    const [jenis, setJenis] = useState("");
+    // 🟢 ubah default state jadi "bop"
+    const [jenis, setJenis] = useState("bop");
     const [tanggal, setTanggal] = useState("");
 
-    // 🔹 Ambil data kategori_iuran dari Laravel (via Inertia props)
     const { props } = usePage();
     const kategori_iuran = props.kategori_iuran || [];
 
@@ -25,13 +25,15 @@ export default function Pemasukan() {
         <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden px-8 py-10 md:px-12 md:py-12">
             <h1 className="text-3xl font-bold mb-10">TAMBAH PEMASUKAN</h1>
 
-            {/* Pilihan Jenis & Tanggal */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 w-full">
                 <div>
                     <Label className="mb-1 block">
                         Jenis Pemasukan <span className="text-red-500">*</span>
                     </Label>
-                    <Select onValueChange={(val) => setJenis(val)}>
+                    <Select
+                        value={jenis}
+                        onValueChange={(val) => setJenis(val)}
+                    >
                         <SelectTrigger className="w-full">
                             <SelectValue placeholder="Pilih jenis" />
                         </SelectTrigger>
@@ -55,7 +57,7 @@ export default function Pemasukan() {
                 </div>
             </div>
 
-            {/* Tampilkan Form Sesuai Jenis */}
+            {/* tampilkan form sesuai jenis */}
             {jenis === "bop" && <FormBOP tanggal={tanggal} />}
             {jenis === "iuran" && (
                 <FormIuran tanggal={tanggal} kategori_iuran={kategori_iuran} />

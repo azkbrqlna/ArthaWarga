@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useForm } from "@inertiajs/react";
+import { useForm, router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,15 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+    DialogTrigger,
+} from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 
 export default function FormIuran({ tanggal, kategori_iuran = [] }) {
     const { data, setData, post, processing, reset } = useForm({
@@ -21,30 +30,32 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
         jml_kk: "",
         total: "",
         ket: "",
-        bkt_nota: null,
     });
 
     const [preview, setPreview] = useState(null);
     const fileInputRef = useRef(null);
 
-    // Update tanggal otomatis saat berubah
+    // state popup kategori baru
+    const [open, setOpen] = useState(false);
+    const [namaKat, setNamaKat] = useState("");
+
+    // sinkron tanggal
     useEffect(() => {
         setData("tgl", tanggal);
     }, [tanggal]);
 
-    // Hitung total otomatis
+    // hitung total otomatis
     const total =
         data.nominal && data.jml_kk
             ? parseFloat(data.nominal) * parseInt(data.jml_kk)
             : "";
-
     useEffect(() => {
         setData("total", total);
     }, [total]);
 
+    // kirim form utama
     const handleSubmit = (e) => {
         e.preventDefault();
-
         post(route("iuran.create"), {
             forceFormData: true,
             onSuccess: () => {
@@ -60,15 +71,88 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
         });
     };
 
+    // kirim kategori baru
+    const handleAddKategori = (e) => {
+        e.preventDefault();
+        router.post(
+            route("kategori.iuran.create"),
+            { nm_kat: namaKat },
+            {
+                onSuccess: () => {
+                    alert("✅ Kategori baru berhasil ditambahkan!");
+                    setNamaKat("");
+                    setOpen(false);
+                    router.reload({ only: ["kategori_iuran"] }); // refresh dropdown
+                },
+                onError: (errors) => {
+                    alert(
+                        "❌ Gagal menambah kategori:\n" +
+                            Object.values(errors).join("\n")
+                    );
+                },
+            }
+        );
+    };
+
     return (
         <form onSubmit={handleSubmit} className="mt-8">
-            {/* Jenis Iuran */}
+            {/* Jenis Iuran + tombol tambah */}
             <div className="mb-6">
-                <Label>
-                    Jenis Iuran <span className="text-red-500">*</span>
-                </Label>
+                <div className="flex items-center justify-between">
+                    <Label>
+                        Jenis Iuran <span className="text-red-500">*</span>
+                    </Label>
+                    <Dialog open={open} onOpenChange={setOpen}>
+                        <DialogTrigger asChild>
+                            <Button
+                                type="button"
+                                size="sm"
+                                className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Tambah
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Tambah Jenis Iuran</DialogTitle>
+                            </DialogHeader>
+                            <form
+                                onSubmit={handleAddKategori}
+                                className="space-y-4"
+                            >
+                                <div>
+                                    <Label>Nama Kategori</Label>
+                                    <Input
+                                        value={namaKat}
+                                        onChange={(e) =>
+                                            setNamaKat(e.target.value)
+                                        }
+                                        placeholder="Contoh: Kebersihan, Keamanan..."
+                                    />
+                                </div>
+                                <DialogFooter>
+                                    <Button
+                                        type="button"
+                                        variant="outline"
+                                        onClick={() => setOpen(false)}
+                                    >
+                                        Batal
+                                    </Button>
+                                    <Button
+                                        type="submit"
+                                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                                    >
+                                        Simpan
+                                    </Button>
+                                </DialogFooter>
+                            </form>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+
                 <Select onValueChange={(val) => setData("kat_iuran_id", val)}>
-                    <SelectTrigger className="w-full">
+                    <SelectTrigger className="w-full mt-1">
                         <SelectValue placeholder="Pilih jenis iuran" />
                     </SelectTrigger>
                     <SelectContent>
@@ -137,6 +221,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                 />
             </div>
 
+            {/* Tombol aksi */}
             <div className="flex justify-end gap-4">
                 <Button
                     type="reset"
