@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KategoriIuran;
 use App\Models\PemasukanBOP;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -20,7 +21,11 @@ class DashboardController extends Controller
 
     public function iuran()
     {
-        return Inertia::render('Ringkasan/Pemasukan_Iuran');
+        $kategori_iuran = KategoriIuran::all();
+
+        return Inertia::render('Ringkasan/Pemasukan_Iuran',[
+            'kategori_iuran' => $kategori_iuran
+        ]);
     }
 
 }

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KategoriIuran;
 use App\Models\PemasukanIuran;
 use App\Models\User;
 use App\Models\UserIuran;
@@ -9,6 +10,17 @@ use Illuminate\Http\Request;
 
 class IuranController extends Controller
 {
+    public function kategori_iuran_create()
+    {
+        $validated = request()->validate([
+            'nm_kat' => 'required|string',
+        ]);
+
+        $kat_iuran =  KategoriIuran::create($validated);
+
+        return back()->with('success', 'Data kategori iuran berhasil disimpan.');
+    }
+
     public function iuran_create(Request $request)
     {
         $validated = $request->validate([
