@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+
 import heroImage from "../assets/hero.png";
 import modelheroImage from "../assets/model_hero.png";
 import ketuaRtImage from "../assets/ketua-rt.png";
@@ -130,7 +131,7 @@ export default function Welcome() {
   ];
 
   return (
-    <div className="font-['Poppins'] text-gray-900">
+    <div className="font-['Poppins'] text-gray-900 overflow-x-hidden">
       {/* Navbar */}
       <nav
         className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
@@ -166,13 +167,13 @@ export default function Welcome() {
         <img
           src={modelheroImage}
           alt="model hero tidak ditemukan"
-          className="absolute bottom-25 left-[60%] h-[65%] z-10 object-contain"
+          className="absolute bottom-15 left-[70%] h-[75%] z-10 object-contain"
         />
 
-        <div className="max-w-7xl mx-auto px-17 relative z-20">
-          <h2 className="text-5xl font-['Poppins'] font-extrabold text-gray-900 leading-tight max-w-lg">
-            Website manajemen <br />
-            <span className="text-[#26C3A6]">keuangan</span> <br />
+        <div className="max-w-7xl mx-auto px-10 relative z-20">
+          <h2 className="text-4xl font-['Poppins'] font-extrabold text-gray-900 leading-tight max-w-lg">
+            Website Manajemen <br />
+            <span className="text-[#26C3A6]">Keuangan</span> <br />
             Rukun Tetangga
           </h2>
           <p className="font-['Poppins'] mt-6 text-lg max-w-md italic text-gray-700">
@@ -183,21 +184,29 @@ export default function Welcome() {
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="pt-100 pb-20 bg-white text-center px-6">
-        <h2 className="text-4xl font-extrabold mb-6">Tentang</h2>
-        <p className="text-lg text-gray-700 leading-relaxed max-w-4xl mx-auto">
-          Website manajemen keuangan RT ini hadir untuk membantu pengurus dan
-          warga dalam mengelola keuangan dengan lebih transparan, rapi, dan
-          mudah diakses. Dengan adanya sistem ini, setiap pemasukan dan
-          pengeluaran dapat dicatat secara digital, sehingga warga bisa ikut
-          memantau perkembangan kas RT kapan saja. Selain itu, website ini juga
-          mempermudah pembuatan laporan bulanan maupun tahunan tanpa harus
-          repot mencatat manual.
-        </p>
+      <section id="about" className="relative py-25 bg-gradient-to-r from-green-600 to-green-800 text-center px-6 overflow-hidden">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-4xl font-extrabold mb-6 text-white">
+            Tentang
+          </h2>
+          <p className="text-lg text-white leading-relaxed">
+            Website manajemen keuangan RT ini hadir untuk membantu pengurus dan
+            warga dalam mengelola keuangan dengan lebih transparan, rapi, dan
+            mudah diakses. Dengan adanya sistem ini, setiap pemasukan dan
+            pengeluaran dapat dicatat secara digital, sehingga warga bisa ikut
+            memantau perkembangan kas RT kapan saja. Selain itu, website ini juga
+            mempermudah pembuatan laporan bulanan maupun tahunan tanpa harus
+            repot mencatat manual.
+          </p>
+        </div>
       </section>
 
       {/* ROLE CARDS */}
       <section id="roles" className="bg-white px-6 md:px-16 pb-20 pt-20">
+        <h2 className="text-4xl font-extrabold text-center mb-16 
+                    bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-800">
+            Peran Pengguna
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-6xl mx-auto">
           {roles.map((r, index) => (
             <RoleCard key={index} {...r} />
@@ -207,8 +216,8 @@ export default function Welcome() {
 
 
       {/* FITUR */}
-      <section id="fitur" className="relative pt-52 pb-32 overflow-hidden">
-        <div className="absolute top-50 left-0 w-auto z-0">
+      <section id="fitur" className="relative pt-30 pb-32 overflow-hidden">
+        <div className="absolute top-25 left-0 w-auto z-0">
           <img
             src={featuresWaveBg}
             alt="Background wave hijau"
@@ -217,7 +226,7 @@ export default function Welcome() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-white">
-          <h2 className="text-black text-5xl font-extrabold text-center mb-50 -mt-24">Fitur</h2>
+          <h2 className="text-green-600 text-4xl font-extrabold text-center mb-50 -mt-24">Fitur</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
       {featuresData.map((feature, index) => (
         <div
