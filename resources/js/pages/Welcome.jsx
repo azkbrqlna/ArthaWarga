@@ -14,6 +14,7 @@ import iconCetak from "../assets/iconCetak.png";
 import iconLaporan from "../assets/iconLaporan.png";
 import iconAkses from "../assets/iconAkses.png";
 import iconNotifikasi from "../assets/iconNotifikasi.png";
+import Footer from "@/components/ui/Footer"; // ✅ Tambahkan ini
 
 // --- Komponen Role Card ---
 const RoleCard = ({ title, color, desc, image }) => (
@@ -122,12 +123,11 @@ export default function Welcome() {
       icon: iconAkses,
     },
     {
-      title: "Notifikasi Iuran Otomatis", 
+      title: "Notifikasi Iuran Otomatis",
       description:
-        "Mengirimkan pengingat (notifikasi) iuran rutin/wajib kepada warga secara otomatis. ",
+        "Mengirimkan pengingat (notifikasi) iuran rutin/wajib kepada warga secara otomatis.",
       icon: iconNotifikasi,
-    }
-    
+    },
   ];
 
   return (
@@ -213,7 +213,6 @@ export default function Welcome() {
           ))}
         </div>
       </section>
-
 
       {/* FITUR */}
       <section id="fitur" className="relative pt-30 pb-32 overflow-hidden">
