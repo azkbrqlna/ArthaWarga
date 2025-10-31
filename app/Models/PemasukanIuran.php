@@ -8,7 +8,6 @@ class PemasukanIuran extends Model
 {
     protected $table = 'masuk_iuran';
 
-    // ✅ tambahkan ini supaya field boleh diisi via create()
     protected $fillable = [
         'kat_iuran_id',
         'tgl',
@@ -16,12 +15,13 @@ class PemasukanIuran extends Model
         'ket',
         'jml_kk',
         'total',
+        'bkt_byr',
         'bkt_nota',
     ];
 
-    public function user_iuran()
+    public function pengumuman()
     {
-        return $this->hasMany(UserIuran::class);
+        return $this->belongsTo(Pengumuman::class);
     }
 
     public function kategori_iuran()
