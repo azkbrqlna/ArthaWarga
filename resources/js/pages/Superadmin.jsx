@@ -205,7 +205,7 @@ export default function Dashboard() {
 function Card({ title, value, icon: Icon }) {
     return (
         <div className="bg-white border-2 rounded-xl p-4 flex items-center gap-3 shadow-sm hover:shadow-md transition-shadow duration-200">
-            {Icon && <Icon size={24} className="text-green-500" />}
+            {Icon && <Icon size={24} className="text-black" />}
             <div>
                 <p className="text-sm text-gray-500">{title}</p>
                 <p className="text-xl font-bold mt-1">{value}</p>

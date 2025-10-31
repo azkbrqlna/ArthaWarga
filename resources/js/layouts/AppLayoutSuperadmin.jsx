@@ -90,7 +90,7 @@ export default function AppLayoutSuperadmin({ children }) {
                     </Sidebar>
 
                     {/* ✅ Bagian Profil */}
-                    <div className="border-t border-black/10 p-3">
+                    <div className="border-t border-black/100 p-3">
                         <a
                             href="/profil"
                             className="flex items-center gap-3 p-2 rounded-lg hover:bg-[#EEF2FF]/70 transition"
