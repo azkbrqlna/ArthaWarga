@@ -1,20 +1,20 @@
 import React, { useEffect, useState } from "react";
 
-import heroImage from "../assets/hero.png";
+import heroImage from "../assets/hero.svg";
 import modelheroImage from "../assets/model_hero.png";
 import ketuaRtImage from "../assets/ketua-rt.png";
 import sekretarisImage from "../assets/sekretaris.png";
 import bendaharaImage from "../assets/bendahara.png";
 import wargaImage from "../assets/warga.png";
 import cardWaveImage from "../assets/cardWave.png";
-import featuresWaveBg from "../assets/featuresWaveBg.png";
+import featuresWaveBg from "../assets/featuresWaveBg.svg";
 import iconPencatatan from "../assets/iconPencatatan.png";
 import iconDetail from "../assets/iconDetail.png";
 import iconCetak from "../assets/iconCetak.png";
 import iconLaporan from "../assets/iconLaporan.png";
 import iconAkses from "../assets/iconAkses.png";
 import iconNotifikasi from "../assets/iconNotifikasi.png";
-import Footer from "@/components/ui/Footer"; // ✅ Tambahkan ini
+import Footer from "@/components/ui/Footer"; // 
 
 // --- Komponen Role Card ---
 const RoleCard = ({ title, color, desc, image }) => (
@@ -44,7 +44,7 @@ const RoleCard = ({ title, color, desc, image }) => (
 
 // --- Komponen Feature Card ---
 const FeatureCard = ({ title, description, icon }) => (
-  <div className="p-5 md:p-6 bg-green-800 backdrop-blur-sm rounded-lg border border-white/20 shadow-xl transition-all duration-300 hover:scale-[1.02] text-white flex flex-col items-center h-full">
+  <div className="p-5 md:p-6 bg-blue-500 backdrop-blur-sm rounded-lg border border-white/20 shadow-xl transition-all duration-300 hover:scale-[1.02] text-white flex flex-col items-center h-full">
     <div className="mb-4">
       <img src={icon} alt={title} className="w-20 h-20 object-contain" />
     </div>
@@ -144,14 +144,14 @@ export default function Welcome() {
               Arthawarga
             </h1>
             <ul className="flex gap-6 text-sm font-medium uppercase">
-              <li className="hover:text-green-700 cursor-pointer">Home</li>
-              <li className="hover:text-green-700 cursor-pointer">About</li>
-              <li className="hover:text-green-700 cursor-pointer">Fitur</li>
-              <li className="hover:text-green-700 cursor-pointer">Kontak</li>
+              <li className="hover:text-blue-300 cursor-pointer">Home</li>
+              <li className="hover:text-blue-300 cursor-pointer">About</li>
+              <li className="hover:text-blue-300 cursor-pointer">Fitur</li>
+              <li className="hover:text-blue-300 cursor-pointer">Kontak</li>
             </ul>
           </div>
 
-          <button className="bg-white text-green-700 px-5 py-2 rounded-full font-semibold hover:bg-[#2e6f32] hover:text-white border border-green-700">
+          <button className="bg-white text-blue-700 px-5 py-2 rounded-full font-semibold hover:bg-[#182E6F] hover:text-white border border-blue-700">
             Login
           </button>
         </div>
@@ -184,7 +184,7 @@ export default function Welcome() {
       </section>
 
       {/* ABOUT */}
-      <section id="about" className="relative py-25 bg-gradient-to-r from-green-600 to-green-800 text-center px-6 overflow-hidden">
+      <section id="about" className="relative py-25 bg-gradient-to-r from-blue-600 to-blue-950 text-center px-6 overflow-hidden">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl font-extrabold mb-6 text-white">
             Tentang
@@ -202,9 +202,9 @@ export default function Welcome() {
       </section>
 
       {/* ROLE CARDS */}
-      <section id="roles" className="bg-white px-6 md:px-16 pb-20 pt-20">
+      <section id="roles" className="bg-white px-6 md:px-20  pb-20 pt-20">
         <h2 className="text-4xl font-extrabold text-center mb-16 
-                    bg-clip-text text-transparent bg-gradient-to-r from-green-600 to-green-800">
+                    bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-950">
             Peran Pengguna
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-6xl mx-auto">
@@ -225,7 +225,7 @@ export default function Welcome() {
         </div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-6 text-white">
-          <h2 className="text-green-600 text-4xl font-extrabold text-center mb-50 -mt-24">Fitur</h2>
+          <h2 className="text-blue-900 text-4xl font-extrabold text-center mb-50 -mt-24">Fitur</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
       {featuresData.map((feature, index) => (
         <div
@@ -239,6 +239,9 @@ export default function Welcome() {
     </div>
   </div>
 </section>
+
+      {/* FOOTER */}
+      <Footer />
     </div>
   );
 }
