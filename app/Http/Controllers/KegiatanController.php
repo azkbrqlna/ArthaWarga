@@ -25,7 +25,7 @@ class KegiatanController extends Controller
                            ->paginate($request->input('per_page', 10))
                            ->withQueryString();
 
-        return Inertia::render('Kegiatan/Index', [
+        return Inertia::render('Ringkasan/KegiatanIndex', [
             'kegiatans' => $kegiatans
         ]);
     }
@@ -37,7 +37,7 @@ class KegiatanController extends Controller
     {
         $kegiatan = Kegiatan::findOrFail($id);
 
-        return Inertia::render('Kegiatan/Show', [
+        return Inertia::render('Ringkasan/KegiatanShow', [
             'kegiatan' => $kegiatan
         ]);
     }
@@ -72,10 +72,13 @@ class KegiatanController extends Controller
         // handle dok_keg upload jika ada
         if ($request->hasFile('dok_keg')) {
             $file = $request->file('dok_keg');
+
             $extension = $file->getClientOriginalExtension();
             $filename = now()->format('Ymd_His') . '_keg.' . $extension;
+
             // simpan di storage/app/public/keg/
             $path = $file->storeAs('keg', $filename, 'public');
+
             // simpan relatif path tanpa prefix 'public/'
             $validated['dok_keg'] = $path; // e.g. 'keg/20251020_123000_keg.jpg'
         } else {
@@ -118,8 +121,11 @@ class KegiatanController extends Controller
 
             $file = $request->file('dok_keg');
             $extension = $file->getClientOriginalExtension();
+
             $filename = now()->format('Ymd_His') . '_keg.' . $extension;
+
             $path = $file->storeAs('keg', $filename, 'public');
+
             $validated['dok_keg'] = $path;
         } else {
             // jika tidak upload baru, pertahankan nilai lama

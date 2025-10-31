@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranController;
+use App\Http\Controllers\KegiatanController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -26,3 +27,6 @@ Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create
 Route::delete('/kategori-iuran/delete/{id}', [IuranController::class, 'kat_iuran_delete'])->name('kat_iuran.delete');
 // Route::post('/api/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])
 //     ->name('api.kat_iuran.create');
+
+Route::resource('kegiatan', KegiatanController::class)
+    ->only(['index','show','store','update','destroy']);
