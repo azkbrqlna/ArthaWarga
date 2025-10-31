@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/sidebar";
 import { usePage } from "@inertiajs/react";
 import { Toaster } from "sonner";
+import AIChat from "@/components/AIChat";
 
 const items = [
     {
@@ -107,6 +108,7 @@ export default function AppLayout({ children }) {
             </div>
 
             <Toaster position="top-right" richColors closeButton />
+            <AIChat />
         </SidebarProvider>
     );
 }

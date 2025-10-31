@@ -7,6 +7,14 @@ use Illuminate\Http\Request;
 
 class BopController extends Controller
 {
+    public function index()
+    {
+        return response()->json([
+            'data' => PemasukanBOP::select('tgl', 'nominal', 'ket', 'bkt_nota')
+                ->latest()
+                ->get()
+        ]);
+    }
     public function bop_create(Request $request)
     {
         $validated = $request->validate([
