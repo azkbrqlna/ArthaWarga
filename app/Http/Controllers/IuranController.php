@@ -4,8 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\KategoriIuran;
 use App\Models\PemasukanIuran;
-use App\Models\User;
-use App\Models\UserIuran;
 use Illuminate\Http\Request;
 
 class IuranController extends Controller
