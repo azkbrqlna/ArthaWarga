@@ -37,7 +37,7 @@ export default function AppLayout({ children }) {
                     </SidebarTrigger>
                 </div>
 
-                <Sidebar className="hidden md:flex flex-col w-[220px] bg-[#A1FFC2] border-r border-black/10 rounded-tr-[48px] justify-between h-full">
+                <Sidebar className="hidden md:flex flex-col w-[220px] bg-[#59B5F7] border-r border-black/10 rounded-tr-[48px] justify-between h-full">
                     <SidebarContent className="flex flex-col justify-between h-full">
                         <div>
                             <SidebarGroup>

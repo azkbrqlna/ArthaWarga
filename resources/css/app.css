@@ -121,10 +121,10 @@
 
 /* paksa background sidebar mobile (drawer) */
 [data-slot="sidebar"][data-mobile="true"] {
-    background-color: #a1ffc2 !important;
+    background-color: #59b5f7 !important;
 }
 
 /* pastikan isinya tidak transparan juga */
 [data-slot="sidebar"][data-mobile="true"] [data-sidebar="content"] {
-    background-color: #a1ffc2 !important;
+    background-color: #59b5f7 !important;
 }
