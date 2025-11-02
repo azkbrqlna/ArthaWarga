@@ -19,7 +19,7 @@ import AIChat from "@/components/AIChat";
 const items = [
     {
         title: "Ringkasan Keuangan",
-        url: "/ringkasan/pemasukan",
+        url: "/dashboard",
         icon: LayoutTemplate,
     },
     { title: "Approval", url: "/approval", icon: SquareCheckBig },
