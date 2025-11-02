@@ -4,7 +4,6 @@
         "paths": {
             "@/*": ["resources/js/*"]
         },
-        "ignoreDeprecations": "6.0"
     },
     "include": ["resources/js"]
 }

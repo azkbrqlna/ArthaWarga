@@ -30,10 +30,36 @@ export default function FormBOP({ tanggal }) {
         } else setPreview(null);
     };
 
+    const formatRupiah = (value) => {
+        if (!value) return "";
+        const numberString = value.replace(/[^,\d]/g, "");
+        const split = numberString.split(",");
+        const sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            const separator = sisa ? "." : "";
+            rupiah += separator + ribuan.join(".");
+        }
+
+        rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
+        return "Rp. " + rupiah;
+    };
+
+    const handleNominalChange = (e) => {
+        const raw = e.target.value;
+        const formatted = formatRupiah(raw);
+        setData("nominal", formatted);
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
+        // kirim nilai numerik murni tanpa "Rp" dan titik
+        const cleanNominal = data.nominal.replace(/[^0-9]/g, "");
         setData("tgl", tanggal);
         post(route("bop.create"), {
+            data: { ...data, nominal: cleanNominal },
             forceFormData: true,
             onSuccess: () => {
                 alert("✅ Data BOP berhasil disimpan!");
@@ -52,10 +78,10 @@ export default function FormBOP({ tanggal }) {
                     Nominal <span className="text-red-500">*</span>
                 </Label>
                 <Input
-                    type="number"
-                    placeholder="Rp. -"
+                    type="text"
+                    placeholder="Rp 0"
                     value={data.nominal}
-                    onChange={(e) => setData("nominal", e.target.value)}
+                    onChange={handleNominalChange}
                 />
             </div>
 

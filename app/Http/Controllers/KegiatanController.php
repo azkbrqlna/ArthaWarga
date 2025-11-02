@@ -118,4 +118,9 @@ class KegiatanController extends Controller
 
         return back()->with('success', 'Kegiatan berhasil dihapus.');
     }
+    public function create()
+{
+    return Inertia::render('Kegiatan/Tambah_kegiatan');
+
+}
 }

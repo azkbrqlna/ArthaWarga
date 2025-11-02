@@ -21,6 +21,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // 📌 Dashboard & Ringkasan
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 Route::get('/ringkasan/pemasukan', [DashboardController::class, 'pemasukan'])->name('pemasukan');
+Route::get('/tambah/kegiatan', [KegiatanController::class, 'kegiatan'])->name('kegiatan');
 
 // 📌 Aksi CRUD
 Route::get('/bop', [BopController::class, 'index']);
@@ -30,10 +31,5 @@ Route::post('/iuran/create', [IuranController::class, 'iuran_create'])->name('iu
 
 Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])->name('kat_iuran.create');
 Route::delete('/kategori-iuran/delete/{id}', [IuranController::class, 'kat_iuran_delete'])->name('kat_iuran.delete');
-<<<<<<< HEAD
 
 Route::get('/pengumuman', [DashboardController::class, 'pengumuman'])->name('pengumuman');
-=======
-Route::resource('kegiatan', KegiatanController::class)
-    ->only(['index','show','store','update','destroy']);
->>>>>>> 7ddf5a1b3cb262f171dab8b270d5eceb767ea8e9

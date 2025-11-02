@@ -43,24 +43,57 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
 
     const { notifySuccess, notifyError } = useNotify();
 
-    // sinkron tanggal
     useEffect(() => {
         setData("tgl", tanggal);
     }, [tanggal]);
 
-    // hitung total otomatis
-    const total =
-        data.nominal && data.jml_kk
-            ? parseFloat(data.nominal) * parseInt(data.jml_kk)
-            : "";
+    // helper format Rupiah
+    const formatRupiah = (value) => {
+        if (!value) return "";
+        const numberString = value.replace(/[^,\d]/g, "");
+        const split = numberString.split(",");
+        const sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+        if (ribuan) {
+            const separator = sisa ? "." : "";
+            rupiah += separator + ribuan.join(".");
+        }
+        rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
+        return "Rp " + rupiah;
+    };
+
+    const handleNominalChange = (e) => {
+        const raw = e.target.value;
+        const formatted = formatRupiah(raw);
+        setData("nominal", formatted);
+    };
+
+    const handleKKChange = (e) => {
+        const val = e.target.value.replace(/[^0-9]/g, "");
+        setData("jml_kk", val);
+    };
+
+    // total otomatis
+    const total = (() => {
+        const cleanNominal = data.nominal.replace(/[^0-9]/g, "");
+        const n = parseFloat(cleanNominal) || 0;
+        const kk = parseInt(data.jml_kk) || 0;
+        const result = n * kk;
+        return result ? formatRupiah(result.toString()) : "";
+    })();
+
     useEffect(() => {
         setData("total", total);
-    }, [total]);
+    }, [data.nominal, data.jml_kk]);
 
-    // kirim data iuran
     const handleSubmit = (e) => {
         e.preventDefault();
+        const cleanNominal = data.nominal.replace(/[^0-9]/g, "");
+        const cleanTotal = data.total.replace(/[^0-9]/g, "");
+
         post(route("iuran.create"), {
+            data: { ...data, nominal: cleanNominal, total: cleanTotal },
             forceFormData: true,
             onSuccess: () => {
                 notifySuccess("Berhasil", "Data Iuran berhasil disimpan");
@@ -80,7 +113,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
             notifyError("Input Kosong", "Nama kategori tidak boleh kosong");
             return;
         }
-
         setLoadingAdd(true);
         try {
             const res = await fetch(route("kat_iuran.create"), {
@@ -116,7 +148,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
     // hapus kategori
     const handleDeleteKategori = async () => {
         if (!selectedDelete) return;
-
         try {
             const res = await fetch(route("kat_iuran.delete", selectedDelete), {
                 method: "DELETE",
@@ -127,7 +158,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                     Accept: "application/json",
                 },
             });
-
             const dataRes = await res.json();
             if (!res.ok || !dataRes.success)
                 throw new Error(dataRes.message || "Gagal menghapus kategori");
@@ -163,14 +193,12 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                                     Tambah
                                 </Button>
                             </DialogTrigger>
-
                             <DialogContent className="space-y-4">
                                 <DialogHeader>
                                     <DialogTitle>
                                         Tambah Jenis Iuran
                                     </DialogTitle>
                                 </DialogHeader>
-
                                 <div className="space-y-2">
                                     <Label>Nama Kategori</Label>
                                     <Input
@@ -181,7 +209,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                                         placeholder="Contoh: Kebersihan, Keamanan..."
                                     />
                                 </div>
-
                                 <DialogFooter className="flex justify-end gap-3">
                                     <Button
                                         type="button"
@@ -250,10 +277,10 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                         Nominal <span className="text-red-500">*</span>
                     </Label>
                     <Input
-                        type="number"
-                        placeholder="Rp. -"
+                        type="text"
+                        placeholder="Rp 0"
                         value={data.nominal}
-                        onChange={(e) => setData("nominal", e.target.value)}
+                        onChange={handleNominalChange}
                     />
                 </div>
 
@@ -263,10 +290,10 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                         Jumlah KK <span className="text-red-500">*</span>
                     </Label>
                     <Input
-                        type="number"
+                        type="text"
                         placeholder="0"
                         value={data.jml_kk}
-                        onChange={(e) => setData("jml_kk", e.target.value)}
+                        onChange={handleKKChange}
                     />
                 </div>
 
@@ -275,7 +302,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                     <Label>
                         Total <span className="text-red-500">*</span>
                     </Label>
-                    <Input type="number" readOnly value={total} />
+                    <Input type="text" readOnly value={total} />
                 </div>
 
                 {/* Keterangan */}

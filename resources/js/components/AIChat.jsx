@@ -28,7 +28,7 @@ export default function AIChat() {
         ]);
 
         const prompt = `
-      Kamu adalah asisten analisis keuangan RT yag bernama Artho.
+      Kamu adalah asisten analisis keuangan RT yang bernama Artho.
       Berikut data pemasukan BOP: ${JSON.stringify(bopRes.data)}
       Berikut data pemasukan IURAN: ${JSON.stringify(iuranRes.data)}
       Jawablah pertanyaan ini secara singkat dan jelas:

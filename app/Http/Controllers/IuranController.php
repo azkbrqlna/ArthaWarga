@@ -25,24 +25,36 @@ class IuranController extends Controller
 
 
 
-    public function kat_iuran_delete($id)
-    {
-        $kategori = KategoriIuran::find($id);
+   public function kat_iuran_delete($id)
+{
+    $kategori = KategoriIuran::find($id);
 
-        if (!$kategori) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Data kategori iuran tidak ditemukan.'
-            ], 404);
-        }
-
-        $kategori->delete();
-
+    if (!$kategori) {
         return response()->json([
-            'success' => true,
-            'message' => 'Data kategori iuran berhasil dihapus.'
-        ]);
+            'success' => false,
+            'message' => 'Data kategori iuran tidak ditemukan.'
+        ], 404);
     }
+
+    // cek apakah kategori ini sudah dipakai di tabel pemasukan_iuran
+    $dipakai = \App\Models\PemasukanIuran::where('kat_iuran_id', $id)->exists();
+
+    if ($dipakai) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Kategori ini sudah digunakan di data iuran lain dan tidak dapat dihapus.'
+        ], 400);
+    }
+
+    // kalau aman, hapus
+    $kategori->delete();
+
+    return response()->json([
+        'success' => true,
+        'message' => 'Data kategori iuran berhasil dihapus.'
+    ]);
+}
+
 
     public function index()
     {
