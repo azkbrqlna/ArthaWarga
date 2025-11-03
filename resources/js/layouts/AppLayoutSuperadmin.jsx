@@ -12,6 +12,7 @@ import {
     SidebarMenuItem,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { WelcomeCard } from "@/components/ui/welcome-card";
 import { usePage, Link } from "@inertiajs/react";
 import { Toaster } from "sonner";
 import AIChat from "@/components/AIChat";
@@ -52,6 +53,9 @@ export default function AppLayoutSuperadmin({ children }) {
                                 <SidebarGroupLabel className="font-bold text-lg px-4 pt-4 text-black">
                                     ArthaWarga
                                 </SidebarGroupLabel>
+
+                                {/* Say Welcome */}
+                                <WelcomeCard name="Superadmin" lastUpdate="11/12/2025" />
 
                                 {/* Menu Navigasi */}
                                 <SidebarGroupContent>
