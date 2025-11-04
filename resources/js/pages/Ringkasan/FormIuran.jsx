@@ -35,18 +35,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
         ket: "",
     });
 
-    // 🧾 Form tambah kategori (dipisah dari form utama)
-    const {
-        data: dataKategori,
-        setData: setDataKategori,
-        post: postKategori,
-        processing: processingKategori,
-        reset: resetKategori,
-    } = useForm({
-        nm_kat: "",
-    });
-
-    // Kategori iuran (state tambahan)
+    // State kategori dan popup
     const [kategori, setKategori] = useState(kategori_iuran);
     const [openAdd, setOpenAdd] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
@@ -103,7 +92,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
         });
     };
 
-    // ✅ Tambah kategori iuran (pakai form kategori di atas)
+    // ✅ Tambah kategori iuran
     const handleAddKategori = async () => {
         if (!namaKat.trim()) {
             notifyError("Input Kosong", "Nama kategori tidak boleh kosong");
@@ -136,26 +125,30 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
     };
 
     // ✅ Hapus kategori iuran
-    const handleDeleteKategori = () => {
+    const handleDeleteKategori = async () => {
         if (!selectedDelete) return;
 
-        const deleteForm = useForm({});
-        deleteForm.delete(route("kat_iuran.delete", selectedDelete), {
-            preserveScroll: true,
-            onSuccess: () => {
+        try {
+            const res = await axios.delete(
+                route("kat_iuran.delete", selectedDelete)
+            );
+
+            if (res.data.success) {
                 setKategori((prev) =>
                     prev.filter((item) => item.id !== selectedDelete)
                 );
                 notifySuccess("Berhasil", "Kategori berhasil dihapus");
                 setOpenDelete(false);
-            },
-            onError: () => {
+            } else {
                 notifyError(
                     "Gagal Menghapus",
-                    "Tidak dapat menghapus kategori"
+                    res.data.message || "Tidak dapat menghapus kategori."
                 );
-            },
-        });
+            }
+        } catch (error) {
+            console.error(error);
+            notifyError("Gagal Menghapus", "Terjadi kesalahan pada server.");
+        }
     };
 
     return (
@@ -206,11 +199,8 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                                         type="button"
                                         className="bg-emerald-500 hover:bg-emerald-600 text-white"
                                         onClick={handleAddKategori}
-                                        disabled={processingKategori}
                                     >
-                                        {processingKategori
-                                            ? "Menyimpan..."
-                                            : "Simpan"}
+                                        Simpan
                                     </Button>
                                 </DialogFooter>
                             </DialogContent>
