@@ -1,6 +1,6 @@
 import AppLayoutSuperadmin from "@/layouts/AppLayoutSuperadmin";
 import React from "react";
-import { Database, Banknote, Clock, CalendarIcon } from "lucide-react";
+import { Database, Banknote, Clock, CalendarIcon, ArrowUpDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -8,7 +8,89 @@ import { format } from "date-fns";
 
 export default function Superadmin() {
     const [date, setDate] = React.useState(new Date());
-    const [open, setOpen] = React.useState(false); // kontrol popover
+    const [open, setOpen] = React.useState(false);
+    const [sortConfig, setSortConfig] = React.useState({ key: null, direction: "asc" });
+    const [data, setData] = React.useState([
+        {
+            tanggal: "07/09/2022, 06:31",
+            kategori: "Administrasi",
+            jumlahAwal: 8000,
+            jumlahDigunakan: 4000,
+            jumlahSisa: 4000,
+            status: "Pengeluaran",
+            perubahanOleh: "Ketua RT 05",
+        },
+        {
+            tanggal: "06/09/2022, 22:02",
+            kategori: "Administrasi",
+            jumlahAwal: 4000,
+            jumlahDigunakan: 4000,
+            jumlahSisa: 4000,
+            status: "Pemasukan",
+            perubahanOleh: "Sekretaris RT 04",
+        },
+        {
+            tanggal: "06/09/2022, 17:54",
+            kategori: "Administrasi",
+            jumlahAwal: 4000,
+            jumlahDigunakan: 4000,
+            jumlahSisa: 4000,
+            status: "Pemasukan",
+            perubahanOleh: "Bendahara RT 08",
+        },
+        {
+            tanggal: "06/09/2022, 14:12",
+            kategori: "Administrasi",
+            jumlahAwal: 4000,
+            jumlahDigunakan: 4000,
+            jumlahSisa: 4000,
+            status: "Pemasukan",
+            perubahanOleh: "Sekretaris RT 09",
+        },
+    ]);
+
+    // 🔽 fungsi untuk mengurutkan data
+    const handleSort = (key) => {
+        let direction = "asc";
+        if (sortConfig.key === key && sortConfig.direction === "asc") {
+            direction = "desc";
+        }
+
+        const sorted = [...data].sort((a, b) => {
+            if (typeof a[key] === "number") {
+                return direction === "asc" ? a[key] - b[key] : b[key] - a[key];
+            } else {
+                return direction === "asc"
+                    ? String(a[key]).localeCompare(String(b[key]))
+                    : String(b[key]).localeCompare(String(a[key]));
+            }
+        });
+
+        setData(sorted);
+        setSortConfig({ key, direction });
+    };
+
+    // 🔼 komponen header tabel yang bisa diklik
+    const SortableHeader = ({ label, columnKey }) => (
+        <th
+            className="cursor-pointer py-2 px-3 whitespace-nowrap select-none hover:bg-gray-100"
+            onClick={() => handleSort(columnKey)}
+        >
+            <div className="flex items-center gap-1">
+                {label}
+                <ArrowUpDown
+                    size={14}
+                    className={`${
+                        sortConfig.key === columnKey
+                            ? sortConfig.direction === "asc"
+                                ? "text-green-600 rotate-180 transition"
+                                : "text-green-600 transition"
+                            : "text-gray-400"
+                    }`}
+                />
+            </div>
+        </th>
+    );
 
     return (
         <AppLayoutSuperadmin>
@@ -18,7 +100,7 @@ export default function Superadmin() {
                         Dashboard
                     </h1>
 
-                    {/* Cards */}
+                    {/* Kartu ringkasan */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
                         <Card title="Total KK" value="8" icon={Database} />
                         <Card title="Dana BOP Sekarang" value="Rp. 6.000" icon={Banknote} />
@@ -26,12 +108,12 @@ export default function Superadmin() {
                         <Card title="Total Keseluruhan" value="Rp. 10.000" icon={Clock} />
                     </div>
 
-                    {/* Table Section */}
+                    {/* Bagian tabel */}
                     <div className="bg-white rounded-xl shadow-sm p-4 md:p-6">
                         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 mb-4">
                             <h2 className="font-semibold text-lg">Terakhir Diedit</h2>
 
-                            {/* ✅ Kalender Popover */}
+                            {/* Kalender filter */}
                             <Popover open={open} onOpenChange={setOpen}>
                                 <PopoverTrigger asChild>
                                     <Button
@@ -49,75 +131,38 @@ export default function Superadmin() {
                                         selected={date}
                                         onSelect={(selectedDate) => {
                                             setDate(selectedDate);
-                                            setOpen(false); // otomatis tutup popover
+                                            setOpen(false);
                                         }}
                                         className="rounded-lg border shadow-sm"
-                                        captionLayout="dropdown" // dropdown bulan & tahun
+                                        captionLayout="dropdown"
                                     />
                                 </PopoverContent>
                             </Popover>
                         </div>
 
-                        {/* ✅ Scrollable Table Wrapper */}
+                        {/* Tabel scrollable */}
                         <div className="overflow-x-auto -mx-4 sm:mx-0">
                             <div className="inline-block min-w-full align-middle">
                                 <table className="min-w-[700px] sm:min-w-full text-[12px] sm:text-sm">
-                                    <thead>
-                                        <tr className="bg-gray-100 text-gray-700">
-                                            <th className="text-left py-2 px-3 whitespace-nowrap">Tanggal Transaksi</th>
-                                            <th className="text-left py-2 px-3 whitespace-nowrap">Kategori</th>
-                                            <th className="text-left py-2 px-3 whitespace-nowrap">Jumlah Awal</th>
-                                            <th className="text-left py-2 px-3 whitespace-nowrap">Jumlah Digunakan</th>
-                                            <th className="text-left py-2 px-3 whitespace-nowrap">Jumlah Sisa</th>
-                                            <th className="text-left py-2 px-3 whitespace-nowrap">Status</th>
-                                            <th className="text-left py-2 px-3 whitespace-nowrap">Perubahan Oleh</th>
+                                    <thead className="bg-gray-100 text-gray-700">
+                                        <tr>
+                                            <SortableHeader label="Tanggal Transaksi" columnKey="tanggal" />
+                                            <SortableHeader label="Kategori" columnKey="kategori" />
+                                            <SortableHeader label="Jumlah Awal" columnKey="jumlahAwal" />
+                                            <SortableHeader label="Jumlah Digunakan" columnKey="jumlahDigunakan" />
+                                            <SortableHeader label="Jumlah Sisa" columnKey="jumlahSisa" />
+                                            <SortableHeader label="Status" columnKey="status" />
+                                            <SortableHeader label="Perubahan Oleh" columnKey="perubahanOleh" />
                                         </tr>
                                     </thead>
                                     <tbody>
-                                        {[
-                                            {
-                                                tanggal: "07/09/2022, 06:31",
-                                                kategori: "Administrasi",
-                                                jumlahAwal: "Rp. 4.000",
-                                                jumlahDigunakan: "Rp. 4.000",
-                                                jumlahSisa: "Rp. 4.000",
-                                                status: "Pengeluaran",
-                                                perubahanOleh: "Ketua RT 05",
-                                            },
-                                            {
-                                                tanggal: "06/09/2022, 22:02",
-                                                kategori: "Administrasi",
-                                                jumlahAwal: "Rp. 4.000",
-                                                jumlahDigunakan: "Rp. 4.000",
-                                                jumlahSisa: "Rp. 4.000",
-                                                status: "Pemasukan",
-                                                perubahanOleh: "Sekretaris RT 04",
-                                            },
-                                            {
-                                                tanggal: "06/09/2022, 17:54",
-                                                kategori: "Administrasi",
-                                                jumlahAwal: "Rp. 4.000",
-                                                jumlahDigunakan: "Rp. 4.000",
-                                                jumlahSisa: "Rp. 4.000",
-                                                status: "Pemasukan",
-                                                perubahanOleh: "Bendahara RT 08",
-                                            },
-                                            {
-                                                tanggal: "06/09/2022, 14:12",
-                                                kategori: "Administrasi",
-                                                jumlahAwal: "Rp. 4.000",
-                                                jumlahDigunakan: "Rp. 4.000",
-                                                jumlahSisa: "Rp. 4.000",
-                                                status: "Pemasukan",
-                                                perubahanOleh: "Sekretaris RT 09",
-                                            },
-                                        ].map((trx, i) => (
-                                            <tr key={i} className="border-b hover:bg-gray-50">
+                                        {data.map((trx, i) => (
+                                            <tr key={i} className="border-b hover:bg-gray-100">
                                                 <td className="py-2 px-3">{trx.tanggal}</td>
                                                 <td className="py-2 px-3">{trx.kategori}</td>
-                                                <td className="py-2 px-3">{trx.jumlahAwal}</td>
-                                                <td className="py-2 px-3">{trx.jumlahDigunakan}</td>
-                                                <td className="py-2 px-3">{trx.jumlahSisa}</td>
+                                                <td className="py-2 px-3">Rp. {trx.jumlahAwal}</td>
+                                                <td className="py-2 px-3">Rp. {trx.jumlahDigunakan}</td>
+                                                <td className="py-2 px-3">Rp. {trx.jumlahSisa}</td>
                                                 <td className="py-2 px-3">
                                                     <span
                                                         className={`px-3 py-1 rounded-lg text-xs sm:text-sm font-medium ${
@@ -137,24 +182,10 @@ export default function Superadmin() {
                             </div>
                         </div>
 
-                        {/* Scroll hint */}
+                        {/* Hint mobile */}
                         <p className="text-gray-400 text-xs mt-2 sm:hidden text-center">
                             Geser tabel ke kanan untuk melihat kolom lainnya →
                         </p>
-
-                        {/* Pagination Dummy */}
-                        <div className="flex justify-end mt-4 gap-2">
-                            {[1, 2, 3, 4, 5].map((n) => (
-                                <button
-                                    key={n}
-                                    className={`px-3 py-1 rounded ${
-                                        n === 1 ? "bg-green-200" : "hover:bg-gray-200"
-                                    }`}
-                                >
-                                    {n}
-                                </button>
-                            ))}
-                        </div>
                     </div>
                 </main>
             </div>
