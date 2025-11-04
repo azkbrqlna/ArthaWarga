@@ -71,7 +71,7 @@ export default function TambahKegiatan() {
                 <Breadcrumbs
                     items={[
                         { label: "Dashboard", href: route("dashboard") },
-                        { label: "Tambah Pemasukan" },
+                        { label: "Tambah Kegiatan" },
                     ]}
                 />
                 <form onSubmit={handleSubmit} className="space-y-6">

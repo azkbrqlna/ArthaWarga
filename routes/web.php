@@ -40,3 +40,4 @@ Route::post('/pengumuman/create', [IuranController::class, 'pengumuman_create'])
 
 Route::get('/ringkasan/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
 Route::post('/pengeluaran', [PengeluaranController::class, 'pengeluaran'])->name('pengeluaran.store');
+Route::get('/rincian/{id}', [DashboardController::class, 'rincian'])->name('rincian.show');

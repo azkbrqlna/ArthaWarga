@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useState } from "react";
 import { useForm } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import { Input } from "@/components/ui/input";
@@ -7,111 +7,151 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useNotify } from "@/components/ToastNotification";
 import AppLayout from "@/layouts/AppLayout";
+import axios from "axios";
 
-export default function Pengumuman({ kategori_iuran }) {
+export default function Pengumuman({ kategori_iuran = [] }) {
     const { notifySuccess, notifyError } = useNotify();
-    const { data, setData, post, processing, reset, errors } = useForm({
+    const { data, setData, reset } = useForm({
         judul: "",
         ket: "",
         kat_iuran_id: "",
     });
 
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
 
-        post(route("pengumuman.create"), {
-            onSuccess: () => {
-                notifySuccess("Berhasil", "Pengumuman berhasil dibuat!");
-                reset();
-            },
-            onError: (err) => {
-                notifyError("Gagal Menyimpan", "Periksa kembali inputanmu!");
-                console.error(err);
-            },
-        });
+        // 🔸 validasi manual biar lebih ramah pengguna
+        if (!data.judul.trim()) {
+            notifyError(
+                "Judul kosong",
+                "Masukkan judul pengumuman terlebih dahulu."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.ket.trim()) {
+            notifyError(
+                "Keterangan kosong",
+                "Tuliskan isi pengumuman dengan jelas."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.kat_iuran_id) {
+            notifyError(
+                "Kategori belum dipilih",
+                "Pilih kategori iuran yang sesuai."
+            );
+            setIsLoading(false);
+            return;
+        }
+
+        try {
+            await axios.post(route("pengumuman.create"), data);
+
+            notifySuccess("Berhasil", "Pengumuman berhasil dibuat!");
+            reset();
+        } catch (error) {
+            console.error(error);
+            let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";
+            if (error.response) {
+                switch (error.response.status) {
+                    case 422:
+                        pesan = "Periksa kembali data yang kamu isi.";
+                        break;
+                    case 500:
+                        pesan =
+                            "Server sedang bermasalah. Coba beberapa saat lagi.";
+                        break;
+                    default:
+                        pesan = error.response.data?.message || pesan;
+                }
+            }
+            notifyError("Gagal Menyimpan", pesan);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
         <AppLayout>
-            <form
-                onSubmit={handleSubmit}
-                className="mt-8 space-y-6 max-w-xl mx-auto"
-            >
-                {/* Judul */}
-                <div className="space-y-2">
-                    <Label>
-                        Judul Pengumuman <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                        type="text"
-                        placeholder="Contoh: Iuran Kebersihan Bulan November"
-                        value={data.judul}
-                        onChange={(e) => setData("judul", e.target.value)}
-                    />
-                    {errors.judul && (
-                        <p className="text-red-500 text-sm">{errors.judul}</p>
-                    )}
-                </div>
+            <div className="p-8 max-w-5xl mx-auto">
+                <h1 className="text-2xl font-bold text-gray-800 mb-8">
+                    Buat Pengumuman Iuran
+                </h1>
 
-                {/* Keterangan */}
-                <div className="space-y-2">
-                    <Label>
-                        Keterangan <span className="text-red-500">*</span>
-                    </Label>
-                    <Textarea
-                        placeholder="Tuliskan detail pembayaran atau informasi tambahan"
-                        value={data.ket}
-                        onChange={(e) => setData("ket", e.target.value)}
-                    />
-                    {errors.ket && (
-                        <p className="text-red-500 text-sm">{errors.ket}</p>
-                    )}
-                </div>
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Judul */}
+                    <div className="space-y-2">
+                        <Label>
+                            Judul Pengumuman{" "}
+                            <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            type="text"
+                            placeholder="Contoh: Iuran Kebersihan Bulan November"
+                            value={data.judul}
+                            onChange={(e) => setData("judul", e.target.value)}
+                        />
+                    </div>
 
-                {/* Kategori Iuran */}
-                <div className="space-y-2">
-                    <Label>
-                        Kategori Iuran <span className="text-red-500">*</span>
-                    </Label>
-                    <select
-                        value={data.kat_iuran_id}
-                        onChange={(e) =>
-                            setData("kat_iuran_id", e.target.value)
-                        }
-                        className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-300 focus:border-emerald-400"
-                    >
-                        <option value="">Pilih Kategori Iuran</option>
-                        {kategori_iuran.map((kat) => (
-                            <option key={kat.id} value={kat.id}>
-                                {kat.nm_kat}
-                            </option>
-                        ))}
-                    </select>
-                    {errors.kat_iuran_id && (
-                        <p className="text-red-500 text-sm">
-                            {errors.kat_iuran_id}
-                        </p>
-                    )}
-                </div>
+                    {/* Keterangan */}
+                    <div className="space-y-2">
+                        <Label>
+                            Isi / Keterangan{" "}
+                            <span className="text-red-500">*</span>
+                        </Label>
+                        <Textarea
+                            placeholder="Tuliskan detail pengumuman atau informasi tambahan..."
+                            value={data.ket}
+                            onChange={(e) => setData("ket", e.target.value)}
+                        />
+                    </div>
 
-                {/* Tombol Aksi */}
-                <div className="flex justify-end gap-4 pt-2">
-                    <Button
-                        type="reset"
-                        onClick={() => reset()}
-                        className="bg-gray-500 hover:bg-gray-600 text-white"
-                    >
-                        Batal
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={processing}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                    >
-                        {processing ? "Menyimpan..." : "Kirim"}
-                    </Button>
-                </div>
-            </form>
+                    {/* Kategori */}
+                    <div className="space-y-2">
+                        <Label>
+                            Kategori Iuran{" "}
+                            <span className="text-red-500">*</span>
+                        </Label>
+                        <select
+                            value={data.kat_iuran_id}
+                            onChange={(e) =>
+                                setData("kat_iuran_id", e.target.value)
+                            }
+                            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-emerald-400"
+                        >
+                            <option value="">Pilih kategori</option>
+                            {kategori_iuran.map((kat) => (
+                                <option key={kat.id} value={kat.id}>
+                                    {kat.nm_kat}
+                                </option>
+                            ))}
+                        </select>
+                    </div>
+
+                    {/* Tombol Aksi */}
+                    <div className="flex justify-end gap-4 pt-2">
+                        <Button
+                            type="reset"
+                            onClick={() => reset()}
+                            className="bg-gray-500 hover:bg-gray-600 text-white"
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                        >
+                            {isLoading ? "Menyimpan..." : "Kirim Pengumuman"}
+                        </Button>
+                    </div>
+                </form>
+            </div>
         </AppLayout>
     );
 }
