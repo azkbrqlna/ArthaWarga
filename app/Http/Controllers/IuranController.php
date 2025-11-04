@@ -116,7 +116,7 @@ class IuranController extends Controller
 
         foreach ($users as $user) {
             PemasukanIuran::create([
-                'usr_id' => Auth::check() ? Auth::user()->id : null,
+                'usr_id' => $user->id,
                 'kat_iuran_id' => $validated['kat_iuran_id'],
                 'pengumuman_id' => $pengumuman->id,
                 'tgl' => now(),

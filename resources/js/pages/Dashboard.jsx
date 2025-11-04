@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 export default function Dashboard() {
     return (
         <AppLayout>
+            
             <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full bg-white pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
                 <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
                     <span className="font-bold text-gray-900">ArthaWarga</span>{" "}

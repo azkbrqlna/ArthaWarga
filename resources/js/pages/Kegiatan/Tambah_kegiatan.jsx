@@ -15,6 +15,7 @@ import {
 import { Upload } from "lucide-react";
 import AppLayout from "@/layouts/AppLayout";
 import { useNotify } from "@/components/ToastNotification";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function TambahKegiatan() {
     const { notifySuccess, notifyError } = useNotify();
@@ -67,7 +68,12 @@ export default function TambahKegiatan() {
         <AppLayout>
             <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
                 <h1 className="text-3xl font-bold mb-10">TAMBAH KEGIATAN</h1>
-
+                <Breadcrumbs
+                    items={[
+                        { label: "Dashboard", href: route("dashboard") },
+                        { label: "Tambah Pemasukan" },
+                    ]}
+                />
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Nama & Tanggal */}
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -217,7 +223,7 @@ export default function TambahKegiatan() {
                             disabled={processing}
                             className="bg-blue-500 hover:bg-blue-600 text-white px-6"
                         >
-                            {processing ? "Menyimpan..." : "Berikutnya"}
+                            {processing ? "Menyimpan..." : "Simpan"}
                         </Button>
                     </div>
                 </form>
