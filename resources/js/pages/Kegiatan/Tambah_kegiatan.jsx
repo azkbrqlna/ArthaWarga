@@ -223,7 +223,7 @@ export default function TambahKegiatan() {
                             disabled={processing}
                             className="bg-blue-500 hover:bg-blue-600 text-white px-6"
                         >
-                            {processing ? "Menyimpan..." : "Berikutnya"}
+                            {processing ? "Menyimpan..." : "Simpan"}
                         </Button>
                     </div>
                 </form>

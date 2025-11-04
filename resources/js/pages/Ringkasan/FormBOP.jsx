@@ -163,7 +163,7 @@ export default function FormBOP({ tanggal }) {
                     disabled={processing}
                     className="bg-emerald-500 hover:bg-emerald-600 text-white"
                 >
-                    {processing ? "Menyimpan..." : "Simpan"}
+                    {processing ? "Menyimpan..." : "Tambah Pemasukan"}
                 </Button>
             </div>
         </form>

@@ -154,7 +154,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
 
     return (
         <>
-            
             <form onSubmit={handleSubmit} className="mt-8 space-y-6">
                 {/* Jenis Iuran */}
                 <div className="space-y-2">
@@ -289,7 +288,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                         disabled={form.processing}
                         className="bg-emerald-500 hover:bg-emerald-600 text-white"
                     >
-                        {form.processing ? "Menyimpan..." : "Simpan"}
+                        {form.processing ? "Menyimpan..." : "Tambah Pemasukan"}
                     </Button>
                 </div>
             </form>
