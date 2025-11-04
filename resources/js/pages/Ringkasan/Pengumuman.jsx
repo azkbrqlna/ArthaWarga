@@ -1,69 +1,86 @@
-import React, { useState } from "react";
-import { useForm, router } from "@inertiajs/react";
+import React, { useEffect } from "react";
+import { useForm } from "@inertiajs/react";
+import { route } from "ziggy-js";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { useNotify } from "@/components/ToastNotification";
+import AppLayout from "@/layouts/AppLayout";
 
 export default function Pengumuman({ kategori_iuran }) {
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { notifySuccess, notifyError } = useNotify();
+    const { data, setData, post, processing, reset, errors } = useForm({
         judul: "",
         ket: "",
         kat_iuran_id: "",
     });
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
+
         post(route("pengumuman.create"), {
             onSuccess: () => {
-                alert("✅ Pengumuman berhasil dibuat!");
+                notifySuccess("Berhasil", "Pengumuman berhasil dibuat!");
                 reset();
+            },
+            onError: (err) => {
+                notifyError("Gagal Menyimpan", "Periksa kembali inputanmu!");
+                console.error(err);
             },
         });
     };
 
     return (
-        <div className="max-w-xl mx-auto mt-10 bg-white p-6 rounded-xl shadow-md">
-            <h1 className="text-2xl font-bold mb-4 text-gray-800">
-                Buat Pengumuman Iuran
-            </h1>
-
-            <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                    <label className="block font-medium mb-1">Judul</label>
-                    <input
+        <AppLayout>
+            <form
+                onSubmit={handleSubmit}
+                className="mt-8 space-y-6 max-w-xl mx-auto"
+            >
+                {/* Judul */}
+                <div className="space-y-2">
+                    <Label>
+                        Judul Pengumuman <span className="text-red-500">*</span>
+                    </Label>
+                    <Input
                         type="text"
+                        placeholder="Contoh: Iuran Kebersihan Bulan November"
                         value={data.judul}
                         onChange={(e) => setData("judul", e.target.value)}
-                        className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
-                        placeholder="Contoh: Iuran Kebersihan Bulan November"
                     />
                     {errors.judul && (
                         <p className="text-red-500 text-sm">{errors.judul}</p>
                     )}
                 </div>
 
-                <div>
-                    <label className="block font-medium mb-1">Keterangan</label>
-                    <textarea
+                {/* Keterangan */}
+                <div className="space-y-2">
+                    <Label>
+                        Keterangan <span className="text-red-500">*</span>
+                    </Label>
+                    <Textarea
+                        placeholder="Tuliskan detail pembayaran atau informasi tambahan"
                         value={data.ket}
                         onChange={(e) => setData("ket", e.target.value)}
-                        className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
-                        placeholder="Tuliskan detail pembayaran..."
-                    ></textarea>
+                    />
                     {errors.ket && (
                         <p className="text-red-500 text-sm">{errors.ket}</p>
                     )}
                 </div>
 
-                <div>
-                    <label className="block font-medium mb-1">
-                        Kategori Iuran
-                    </label>
+                {/* Kategori Iuran */}
+                <div className="space-y-2">
+                    <Label>
+                        Kategori Iuran <span className="text-red-500">*</span>
+                    </Label>
                     <select
                         value={data.kat_iuran_id}
                         onChange={(e) =>
                             setData("kat_iuran_id", e.target.value)
                         }
-                        className="w-full border rounded-lg px-3 py-2 focus:ring focus:ring-blue-200"
+                        className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-emerald-300 focus:border-emerald-400"
                     >
-                        <option value="">-- Pilih Kategori Iuran --</option>
+                        <option value="">Pilih Kategori Iuran</option>
                         {kategori_iuran.map((kat) => (
                             <option key={kat.id} value={kat.id}>
                                 {kat.nm_kat}
@@ -77,16 +94,24 @@ export default function Pengumuman({ kategori_iuran }) {
                     )}
                 </div>
 
-                <div className="flex justify-end">
-                    <button
+                {/* Tombol Aksi */}
+                <div className="flex justify-end gap-4 pt-2">
+                    <Button
+                        type="reset"
+                        onClick={() => reset()}
+                        className="bg-gray-500 hover:bg-gray-600 text-white"
+                    >
+                        Batal
+                    </Button>
+                    <Button
                         type="submit"
                         disabled={processing}
-                        className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition"
+                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
                     >
-                        {processing ? "Menyimpan..." : "Simpan Pengumuman"}
-                    </button>
+                        {processing ? "Menyimpan..." : "Kirim"}
+                    </Button>
                 </div>
             </form>
-        </div>
+        </AppLayout>
     );
 }
