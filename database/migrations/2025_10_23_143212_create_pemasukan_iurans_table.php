@@ -13,9 +13,9 @@ return new class extends Migration
     {
         Schema::create('masuk_iuran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('usr_id')->constrained('usr')->cascadeOnDelete()->nullable();
-            $table->foreignId('pengumuman_id')->constrained('pengumuman')->cascadeOnDelete()->nullable();
-            $table->foreignId('kat_iuran_id')->constrained('kat_iuran')->cascadeOnDelete()->nullable();
+            $table->foreignId('usr_id')->nullable()->constrained('usr')->cascadeOnDelete();
+            $table->foreignId('pengumuman_id')->nullable()->constrained('pengumuman')->cascadeOnDelete();
+            $table->foreignId('kat_iuran_id')->nullable()->constrained('kat_iuran')->cascadeOnDelete();
             $table->date('tgl');
             $table->decimal('nominal', 12,2)->nullable();
             $table->string('ket')->nullable();

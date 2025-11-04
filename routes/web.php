@@ -14,6 +14,8 @@ Route::get('/', function () {
     return Inertia::render('Welcome');
 });
 
+
+
 Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
@@ -33,4 +35,4 @@ Route::post('/iuran/create', [IuranController::class, 'iuran_create'])->name('iu
 Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])->name('kat_iuran.create');
 Route::delete('/kategori-iuran/{id}', [IuranController::class, 'kat_iuran_delete'])->name('kat_iuran.delete');
 Route::get('/pengumuman', [DashboardController::class, 'pengumuman'])->name('pengumuman');
-Route::post('/pengumuman/create', [DashboardController::class, 'pengumuman_create'])->name('pengumuman.create');
+Route::post('/pengumuman/create', [IuranController::class, 'pengumuman_create'])->name('pengumuman.create');

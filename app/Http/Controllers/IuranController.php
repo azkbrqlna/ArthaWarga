@@ -7,6 +7,7 @@ use App\Models\PemasukanIuran;
 use App\Models\Pengumuman;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class IuranController extends Controller
 {
@@ -75,15 +76,16 @@ class IuranController extends Controller
      * Simpan data iuran baru
      */
     public function iuran_create(Request $request)
-{
-    $validated = $request->validate([
-        'kat_iuran_id' => 'required|exists:kat_iuran,id',
-        'tgl' => 'required|date',
-        'nominal' => 'required|numeric|min:0',
-        'ket' => 'nullable|string',
-    ]);
+    {
+        $validated = $request->validate([
+            'kat_iuran_id' => 'required|exists:kat_iuran,id',
+            'tgl' => 'required|date',
+            'nominal' => 'required|numeric|min:0',
+            'ket' => 'nullable|string',
+        ]);
 
         $iuran = PemasukanIuran::create([
+            'usr_id' => Auth::user()->id,
             'kat_iuran_id' => $validated['kat_iuran_id'],
             'tgl' => $validated['tgl'],
             'nominal' => $validated['nominal'],
@@ -93,12 +95,8 @@ class IuranController extends Controller
        
         return back()->with('success', 'Data iuran berhasil disimpan.');
     }
-}
 
-
-    /**
-     * Buat pengumuman dan generate tagihan otomatis
-     */
+    
     public function pengumuman_create(Request $request)
     {
         $validated = $request->validate([
@@ -128,4 +126,5 @@ class IuranController extends Controller
 
         return back()->with('success', 'Pengumuman berhasil dibuat dan tagihan dikirim ke semua warga.');
     }
+    
 }

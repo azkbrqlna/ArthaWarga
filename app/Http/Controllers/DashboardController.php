@@ -33,19 +33,4 @@ class DashboardController extends Controller
         ]);
     }
 
-    /**
-     * Simpan data pengumuman baru
-     */
-    public function pengumuman_create(Request $request)
-    {
-        $validated = $request->validate([
-            'judul' => 'required|string|max:255',
-            'ket' => 'required|string',
-            'kat_iuran_id' => 'required|integer|exists:kat_iuran,id',
-        ]);
-
-        Pengumuman::create($validated);
-
-        return redirect()->back()->with('success', 'Pengumuman berhasil dibuat!');
-    }
 }
