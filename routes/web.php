@@ -7,6 +7,7 @@ use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranController;
 use App\Http\Controllers\KegiatanController;
+use App\Http\Controllers\PengeluaranController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -36,3 +37,6 @@ Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create
 Route::delete('/kategori-iuran/{id}', [IuranController::class, 'kat_iuran_delete'])->name('kat_iuran.delete');
 Route::get('/pengumuman', [DashboardController::class, 'pengumuman'])->name('pengumuman');
 Route::post('/pengumuman/create', [IuranController::class, 'pengumuman_create'])->name('pengumuman.create');
+
+Route::get('/ringkasan/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
+Route::post('/pengeluaran', [PengeluaranController::class, 'pengeluaran'])->name('pengeluaran.store');
