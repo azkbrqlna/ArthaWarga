@@ -11,13 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('role_rsc', function (Blueprint $table) {
+        Schema::create('pengumuman', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('role_id')->constrained('role')->cascadeOnDelete();
-            $table->boolean('can_add')->default(false);
-            $table->boolean('can_edit')->default(false);
-            $table->boolean('can_delete')->default(false);
-            $table->boolean('can_download')->default(false);
+            $table->string('judul');
+            $table->string('ket');
+            $table->foreignId('kat_iuran_id')->constrained('kat_iuran')->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('role_rsc');
+        Schema::dropIfExists('pengumuman');
     }
 };
