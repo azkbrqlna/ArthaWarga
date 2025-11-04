@@ -85,7 +85,6 @@ class IuranController extends Controller
         ]);
 
         $iuran = PemasukanIuran::create([
-            'usr_id' => Auth::user()->id,
             'kat_iuran_id' => $validated['kat_iuran_id'],
             'tgl' => $validated['tgl'],
             'nominal' => $validated['nominal'],
@@ -111,6 +110,7 @@ class IuranController extends Controller
             'kat_iuran_id' => $validated['kat_iuran_id'],
         ]);
 
+        // $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
         // $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
         $users = User::all();
 
