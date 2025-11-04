@@ -88,7 +88,7 @@ export default function Welcome() {
             setMenuOpen(false); // Tutup menu mobile setelah klik
         }
     }, []);
-    // ------------------------------------------
+    
 
     const roles = [
         {
@@ -131,50 +131,55 @@ export default function Welcome() {
 
             {/* NAVBAR (MODIFIKASI LINK) */}
             <nav className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-                isScrolled ? "bg-white shadow-md py-4" : "bg-transparent py-6"
+              // Hapus kelas 'bg-transparent py-6' di sini untuk kontrol warna yang lebih baik di mobile/desktop
+              isScrolled ? "bg-white shadow-md py-4" : "bg-transparent py-6"
             }`}>
-                <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 md:px-10">
+              <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 md:px-10">
 
-                    <h1 className={`text-lg sm:text-xl font-bold uppercase border-r pr-4 sm:pr-5 transition-colors duration-300 ${
-                        isScrolled ? "text-gray-900 border-gray-400" : "text-white border-white/70"
-                    }`}>
-                        Arthawarga
-                    </h1>
+                {/* LOGO ARTHAWARGA (MODIFIKASI KRUSIAL PADA WARNA) */}
+                <h1 className={`text-lg sm:text-xl font-bold uppercase border-r pr-4 sm:pr-5 transition-colors duration-300 ${
+                    isScrolled ? "text-gray-900 border-gray-400" : "text-gray-900 border-transparent md:border-white/70"
+                }`}>
+                    Arthawarga
+                </h1>
 
-                    <ul className="hidden md:flex gap-6 text-sm font-medium uppercase">
-                        <li 
-                            className="hover:text-blue-600 cursor-pointer"
-                            onClick={(e) => handleSmoothScroll(e, 'home')} // Mengubah link
-                        >
-                            Home
-                        </li>
-                        <li 
-                            className="hover:text-blue-600 cursor-pointer"
-                            onClick={(e) => handleSmoothScroll(e, 'about')} // Mengubah link
-                        >
-                            About
-                        </li>
-                        <li 
-                            className="hover:text-blue-600 cursor-pointer"
-                            onClick={(e) => handleSmoothScroll(e, 'fitur')} // Mengubah link
-                        >
-                            Fitur
-                        </li>                      
-                    </ul>
-
-                    <button className="hidden md:block bg-white text-blue-700 px-5 py-2 rounded-full font-semibold hover:bg-blue-700 hover:text-white border border-blue-700">
-                        Login
-                    </button>
-
-                    {/* Tombol Burger Hitam (Tidak Berubah) */}
-                    <button
-                        className="md:hidden text-3xl text-black"
-                        onClick={() => setMenuOpen(!menuOpen)}
+                {/* MENU DESKTOP (MODIFIKASI WARNA) */}
+                <ul className="hidden md:flex gap-6 text-sm font-medium uppercase">
+                    {/* Menggunakan ternary operator untuk warna teks berdasarkan scroll */}
+                    <li 
+                        className={`cursor-pointer hover:text-blue-600 ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`}
+                        onClick={(e) => handleSmoothScroll(e, 'home')}
                     >
-                        ☰
-                    </button>
+                        Home
+                    </li>
+                    <li 
+                        className={`cursor-pointer hover:text-blue-600 ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`}
+                        onClick={(e) => handleSmoothScroll(e, 'about')}
+                    >
+                        About
+                    </li>
+                    <li 
+                        className={`cursor-pointer hover:text-blue-600 ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`}
+                        onClick={(e) => handleSmoothScroll(e, 'fitur')}
+                    >
+                        Fitur
+                    </li>                    
+                </ul>
 
-                </div>
+                {/* LOGIN BUTTON (Tidak Berubah) */}
+                <button className="hidden md:block bg-white text-blue-700 px-5 py-2 rounded-full font-semibold hover:bg-blue-700 hover:text-white border border-blue-700">
+                    Login
+                </button>
+
+                {/* Tombol Burger Hitam (MODIFIKASI WARNA) */}
+                <button
+                    className={`md:hidden text-3xl transition-colors duration-300 ${isScrolled ? 'text-gray-900' : 'text-gray-900'}`}
+                    onClick={() => setMenuOpen(!menuOpen)}
+                >
+                    ☰
+                </button>
+
+    </div>
 
                 {/* Menu Mobile (MODIFIKASI LINK) */}
                 {menuOpen && (
@@ -224,7 +229,7 @@ export default function Welcome() {
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7 }}
                         viewport={{ once: true }}
-                        className="text-center md:text-left md:w-1/2 mt-10 md:mt-0"
+                        className="text-center md:text-left w-full md:w-1/2 max-w-lg mx-auto md:mx-0 mt-10 md:mt-0"
                     >
                         <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight">
                             Website Manajemen <br />
@@ -236,6 +241,7 @@ export default function Welcome() {
                         </p>
                     </motion.div>
 
+                    {/* MODIFIKASI GAMBAR MODEL HERO: Menambahkan mx-auto dan memastikan w-full di mobile */}
                     <motion.img
                         initial={{ opacity: 0, x: 50 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -243,14 +249,15 @@ export default function Welcome() {
                         viewport={{ once: true }}
                         src={modelheroImage}
                         alt="Model Hero"
-                        className="relative w-[70%] sm:w-[60%] md:w-[85%] max-w-md object-contain z-10"
+                        // Memastikan gambar mengambil lebar penuh di mobile, dibatasi max-w-xs, dan selalu di tengah
+                        className="relative w-full max-w-xs md:max-w-md object-contain z-10 mx-auto mt-10 translate-x-20"
                     />
                 </div>
 
                 <img
                     src={heroImage}
                     alt="Hero background"
-                    className="absolute top-0 right-0 w-full md:w-[75%] object-cover z-0"
+                    className="absolute top-0 right-0 w-full h-[800px] md:h-full md:w-[75%] object-cover object-top z-0"
                 />
             </section>
 
@@ -263,12 +270,15 @@ export default function Welcome() {
                     viewport={{ once: true }}
                     className="max-w-4xl mx-auto"
                 >
-                    <h2 className="text-2xl sm:text-3xl md:text-4xl font-extrabold mb-6 text-white">
+                    <h2 className="text-4xl sm:text-3xl md:text-4xl font-extrabold mb-6 text-white">
                         Tentang
                     </h2>
                     <p className="text-sm sm:text-base md:text-lg text-white leading-relaxed">
-                        Website manajemen keuangan RT ini membantu pengurus dan warga mengelola
-                        keuangan dengan lebih transparan dan efisien.
+                        Website manajemen keuangan RT ini hadir untuk membantu pengurus dan warga dalam 
+                        mengelola keuangan dengan lebih transparan, rapi, dan mudah diakses. Dengan adanya 
+                        sistem ini, setiap pemasukan dan pengeluaran dapat dicatat secara digital, sehingga warga 
+                        bisa ikut memantau perkembangan kas RT kapan saja. Selain itu, 
+                        website ini juga mempermudah pembuatan laporan bulanan maupun tahunan tanpa harus repot mencatat manual.
                     </p>
                 </motion.div>
             </section>
@@ -288,29 +298,27 @@ export default function Welcome() {
 
 
             {/* FITUR (ID SUDAH ADA: id="fitur") */}
-            <section id="fitur" className="relative pt-52 pb-40 bg-white overflow-visible">
-                {/* Wave background */}
-                <div className="absolute top-[120px] left-0 w-full z-0">
+            <section id="fitur" className="relative pt-40 md:pt-10 pb-40 bg-white overflow-visible">
+                <div className="absolute top-[70px] md:top-[50px] left-0 w-full z-0 h-full">
                     <img
                         src={featuresWaveBg}
                         alt="Background wave"
-                        className="w-full h-auto object-cover object-top scale-105"
+                        className="w-full h-full object-cover object-top"
                     />
                 </div>
 
-                {/* Konten fitur */}
-                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-10 -mt-24">
+                <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
                     <motion.h2
                         initial={{ opacity: 0, y: 40 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.7 }}
                         viewport={{ once: true }}
-                        className="text-blue-900 text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-16"
+                        className="text-blue-900 text-4xl sm:text-4xl md:text-5xl font-extrabold text-center mb-16"
                     >
                         Fitur
                     </motion.h2>
 
-                    <div className="bg-blue-900 rounded-3xl px-8 py-14 shadow-xl">
+                    <div className= "px-8 py-14 ">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
                             {featuresData.map((f, i) => (
                                 <FeatureCard key={i} {...f} />
@@ -318,7 +326,7 @@ export default function Welcome() {
                         </div>
                     </div>
                 </div>
-                </section>
+            </section>
                 <Footer />
             
         </div>
