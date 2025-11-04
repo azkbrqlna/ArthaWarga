@@ -12,7 +12,7 @@ export default function Superadmin() {
 
     return (
         <AppLayoutSuperadmin>
-            <div className="flex flex-col min-h-screen bg-white">
+            <div className="flex flex-col min-h-screen px-10 bg-white">
                 <main className="flex-1 p-3 sm:p-4 md:p-8 space-y-6 w-full">
                     <h1 className="text-2xl md:text-3xl font-bold border-b-2 border-gray-200 py-3 md:py-5 text-shadow-lg">
                         Dashboard

@@ -12,6 +12,7 @@ import {
     SidebarMenuItem,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
+import { WelcomeCard } from "@/components/ui/welcome-card";
 import { usePage, Link } from "@inertiajs/react";
 import { Toaster } from "sonner";
 import AIChat from "@/components/AIChat";
@@ -35,7 +36,7 @@ export default function AppLayoutSuperadmin({ children }) {
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-white">
+            <div className="flex min-h-screen w-full">
                 {/* Tombol Sidebar (Mobile) */}
                 <div className="fixed top-4 left-4 z-50 md:hidden">
                     <SidebarTrigger className="bg-white rounded-md shadow p-2">
@@ -44,7 +45,7 @@ export default function AppLayoutSuperadmin({ children }) {
                 </div>
 
                 {/* Sidebar */}
-                <Sidebar className="hidden md:flex flex-col w-[220px] bg-[#4C9EFF] border-r border-black/10 rounded-tr-[48px] justify-between h-full">
+                <Sidebar className="hidden md:flex flex-col  bg-[#59B5F7] border-r border-black/10 rounded-tr-[48px] justify-between h-full">
                     <SidebarContent className="flex flex-col justify-between h-full">
                         <div>
                             {/* Header Sidebar */}
@@ -53,6 +54,9 @@ export default function AppLayoutSuperadmin({ children }) {
                                     ArthaWarga
                                 </SidebarGroupLabel>
 
+                                {/* Say Welcome */}
+                                <WelcomeCard name="Superadmin" lastUpdate="11/12/2025" />
+                                
                                 {/* Menu Navigasi */}
                                 <SidebarGroupContent>
                                     <SidebarMenu className="mt-6 flex flex-col gap-3 px-4">
@@ -63,7 +67,9 @@ export default function AppLayoutSuperadmin({ children }) {
                                                     : url.startsWith(item.url);
 
                                             return (
-                                                <SidebarMenuItem key={item.title}>
+                                                <SidebarMenuItem
+                                                    key={item.title}
+                                                >
                                                     <SidebarMenuButton asChild>
                                                         <Link
                                                             href={item.url}
@@ -80,7 +86,9 @@ export default function AppLayoutSuperadmin({ children }) {
                                                                         : "text-gray-600"
                                                                 }`}
                                                             />
-                                                            <span className="text-sm">{item.title}</span>
+                                                            <span className="text-sm">
+                                                                {item.title}
+                                                            </span>
                                                         </Link>
                                                     </SidebarMenuButton>
                                                 </SidebarMenuItem>
@@ -96,8 +104,8 @@ export default function AppLayoutSuperadmin({ children }) {
                             href="/superadmin/profil"
                             className={`border-t border-black/80 p-3 flex items-center gap-2 transition-colors ${
                                 isProfilActive
-                                    ? "bg-[#4C9EFF]/90 font-semibold text-gray-800"
-                                    : "text-gray-700 hover:bg-[#4C9EFF]/70"
+                                    ? "bg-[#59B5F7]/90 font-semibold text-gray-800"
+                                    : "text-gray-700 hover:bg-[#59B5F7]/70"
                             }`}
                         >
                             <img
@@ -106,7 +114,9 @@ export default function AppLayoutSuperadmin({ children }) {
                                 className="w-8 h-8 rounded-full"
                             />
                             <div className="flex-1">
-                                <p className="text-xs text-gray-600">Welcome back 👋</p>
+                                <p className="text-xs text-gray-600">
+                                    Welcome back 👋
+                                </p>
                                 <p className="font-medium text-sm">Johnathan</p>
                             </div>
                             <span className="text-lg text-gray-600">›</span>
@@ -116,9 +126,7 @@ export default function AppLayoutSuperadmin({ children }) {
 
                 {/* Konten Utama */}
                 <main className="flex-1 h-full overflow-y-auto overflow-x-hidden">
-                    <div className="w-full h-full px-8 py-10 md:px-12 md:py-12 bg-white">
-                        {children}
-                    </div>
+                    <div className="w-full h-full p-0 bg-white">{children}</div>
                 </main>
             </div>
 
