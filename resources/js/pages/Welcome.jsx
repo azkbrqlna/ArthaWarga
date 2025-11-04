@@ -24,7 +24,7 @@ const RoleCard = ({ title, color, desc, image }) => (
     whileInView={{ opacity: 1, y: 0 }}
     transition={{ duration: 0.6 }}
     viewport={{ once: true }}
-    className="relative bg-gray-100 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden min-h-[420px]"
+    className="relative bg-gray-100 rounded-2xl shadow-md hover:shadow-lg transition-all duration-300 flex flex-col overflow-hidden min-h-[480px]"
   >
     <div className="absolute bottom-0 left-0 w-full z-0">
       <img
@@ -33,23 +33,22 @@ const RoleCard = ({ title, color, desc, image }) => (
         className="absolute bottom-[-5rem] left-0 w-full z-0"
       />
     </div>
-    <div className="relative z-10 flex flex-col items-center text-center px-4 sm:px-6 pt-10 pb-8">
-      <h3 className={`text-lg sm:text-xl md:text-2xl font-extrabold mb-4 ${color}`}>
-        {title}
-      </h3>
-      <p className="text-gray-700 text-sm sm:text-base leading-relaxed mb-8 max-w-xs">
+    <div className="relative z-10 flex flex-col items-center text-center px-6 pt-10 pb-8">
+      <h3 className={`text-2xl font-extrabold mb-6 ${color}`}>{title}</h3>
+      <p className="text-gray-700 text-sm leading-relaxed mb-10 max-w-xs">
         {desc}
       </p>
-      <div className="relative w-full flex justify-center items-end h-56 sm:h-64 mt-auto">
+      <div className="relative w-full flex justify-center items-end h-72 mt-auto">
         <img
           src={image}
           alt={title}
-          className="object-contain max-h-72 transform transition-transform duration-300 hover:scale-110"
+          className="object-contain max-h-110 transform transition-transform duration-300 hover:scale-105 translate-y-30"
         />
       </div>
     </div>
   </motion.div>
 );
+
 
 // --- Komponen Feature Card ---
 const FeatureCard = ({ title, description, icon }) => (
@@ -81,10 +80,30 @@ export default function Welcome() {
   }, []);
 
   const roles = [
-    { title: "Ketua RT", color: "text-blue-600", desc: "Ketua RT dapat memantau seluruh laporan keuangan, mencatat pemasukan, pengeluaran, serta kegiatan warga.", image: ketuaRtImage },
-    { title: "Sekretaris", color: "text-green-600", desc: "Sekretaris RT berperan dalam mencatat dan memantau data keuangan serta kegiatan RT.", image: sekretarisImage },
-    { title: "Bendahara", color: "text-orange-600", desc: "Bendahara RT bertanggung jawab dalam menginput data pemasukan, pengeluaran, dan kegiatan RT.", image: bendaharaImage },
-    { title: "Warga", color: "text-red-600", desc: "Warga RT dapat melihat informasi keuangan RT secara transparan dan mencetak laporan akhir bulan.", image: wargaImage },
+    {
+      title: "Ketua RT",
+      color: "text-blue-600",
+      desc: "Ketua RT dapat memantau seluruh laporan keuangan, mencatat pemasukan, pengeluaran, serta kegiatan warga. Selain itu, Ketua RT juga dapat mencetak laporan keuangan setiap akhir bulan.",
+      image: ketuaRtImage,
+    },
+    {
+      title: "Sekretaris",
+      color: "text-green-600",
+      desc: "Sekretaris RT berperan dalam mencatat dan memantau data keuangan serta kegiatan RT. Ia juga membantu mencetak laporan keuangan akhir bulan untuk keperluan administrasi.",
+      image: sekretarisImage,
+    },
+    {
+      title: "Bendahara",
+      color: "text-orange-600",
+      desc: "Bendahara RT bertanggung jawab dalam menginput data pemasukan, pengeluaran, dan kegiatan RT. Selain itu, bendahara juga memantau laporan keuangan dan mencetak laporan akhir bulan.",
+      image: bendaharaImage,
+    },
+    {
+      title: "Warga",
+      color: "text-red-600",
+      desc: "Warga RT dapat melihat informasi keuangan RT secara transparan dan mencetak laporan keuangan akhir bulan sebagai bentuk keterbukaan data.",
+      image: wargaImage,
+    },
   ];
 
   const featuresData = [
@@ -209,44 +228,53 @@ export default function Welcome() {
       </section>
 
       {/* ROLES */}
-      <section id="roles" className="bg-white px-4 sm:px-6 md:px-20 pb-20 pt-20">
-        <h2 className="text-3xl sm:text-4xl font-extrabold text-center mb-12 bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-950">
+      <section id="roles" className="bg-white px-6 md:px-20 pb-20 pt-20">
+        <h2 className="text-4xl font-extrabold text-center mb-16 
+              bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-950">
           Peran Pengguna
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-          {roles.map((r, i) => (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-10 max-w-6xl mx-auto">
+            {roles.map((r, i) => (
             <RoleCard key={i} {...r} />
           ))}
-        </div>
+        </div>  
       </section>
+
 
       {/* FITUR */}
-      <section id="fitur" className="relative pt-32 pb-28 overflow-hidden bg-white">
-        <img
-          src={featuresWaveBg}
-          alt="Background wave"
-          className="hidden md:block absolute top-0 left-0 w-full h-auto object-cover z-0"
-        />
+      {/* FITUR */}
+<section id="fitur" className="relative pt-52 pb-40 bg-white overflow-visible">
+  {/* Wave background */}
+  <div className="absolute top-[120px] left-0 w-full z-0">
+    <img
+      src={featuresWaveBg}
+      alt="Background wave"
+      className="w-full h-auto object-cover object-top scale-105"
+    />
+  </div>
 
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-10">
-          <motion.h2
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-            viewport={{ once: true }}
-            className="text-blue-900 text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-16"
-          >
-            Fitur
-          </motion.h2>
-          <div className="bg-blue-900 rounded-3xl px-8 py-14 shadow-xl">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-              {featuresData.map((f, i) => (
-                <FeatureCard key={i} {...f} />
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
+  {/* Konten fitur */}
+  <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 md:px-10 -mt-24">
+    <motion.h2
+      initial={{ opacity: 0, y: 40 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.7 }}
+      viewport={{ once: true }}
+      className="text-blue-900 text-3xl sm:text-4xl md:text-5xl font-extrabold text-center mb-16"
+    >
+      Fitur
+    </motion.h2>
+
+    <div className="bg-blue-900 rounded-3xl px-8 py-14 shadow-xl">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
+        {featuresData.map((f, i) => (
+          <FeatureCard key={i} {...f} />
+        ))}
+      </div>
+    </div>
+  </div>
+</section>
+
 
       {/* FOOTER */}
       <Footer />
