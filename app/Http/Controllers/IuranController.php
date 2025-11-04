@@ -112,7 +112,6 @@ class IuranController extends Controller
         ]);
 
         // $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
-        // $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
         $users = User::all();
 
         foreach ($users as $user) {
