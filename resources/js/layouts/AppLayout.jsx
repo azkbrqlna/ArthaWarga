@@ -1,5 +1,5 @@
 import React from "react";
-import { SquareCheckBig, LayoutTemplate, Menu } from "lucide-react";
+import { SquareCheckBig, LayoutTemplate, Menu, LogOut } from "lucide-react";
 import {
     Sidebar,
     SidebarProvider,
@@ -12,21 +12,24 @@ import {
     SidebarMenuItem,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { usePage } from "@inertiajs/react";
+import { Button } from "@/components/ui/button";
+import { usePage, useForm } from "@inertiajs/react";
 import { Toaster } from "sonner";
 import AIChat from "@/components/AIChat";
 
 const items = [
-    {
-        title: "Ringkasan Keuangan",
-        url: "/dashboard",
-        icon: LayoutTemplate,
-    },
+    { title: "Ringkasan Keuangan", url: "/dashboard", icon: LayoutTemplate },
     { title: "Approval", url: "/approval", icon: SquareCheckBig },
 ];
 
 export default function AppLayout({ children }) {
     const { url } = usePage();
+    const { post } = useForm(); // ✅ untuk handle logout
+
+    const handleLogout = (e) => {
+        e.preventDefault();
+        post(route("logout")); // kirim POST ke /logout
+    };
 
     return (
         <SidebarProvider>
@@ -37,7 +40,7 @@ export default function AppLayout({ children }) {
                     </SidebarTrigger>
                 </div>
 
-                <Sidebar className="hidden md:flex flex-col  bg-[#59B5F7] border-r border-black/10 rounded-tr-[48px] justify-between h-full">
+                <Sidebar className="hidden md:flex flex-col bg-[#59B5F7] border-r border-black/10 rounded-tr-[48px] justify-between h-full">
                     <SidebarContent className="flex flex-col justify-between h-full">
                         <div>
                             <SidebarGroup>
@@ -83,19 +86,33 @@ export default function AppLayout({ children }) {
                             </SidebarGroup>
                         </div>
 
-                        <div className="border-t border-black/10 p-3 flex items-center gap-2">
-                            <img
-                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Johnathan"
-                                alt="avatar"
-                                className="w-8 h-8 rounded-full"
-                            />
-                            <div className="flex-1">
-                                <p className="text-xs text-gray-600">
-                                    Welcome back 👋
-                                </p>
-                                <p className="font-medium text-sm">Johnathan</p>
+                        {/* ✅ Bagian bawah sidebar: Profil + Logout */}
+                        <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
+                            <div className="flex items-center gap-2">
+                                <img
+                                    src="https://api.dicebear.com/7.x/avataaars/svg?seed=Johnathan"
+                                    alt="avatar"
+                                    className="w-8 h-8 rounded-full"
+                                />
+                                <div className="flex flex-col">
+                                    <p className="text-xs text-gray-600">
+                                        Welcome back 👋
+                                    </p>
+                                    <p className="font-medium text-sm">
+                                        Johnathan
+                                    </p>
+                                </div>
                             </div>
-                            <span className="text-lg text-gray-600">›</span>
+
+                            <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={handleLogout}
+                                title="Logout"
+                                className="hover:bg-red-100 text-red-600"
+                            >
+                                <LogOut className="w-5 h-5" />
+                            </Button>
                         </div>
                     </SidebarContent>
                 </Sidebar>
