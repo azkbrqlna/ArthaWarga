@@ -124,8 +124,13 @@ export default function Welcome() {
                     window.location.href = "/dashboard";
                 }, 1200);
             },
-            onError: () => {
-                notifyError("Email atau password salah.");
+            onError: (errors) => {
+                // ambil pesan error dari Laravel inertia
+                if (errors.email || errors.password) {
+                    notifyError(errors.email || errors.password);
+                } else {
+                    notifyError("Email atau password salah.");
+                }
             },
         });
     };
@@ -278,7 +283,13 @@ export default function Welcome() {
                                             }
                                             required
                                         />
+                                        {errors.email && (
+                                            <p className="text-sm text-red-600 mt-1">
+                                                {errors.email}
+                                            </p>
+                                        )}
                                     </div>
+
                                     <div>
                                         <Label className="pb-3">Password</Label>
                                         <Input
@@ -292,7 +303,13 @@ export default function Welcome() {
                                             }
                                             required
                                         />
+                                        {errors.password && (
+                                            <p className="text-sm text-red-600 mt-1">
+                                                {errors.password}
+                                            </p>
+                                        )}
                                     </div>
+
                                     <DialogFooter>
                                         <Button
                                             type="submit"
@@ -437,7 +454,7 @@ export default function Welcome() {
             <section id="roles" className="bg-white px-6 md:px-20 pb-20 pt-20">
                 <h2
                     className="text-4xl font-extrabold text-center mb-16 
-                    bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-950"
+                        bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-950"
                 >
                     Peran Pengguna
                 </h2>
