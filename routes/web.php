@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\PengeluaranController;
+use App\Http\Controllers\MasukIuranController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -54,3 +55,6 @@ Route::delete('/kategori-iuran/delete/{id}', [IuranController::class, 'kat_iuran
 
 Route::resource('kegiatan', KegiatanController::class)
     ->only(['index','show','store','update','destroy']);
+
+//untuk masuk iuran warga
+Route::resource('masuk-iuran', MasukIuranController::class);
