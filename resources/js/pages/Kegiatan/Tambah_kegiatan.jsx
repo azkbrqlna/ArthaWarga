@@ -331,7 +331,7 @@ export default function TambahKegiatan() {
                             disabled={isLoading}
                             className="bg-emerald-500 hover:bg-emerald-600 text-white"
                         >
-                            {isLoading ? "Menyimpan..." : "Simpan"}
+                            {isLoading ? "Menyimpan..." : "Tambah Kegiatan"}
                         </Button>
                     </div>
                 </form>
