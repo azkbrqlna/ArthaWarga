@@ -146,12 +146,34 @@ export default function Dashboard() {
                             RINGKASAN
                         </h2>
 
-                        <input
-                            type="date"
-                            value={selectedDate}
-                            onChange={handleDateChange}
-                            className="border rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none"
-                        />
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="date"
+                                value={selectedDate}
+                                onChange={handleDateChange}
+                                className="border rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none"
+                            />
+
+                            {selectedDate && (
+                                <Button
+                                    variant="outline"
+                                    onClick={() => {
+                                        setSelectedDate("");
+                                        router.get(
+                                            route("dashboard"),
+                                            {},
+                                            {
+                                                preserveScroll: true,
+                                                preserveState: true,
+                                            }
+                                        );
+                                    }}
+                                    className="text-gray-700 text-xs"
+                                >
+                                    Reset
+                                </Button>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
