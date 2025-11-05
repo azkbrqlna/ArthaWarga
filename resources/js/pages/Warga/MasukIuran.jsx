@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { usePage } from "@inertiajs/react";
-import AppLayout from "@/layouts/AppLayout";
+import AppLayout from "@/layouts/AppLayout/AppLayoutMasukIuran";
 import {
   Table,
   TableBody,

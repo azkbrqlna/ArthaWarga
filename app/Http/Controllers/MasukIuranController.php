@@ -30,7 +30,7 @@ class MasukIuranController extends Controller
             ->paginate($request->input('per_page', 10))
             ->withQueryString();
 
-        return Inertia::render('Iuran/Index', [
+        return Inertia::render('Warga/MasukIuran', [
             'masuk_iuran' => $items,
         ]);
     }
