@@ -55,8 +55,8 @@ class MasukIuranController extends Controller
     {
         $validated = $request->validate([
             'bkt_byr'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
-            'nominal'  => 'nullable|numeric|min:0',
+            'bkt_nota' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'nominal'  => 'required|numeric|min:1000',
             'ket'      => 'nullable|string|max:255',
             'id'       => 'required|integer|exists:masuk_iuran,id',
         ]);
@@ -75,7 +75,7 @@ class MasukIuranController extends Controller
             $iuran->bkt_byr = $file->storeAs('masuk_iuran', $filename, 'public');
         }
 
-        // Upload bukti nota (opsional)
+        // Upload bukti nota 
         if ($request->hasFile('bkt_nota')) {
             $file = $request->file('bkt_nota');
             $filename = now()->format('Ymd_His') . '_bktnota.' . $file->getClientOriginalExtension();
@@ -84,7 +84,7 @@ class MasukIuranController extends Controller
 
         // Update status
         $iuran->update([
-            'nominal' => $validated['nominal'] ?? $iuran->nominal,
+            'nominal' => $validated['nominal'],
             'ket' => $validated['ket'] ?? null,
             'tgl_byr' => now(),
             'status' => 'pending',
