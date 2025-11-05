@@ -254,9 +254,9 @@ export default function Welcome() {
                                     Masuk ke Arthawarga
                                 </DialogTitle>
                             </DialogHeader>
-                            <form onSubmit={handleLogin} className="space-y-4">
+                            <form onSubmit={handleLogin} className="space-y-4 ">
                                 <div>
-                                    <Label>Email</Label>
+                                    <Label className="pb-3">Email</Label>
                                     <Input
                                         type="email"
                                         value={data.email}
@@ -272,7 +272,7 @@ export default function Welcome() {
                                     )}
                                 </div>
                                 <div>
-                                    <Label>Password</Label>
+                                    <Label className="pb-3">Password</Label>
                                     <Input
                                         type="password"
                                         value={data.password}
