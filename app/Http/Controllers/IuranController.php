@@ -8,12 +8,19 @@ use App\Models\Pengumuman;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class IuranController extends Controller
 {
-    /**
-     * Tambah kategori iuran
-     */
+    
+    public function pemasukan()
+    {
+        $kategori_iuran = KategoriIuran::whereNotIn('id', [1, 2])->get();
+
+        return Inertia::render('Ringkasan/Pemasukan', [
+            'kategori_iuran' => $kategori_iuran
+        ]);
+    }
     public function kat_iuran_create(Request $request)
     {
         $validated = $request->validate([
@@ -29,9 +36,6 @@ class IuranController extends Controller
         ]);
     }
 
-    /**
-     * Hapus kategori iuran (cek relasi dulu)
-     */
     public function kat_iuran_delete($id)
     {
         $kategori = KategoriIuran::find($id);
@@ -60,9 +64,6 @@ class IuranController extends Controller
         ]);
     }
 
-    /**
-     * Ambil list data iuran
-     */
     public function index()
     {
         $data = PemasukanIuran::select('kat_iuran_id', 'tgl', 'nominal', 'ket')
@@ -72,9 +73,6 @@ class IuranController extends Controller
         return response()->json(['data' => $data]);
     }
 
-    /**
-     * Simpan data iuran baru
-     */
     public function iuran_create(Request $request)
     {
         $validated = $request->validate([
@@ -96,36 +94,6 @@ class IuranController extends Controller
         return back()->with('success', 'Data iuran berhasil disimpan.');
     }
 
-    
-    public function pengumuman_create(Request $request)
-    {
-        $validated = $request->validate([
-            'judul' => 'required|string',
-            'ket' => 'required|string',
-            'kat_iuran_id' => 'required|exists:kat_iuran,id',
-        ]);
-
-        $pengumuman = Pengumuman::create([
-            'judul' => $validated['judul'],
-            'ket' => $validated['ket'],
-            'kat_iuran_id' => $validated['kat_iuran_id'],
-        ]);
-
-        // $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
-        $users = User::all();
-
-        foreach ($users as $user) {
-            PemasukanIuran::create([
-                'usr_id' => $user->id,
-                'kat_iuran_id' => $validated['kat_iuran_id'],
-                'pengumuman_id' => $pengumuman->id,
-                'tgl' => now(),
-                'status' => 'tagihan',
-            ]);
-        }
-
-        return back()->with('success', 'Pengumuman berhasil dibuat dan tagihan dikirim ke semua warga.');
-    }
     
 }
 

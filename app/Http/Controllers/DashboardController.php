@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Models\KategoriIuran;
 use App\Models\PemasukanBOP;
+use App\Models\PemasukanIuran;
 use App\Models\Pengumuman;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
@@ -12,25 +14,18 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        return Inertia::render('Dashboard');
-    }
+        $saldoBop = PemasukanBOP::sum('nominal');
+        $saldoIuran = PemasukanIuran::where('status', 'approved')->sum('nominal');
 
-    public function pemasukan()
-    {
-        $kategori_iuran = KategoriIuran::whereNotIn('id', [1, 2])->get();
+        $totalKK = User::count();
 
-        return Inertia::render('Ringkasan/Pemasukan', [
-            'kategori_iuran' => $kategori_iuran
+        dd($totalKK);
+
+        return Inertia::render('Dashboard',[
+            'saldoBop' => $saldoBop,
+            'saldoIuran' => $saldoIuran,
+            'totalKK' => $totalKK
         ]);
-    }
-
-    public function pengumuman()
-    {
-        $kategori_iuran = KategoriIuran::whereIn('id', [1, 2])->get();
-
-        return Inertia::render('Ringkasan/Pengumuman', [
-            'kategori_iuran' => $kategori_iuran
-        ]);
-    }
+    } 
 
 }
