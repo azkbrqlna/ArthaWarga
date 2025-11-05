@@ -23,6 +23,14 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 // 📌 Dashboard & Ringkasan
 Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/ringkasan/pemasukan-bop', function () {
+    return Inertia::render(component: 'Ringkasan/Pemasukan_BOP');
+});
+Route::post('/bop/create', [DashboardController::class, 'bop_create'])->name('bop.create');
+
+Route::get('/superadmin', function () {
+    return Inertia::render(component: 'Superadmin');
+});
 Route::get('/ringkasan/pemasukan', [DashboardController::class, 'pemasukan'])->name('pemasukan');
 Route::get('/kegiatan/tambah', [KegiatanController::class, 'create'])->name('kegiatan.create');
 Route::post('/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
@@ -40,4 +48,9 @@ Route::post('/pengumuman/create', [IuranController::class, 'pengumuman_create'])
 
 Route::get('/ringkasan/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
 Route::post('/pengeluaran', [PengeluaranController::class, 'pengeluaran'])->name('pengeluaran.store');
-Route::get('/rincian/{id}', [DashboardController::class, 'rincian'])->name('rincian.show');
+Route::delete('/kategori-iuran/delete/{id}', [IuranController::class, 'kat_iuran_delete'])->name('kat_iuran.delete');
+// Route::post('/api/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])
+//     ->name('api.kat_iuran.create');
+
+Route::resource('kegiatan', KegiatanController::class)
+    ->only(['index','show','store','update','destroy']);
