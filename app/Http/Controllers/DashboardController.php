@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\KategoriIuran;
 use App\Models\PemasukanBOP;
-use App\Models\Pengumuman;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Pengeluaran;
 use App\Models\PemasukanIuran;
+use App\Models\User;
 
 class DashboardController extends Controller
 {
@@ -151,11 +149,20 @@ class DashboardController extends Controller
             }
         }
 
-        // buat ditampilin paling baru di atas
         $final = collect($final)->sortByDesc('tgl')->values();
+
+        $totalBop = PemasukanBOP::sum('nominal');
+        $totalIuran = PemasukanIuran::where('status', 'approved')->sum('nominal');
+        $userTotal = User::count();
+        $totalPengeluaran = Pengeluaran::sum('nominal');
+
 
         return Inertia::render('Dashboard', [
             'transaksi' => $final,
+            'totalBop' => $totalBop,
+            'totalIuran' => $totalIuran,
+            'totalPengeluaran' => $totalPengeluaran,
+            'userTotal' => $userTotal,
         ]);
     }
 
@@ -163,9 +170,9 @@ class DashboardController extends Controller
 
 public function rincian($id)
 {
-    $bop = \App\Models\PemasukanBOP::find($id);
-    $iuran = \App\Models\PemasukanIuran::find($id);
-    $pengeluaran = \App\Models\Pengeluaran::find($id);
+    $bop = PemasukanBOP::find($id);
+    $iuran = PemasukanIuran::find($id);
+    $pengeluaran = Pengeluaran::find($id);
 
     $data = $bop ?? $iuran ?? $pengeluaran;
 
