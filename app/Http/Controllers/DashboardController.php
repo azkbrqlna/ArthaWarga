@@ -2,12 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\KategoriIuran;
 use App\Models\PemasukanBOP;
 use App\Models\PemasukanIuran;
-use App\Models\Pengumuman;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class DashboardController extends Controller
@@ -19,7 +16,6 @@ class DashboardController extends Controller
 
         $totalKK = User::count();
 
-        dd($totalKK);
 
         return Inertia::render('Dashboard',[
             'saldoBop' => $saldoBop,

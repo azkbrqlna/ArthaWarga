@@ -1,244 +1,307 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useForm, usePage } from "@inertiajs/react";
+import { route } from "ziggy-js";
+import AppLayout from "@/layouts/AppLayout";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { Upload } from "lucide-react";
+import { useNotify } from "@/components/ToastNotification";
+import axios from "axios";
 
 export default function Pengeluaran() {
-    const { pengeluarans = [], saldo = {}, kegiatans = [] } = usePage().props;
-    const { data, setData, post, processing, reset, errors } = useForm({
+    const { kegiatans = [] } = usePage().props;
+    const { notifySuccess, notifyError } = useNotify();
+
+    const { data, setData, reset } = useForm({
+        tipe: "bop",
         tgl: "",
-        keg_id: "", // ✅ harus 'keg_id'
+        keg_id: "",
         nominal: "",
         ket: "",
-        tipe: "bop",
         bkt_nota: null,
     });
-    const [preview, setPreview] = useState(null);
 
-    const handleSubmit = (e) => {
+    const [preview, setPreview] = useState(null);
+    const [isLoading, setIsLoading] = useState(false);
+    const fileInputRef = useRef(null);
+
+    // 🔹 Format nominal ke Rupiah
+    const formatRupiah = (value) => {
+        if (!value) return "";
+        const numberString = value.replace(/[^,\d]/g, "");
+        const split = numberString.split(",");
+        const sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            const separator = sisa ? "." : "";
+            rupiah += separator + ribuan.join(".");
+        }
+        rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
+        return "Rp " + rupiah;
+    };
+
+    const handleNominalChange = (e) => {
+        const raw = e.target.value;
+        const formatted = formatRupiah(raw);
+        setData("nominal", formatted);
+    };
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setData("bkt_nota", file);
+            setPreview(URL.createObjectURL(file));
+        } else {
+            setData("bkt_nota", null);
+            setPreview(null);
+        }
+    };
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        post(route("pengeluaran.store"), {
-            forceFormData: true,
-            onSuccess: () => {
-                reset();
-                setPreview(null);
-            },
-        });
+        setIsLoading(true);
+
+        // 🔹 Validasi user-friendly sebelum kirim
+        if (!data.tipe) {
+            notifyError(
+                "Jenis belum dipilih",
+                "Pilih jenis pengeluaran terlebih dahulu."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.tgl) {
+            notifyError("Tanggal kosong", "Masukkan tanggal pengeluaran.");
+            setIsLoading(false);
+            return;
+        }
+        if (!data.keg_id) {
+            notifyError(
+                "Kegiatan belum dipilih",
+                "Pilih kegiatan terkait pengeluaran ini."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.nominal || data.nominal === "Rp 0") {
+            notifyError(
+                "Nominal kosong",
+                "Masukkan jumlah uang yang dikeluarkan."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.ket.trim()) {
+            notifyError(
+                "Deskripsi kosong",
+                "Tuliskan keterangan atau tujuan pengeluaran."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.bkt_nota) {
+            notifyError(
+                "Bukti belum diunggah",
+                "Unggah foto nota atau kwitansi pengeluaran."
+            );
+            setIsLoading(false);
+            return;
+        }
+
+        const cleanNominal = data.nominal.replace(/[^0-9]/g, "");
+
+        const formData = new FormData();
+        formData.append("tipe", data.tipe);
+        formData.append("tgl", data.tgl);
+        formData.append("keg_id", data.keg_id);
+        formData.append("nominal", cleanNominal);
+        formData.append("ket", data.ket);
+        if (data.bkt_nota) formData.append("bkt_nota", data.bkt_nota);
+
+        try {
+            await axios.post(route("pengeluaran.store"), formData, {
+                headers: { "Content-Type": "multipart/form-data" },
+            });
+
+            notifySuccess("Berhasil", "Pengeluaran berhasil disimpan!");
+            reset();
+            setPreview(null);
+            if (fileInputRef.current) fileInputRef.current.value = null;
+        } catch (error) {
+            console.error(error);
+            let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";
+            if (error.response) {
+                switch (error.response.status) {
+                    case 422:
+                        pesan = "Periksa kembali data yang kamu isi.";
+                        break;
+                    case 413:
+                        pesan = "Ukuran file terlalu besar (maksimal 2MB).";
+                        break;
+                    case 500:
+                        pesan =
+                            "Server sedang bermasalah. Coba beberapa saat lagi.";
+                        break;
+                    default:
+                        pesan = error.response.data?.message || pesan;
+                }
+            }
+            notifyError("Gagal Menyimpan", pesan);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <div className="p-6 space-y-6">
-            <h1 className="text-2xl font-bold mb-4">Ringkasan Pengeluaran</h1>
-
-            {/* SALDO */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="bg-green-100 border border-green-300 rounded-lg p-4 shadow">
-                    <h2 className="font-semibold text-lg text-green-800">
-                        Saldo BOP
-                    </h2>
-                    <p className="text-2xl font-bold text-green-900 mt-2">
-                        Rp {saldo.bop?.toLocaleString("id-ID") || 0}
-                    </p>
-                </div>
-
-                <div className="bg-blue-100 border border-blue-300 rounded-lg p-4 shadow">
-                    <h2 className="font-semibold text-lg text-blue-800">
-                        Saldo Iuran
-                    </h2>
-                    <p className="text-2xl font-bold text-blue-900 mt-2">
-                        Rp {saldo.iuran?.toLocaleString("id-ID") || 0}
-                    </p>
-                </div>
-            </div>
-
-            {/* TABEL PENGELUARAN */}
-            <div className="bg-white shadow rounded-lg p-4">
-                <h2 className="font-semibold text-lg mb-4">
-                    Daftar Pengeluaran
-                </h2>
-                {pengeluarans.length === 0 ? (
-                    <p className="text-gray-500">Belum ada data pengeluaran.</p>
-                ) : (
-                    <table className="w-full border-collapse border border-gray-200">
-                        <thead className="bg-gray-100">
-                            <tr>
-                                <th className="border p-2">Tanggal</th>
-                                <th className="border p-2">Kegiatan</th>
-                                <th className="border p-2">Nominal</th>
-                                <th className="border p-2">Keterangan</th>
-                                <th className="border p-2">Tipe</th>
-                                <th className="border p-2">Bukti Nota</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {pengeluarans.map((item, index) => (
-                                <tr key={index} className="hover:bg-gray-50">
-                                    <td className="border p-2 text-center">
-                                        {new Date(item.tgl).toLocaleDateString(
-                                            "id-ID"
-                                        )}
-                                    </td>
-                                    <td className="border p-2">
-                                        {item.kegiatan?.nm_keg || "-"}
-                                    </td>
-                                    <td className="border p-2 text-right">
-                                        Rp{" "}
-                                        {item.nominal?.toLocaleString("id-ID")}
-                                    </td>
-                                    <td className="border p-2">{item.ket}</td>
-                                    <td className="border p-2 text-center uppercase">
-                                        {item.tipe}
-                                    </td>
-                                    <td className="border p-2 text-center">
-                                        {item.bkt_nota ? (
-                                            <img
-                                                src={`/storage/${item.bkt_nota}`}
-                                                alt="Bukti Nota"
-                                                className="w-16 h-16 object-cover mx-auto rounded border"
-                                            />
-                                        ) : (
-                                            "-"
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                )}
-            </div>
-
-            {/* FORM TAMBAH */}
-            <div className="bg-white shadow rounded-lg p-6">
-                <h2 className="text-lg font-semibold mb-4">
+        <AppLayout>
+            <div className="max-w-4xl mx-auto p-8">
+                <h1 className="text-2xl font-bold text-gray-800 mb-8">
                     Tambah Pengeluaran
-                </h2>
-                <form
-                    onSubmit={handleSubmit}
-                    encType="multipart/form-data"
-                    className="space-y-4"
-                >
-                    <div>
-                        <label className="block font-medium mb-1">
-                            Tanggal
-                        </label>
-                        <input
-                            type="date"
-                            value={data.tgl}
-                            onChange={(e) => setData("tgl", e.target.value)}
-                            className="w-full border rounded p-2"
-                        />
-                        {errors.tgl && (
-                            <div className="text-red-600 text-sm">
-                                {errors.tgl}
-                            </div>
-                        )}
+                </h1>
+
+                <form onSubmit={handleSubmit} className="space-y-6">
+                    {/* Jenis */}
+                    {/* Jenis & Tanggal dalam satu baris */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Jenis Pengeluaran */}
+                        <div className="space-y-2">
+                            <Label>
+                                Jenis Pengeluaran{" "}
+                                <span className="text-red-500">*</span>
+                            </Label>
+                            <select
+                                value={data.tipe}
+                                onChange={(e) =>
+                                    setData("tipe", e.target.value)
+                                }
+                                className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-rose-400"
+                            >
+                                <option value="bop">BOP</option>
+                                <option value="iuran">Iuran</option>
+                            </select>
+                        </div>
+
+                        {/* Tanggal */}
+                        <div className="space-y-2">
+                            <Label>
+                                Tanggal <span className="text-red-500">*</span>
+                            </Label>
+                            <Input
+                                type="date"
+                                value={data.tgl}
+                                onChange={(e) => setData("tgl", e.target.value)}
+                                className="w-full"
+                            />
+                        </div>
                     </div>
 
-                    <div>
-                        <label className="block font-medium mb-1">
-                            Kegiatan
-                        </label>
+                    {/* Kegiatan */}
+                    <div className="space-y-2">
+                        <Label>
+                            Kegiatan <span className="text-red-500">*</span>
+                        </Label>
                         <select
                             value={data.keg_id}
                             onChange={(e) => setData("keg_id", e.target.value)}
-                            className="w-full border rounded p-2"
+                            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-rose-400"
                         >
-                            <option value="">-- Pilih Kegiatan --</option>
+                            <option value="">Pilih kegiatan</option>
                             {kegiatans.map((k) => (
                                 <option key={k.id} value={k.id}>
                                     {k.nm_keg}
                                 </option>
                             ))}
                         </select>
-                        {errors.keg_id && (
-                            <div className="text-red-600 text-sm">
-                                {errors.keg_id}
-                            </div>
-                        )}
                     </div>
 
-                    <div>
-                        <label className="block font-medium mb-1">
-                            Nominal
-                        </label>
-                        <input
-                            type="number"
+                    {/* Nominal */}
+                    <div className="space-y-2">
+                        <Label>
+                            Nominal <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            type="text"
+                            placeholder="Rp 0"
                             value={data.nominal}
-                            onChange={(e) => setData("nominal", e.target.value)}
-                            className="w-full border rounded p-2"
-                            placeholder="Contoh: 100000"
+                            onChange={handleNominalChange}
                         />
-                        {errors.nominal && (
-                            <div className="text-red-600 text-sm">
-                                {errors.nominal}
-                            </div>
-                        )}
                     </div>
 
-                    <div>
-                        <label className="block font-medium mb-1">
-                            Keterangan
-                        </label>
-                        <textarea
+                    {/* Deskripsi */}
+                    <div className="space-y-2">
+                        <Label>
+                            Keterangan <span className="text-red-500">*</span>
+                        </Label>
+                        <Textarea
+                            placeholder="Tuliskan keterangan pengeluaran..."
                             value={data.ket}
                             onChange={(e) => setData("ket", e.target.value)}
-                            className="w-full border rounded p-2"
-                            placeholder="Keterangan pengeluaran"
-                        ></textarea>
-                        {errors.ket && (
-                            <div className="text-red-600 text-sm">
-                                {errors.ket}
-                            </div>
-                        )}
-                    </div>
-
-                    <div>
-                        <label className="block font-medium mb-1">
-                            Tipe Dana
-                        </label>
-                        <select
-                            value={data.tipe}
-                            onChange={(e) => setData("tipe", e.target.value)}
-                            className="w-full border rounded p-2"
-                        >
-                            <option value="bop">BOP</option>
-                            <option value="iuran">Iuran</option>
-                        </select>
-                    </div>
-
-                    <div>
-                        <label className="block font-medium mb-1">
-                            Upload Bukti Nota
-                        </label>
-                        <input
-                            type="file"
-                            accept="image/*,application/pdf"
-                            onChange={(e) => {
-                                setData("bkt_nota", e.target.files[0]);
-                                if (e.target.files[0]) {
-                                    setPreview(
-                                        URL.createObjectURL(e.target.files[0])
-                                    );
-                                }
-                            }}
-                            className="w-full border rounded p-2"
                         />
-                        {preview && (
-                            <img
-                                src={preview}
-                                alt="Preview"
-                                className="mt-2 rounded w-40 border"
-                            />
-                        )}
                     </div>
 
-                    <button
-                        type="submit"
-                        disabled={processing}
-                        className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-                    >
-                        {processing ? "Menyimpan..." : "Simpan Pengeluaran"}
-                    </button>
+                    {/* Bukti Nota */}
+                    <div className="space-y-2">
+                        <Label>
+                            Bukti Nota / Kwitansi{" "}
+                            <span className="text-red-500">*</span>
+                        </Label>
+                        <label
+                            htmlFor="nota"
+                            className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg py-10 cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+                        >
+                            {preview ? (
+                                <img
+                                    src={preview}
+                                    alt="Preview"
+                                    className="max-h-64 object-contain mb-3"
+                                />
+                            ) : (
+                                <>
+                                    <Upload className="w-6 h-6 mb-2 text-gray-500" />
+                                    <span className="text-sm text-gray-500">
+                                        Klik atau seret gambar ke sini
+                                    </span>
+                                </>
+                            )}
+                            <input
+                                id="nota"
+                                ref={fileInputRef}
+                                type="file"
+                                accept="image/*"
+                                className="hidden"
+                                onChange={handleFileChange}
+                            />
+                        </label>
+                    </div>
+
+                    {/* Tombol Aksi */}
+                    <div className="flex justify-end gap-4 pt-2">
+                        <Button
+                            type="reset"
+                            onClick={() => {
+                                reset();
+                                setPreview(null);
+                                if (fileInputRef.current)
+                                    fileInputRef.current.value = null;
+                            }}
+                            className="bg-gray-500 hover:bg-gray-600 text-white"
+                        >
+                            Batal
+                        </Button>
+                        <Button
+                            type="submit"
+                            disabled={isLoading}
+                            className="bg-rose-500 hover:bg-rose-600 text-white"
+                        >
+                            {isLoading ? "Menyimpan..." : "Tambah Pengeluaran"}
+                        </Button>
+                    </div>
                 </form>
             </div>
-        </div>
+        </AppLayout>
     );
 }

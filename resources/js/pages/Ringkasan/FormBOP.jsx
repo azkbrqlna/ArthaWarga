@@ -6,12 +6,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Upload } from "lucide-react";
-import { useNotify } from "@/components/ToastNotification"; // 🟢 tambahkan ini
+import { useNotify } from "@/components/ToastNotification";
 import axios from "axios";
 
 export default function FormBOP({ tanggal }) {
-    const { notifySuccess, notifyError } = useNotify(); // 🟢 ambil fungsi toast
-    const { data, setData, post, processing, reset } = useForm({
+    const { notifySuccess, notifyError } = useNotify();
+    const { data, setData, reset } = useForm({
         tgl: tanggal || "",
         nominal: "",
         ket: "",
@@ -19,6 +19,7 @@ export default function FormBOP({ tanggal }) {
     });
 
     const [preview, setPreview] = useState(null);
+    const [isLoading, setIsLoading] = useState(false); // 🟢 state baru
     const fileInputRef = useRef(null);
 
     useEffect(() => {
@@ -58,6 +59,33 @@ export default function FormBOP({ tanggal }) {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true); // 🟢 mulai loading
+
+        // validasi user-friendly
+        if (!data.nominal || data.nominal === "Rp 0") {
+            notifyError(
+                "Nominal belum diisi",
+                "Masukkan jumlah uang yang dikeluarkan."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.ket.trim()) {
+            notifyError(
+                "Deskripsi kosong",
+                "Tuliskan keterangan atau tujuan penggunaan dana."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.bkt_nota) {
+            notifyError(
+                "Bukti belum diunggah",
+                "Unggah foto atau file nota sebagai bukti pengeluaran."
+            );
+            setIsLoading(false);
+            return;
+        }
 
         const cleanNominal = data.nominal.replace(/[^0-9]/g, "");
 
@@ -77,9 +105,28 @@ export default function FormBOP({ tanggal }) {
             setPreview(null);
             if (fileInputRef.current) fileInputRef.current.value = null;
         } catch (error) {
-            const pesan =
-                error.response?.data?.message || "Terjadi kesalahan server";
+            console.error(error);
+            let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";
+            if (error.response) {
+                switch (error.response.status) {
+                    case 422:
+                        pesan =
+                            "Periksa kembali data yang kamu isi, ada yang belum sesuai.";
+                        break;
+                    case 413:
+                        pesan = "Ukuran file terlalu besar (maksimal 2MB).";
+                        break;
+                    case 500:
+                        pesan =
+                            "Server sedang bermasalah. Coba beberapa saat lagi.";
+                        break;
+                    default:
+                        pesan = error.response.data?.message || pesan;
+                }
+            }
             notifyError("Gagal Menyimpan", pesan);
+        } finally {
+            setIsLoading(false); // 🟢 matikan loading setelah selesai
         }
     };
 
@@ -160,10 +207,10 @@ export default function FormBOP({ tanggal }) {
                 </Button>
                 <Button
                     type="submit"
-                    disabled={processing}
+                    disabled={isLoading}
                     className="bg-emerald-500 hover:bg-emerald-600 text-white"
                 >
-                    {processing ? "Menyimpan..." : "Tambah Pemasukan"}
+                    {isLoading ? "Menyimpan..." : "Tambah Pemasukan"}
                 </Button>
             </div>
         </form>

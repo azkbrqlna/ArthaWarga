@@ -83,7 +83,8 @@ class IuranController extends Controller
         ]);
 
         $iuran = PemasukanIuran::create([
-            'usr_id' => Auth::user()->id,
+            // 'usr_id' => Auth::user()->id,
+            'usr_id' => Auth::check() ? Auth::user()->id : null,
             'kat_iuran_id' => $validated['kat_iuran_id'],
             'tgl' => $validated['tgl'],
             'nominal' => $validated['nominal'],

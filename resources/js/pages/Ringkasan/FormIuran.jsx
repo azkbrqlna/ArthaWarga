@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
 import { useForm } from "@inertiajs/react";
 import { route } from "ziggy-js";
@@ -23,29 +23,26 @@ import {
 } from "@/components/ui/dialog";
 import { Plus, Minus } from "lucide-react";
 import { useNotify } from "@/components/ToastNotification";
-import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function FormIuran({ tanggal, kategori_iuran = [] }) {
     const { notifySuccess, notifyError } = useNotify();
 
-    // 🧾 Form utama iuran
-    const form = useForm({
+    const { data, setData, reset } = useForm({
         kat_iuran_id: "",
         tgl: tanggal || "",
         nominal: "",
         ket: "",
     });
 
-    // State kategori dan popup
     const [kategori, setKategori] = useState(kategori_iuran);
+    const [isLoading, setIsLoading] = useState(false);
     const [openAdd, setOpenAdd] = useState(false);
     const [openDelete, setOpenDelete] = useState(false);
     const [namaKat, setNamaKat] = useState("");
     const [selectedDelete, setSelectedDelete] = useState(null);
 
-    // 🕒 Set tanggal otomatis dari props
     useEffect(() => {
-        form.setData("tgl", tanggal);
+        setData("tgl", tanggal);
     }, [tanggal]);
 
     // 💰 Format Rupiah
@@ -66,37 +63,77 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
 
     const handleNominalChange = (e) => {
         const formatted = formatRupiah(e.target.value);
-        form.setData("nominal", formatted);
+        setData("nominal", formatted);
     };
 
-    // 🔁 Ubah nominal ke integer sebelum submit
-    form.transform((data) => ({
-        ...data,
-        nominal: parseInt(data.nominal.replace(/[^0-9]/g, "")) || 0,
-    }));
-
-    // ✅ Simpan iuran
-    const handleSubmit = (e) => {
+    // 🧩 Submit utama
+    const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsLoading(true);
 
-        form.post(route("iuran.create"), {
-            preserveScroll: true,
-            onSuccess: () => {
-                notifySuccess("Berhasil", "Data iuran berhasil disimpan.");
-                form.reset();
-            },
-            onError: (errors) => {
-                const firstError =
-                    Object.values(errors)[0] || "Periksa kembali inputan kamu.";
-                notifyError("Gagal", firstError);
-            },
-        });
+        // 🔍 Validasi user-friendly
+        if (!data.kat_iuran_id) {
+            notifyError(
+                "Belum memilih jenis iuran",
+                "Pilih kategori iuran terlebih dahulu."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.nominal || data.nominal === "Rp 0") {
+            notifyError(
+                "Nominal belum diisi",
+                "Masukkan jumlah uang iuran yang sesuai."
+            );
+            setIsLoading(false);
+            return;
+        }
+        if (!data.ket.trim()) {
+            notifyError(
+                "Keterangan kosong",
+                "Tuliskan keterangan singkat, misal bulan atau tujuan iuran."
+            );
+            setIsLoading(false);
+            return;
+        }
+
+        const cleanNominal = data.nominal.replace(/[^0-9]/g, "");
+
+        try {
+            await axios.post(route("iuran.create"), {
+                ...data,
+                nominal: cleanNominal,
+            });
+
+            notifySuccess("Berhasil", "Data iuran berhasil disimpan!");
+            reset();
+        } catch (error) {
+            console.error(error);
+            let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";
+            if (error.response) {
+                switch (error.response.status) {
+                    case 422:
+                        pesan =
+                            "Periksa kembali data yang kamu isi, ada yang belum sesuai.";
+                        break;
+                    case 500:
+                        pesan =
+                            "Server sedang bermasalah. Coba beberapa saat lagi.";
+                        break;
+                    default:
+                        pesan = error.response.data?.message || pesan;
+                }
+            }
+            notifyError("Gagal Menyimpan", pesan);
+        } finally {
+            setIsLoading(false);
+        }
     };
 
-    // ✅ Tambah kategori iuran
+    // 🟢 Tambah kategori baru
     const handleAddKategori = async () => {
         if (!namaKat.trim()) {
-            notifyError("Input Kosong", "Nama kategori tidak boleh kosong");
+            notifyError("Input kosong", "Nama kategori tidak boleh kosong.");
             return;
         }
 
@@ -125,7 +162,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
         }
     };
 
-    // ✅ Hapus kategori iuran
+    // 🔴 Hapus kategori
     const handleDeleteKategori = async () => {
         if (!selectedDelete) return;
 
@@ -138,7 +175,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                 setKategori((prev) =>
                     prev.filter((item) => item.id !== selectedDelete)
                 );
-                notifySuccess("Berhasil", "Kategori berhasil dihapus");
+                notifySuccess("Berhasil", "Kategori berhasil dihapus.");
                 setOpenDelete(false);
             } else {
                 notifyError(
@@ -153,145 +190,140 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
     };
 
     return (
-        <>
-            <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-                {/* Jenis Iuran */}
-                <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                        <Label>
-                            Jenis Iuran <span className="text-red-500">*</span>
-                        </Label>
-                        <Dialog open={openAdd} onOpenChange={setOpenAdd}>
-                            <DialogTrigger asChild>
+        <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+            {/* Jenis Iuran */}
+            <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                    <Label>
+                        Jenis Iuran <span className="text-red-500">*</span>
+                    </Label>
+                    <Dialog open={openAdd} onOpenChange={setOpenAdd}>
+                        <DialogTrigger asChild>
+                            <Button
+                                type="button"
+                                size="sm"
+                                className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1"
+                            >
+                                <Plus className="w-4 h-4" />
+                                Tambah
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="space-y-4">
+                            <DialogHeader>
+                                <DialogTitle>Tambah Jenis Iuran</DialogTitle>
+                            </DialogHeader>
+                            <div className="space-y-2">
+                                <Label>Nama Kategori</Label>
+                                <Input
+                                    value={namaKat}
+                                    onChange={(e) => setNamaKat(e.target.value)}
+                                    placeholder="Contoh: Kebersihan, Keamanan..."
+                                />
+                            </div>
+                            <DialogFooter className="flex justify-end gap-3">
                                 <Button
                                     type="button"
-                                    size="sm"
-                                    className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1"
+                                    variant="outline"
+                                    onClick={() => setOpenAdd(false)}
                                 >
-                                    <Plus className="w-4 h-4" />
-                                    Tambah
+                                    Batal
                                 </Button>
-                            </DialogTrigger>
-                            <DialogContent className="space-y-4">
-                                <DialogHeader>
-                                    <DialogTitle>
-                                        Tambah Jenis Iuran
-                                    </DialogTitle>
-                                </DialogHeader>
-                                <div className="space-y-2">
-                                    <Label>Nama Kategori</Label>
-                                    <Input
-                                        value={namaKat}
-                                        onChange={(e) =>
-                                            setNamaKat(e.target.value)
-                                        }
-                                        placeholder="Contoh: Kebersihan, Keamanan..."
-                                    />
+                                <Button
+                                    type="button"
+                                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                                    onClick={handleAddKategori}
+                                >
+                                    Simpan
+                                </Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+
+                <Select
+                    onValueChange={(val) => setData("kat_iuran_id", val)}
+                    value={data.kat_iuran_id || ""}
+                >
+                    <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Pilih jenis iuran" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {kategori.length > 0 ? (
+                            kategori.map((kat) => (
+                                <div
+                                    key={kat.id}
+                                    className="flex items-center justify-between"
+                                >
+                                    <SelectItem
+                                        value={kat.id.toString()}
+                                        className="flex-1"
+                                    >
+                                        {kat.nm_kat}
+                                    </SelectItem>
+                                    <Button
+                                        type="button"
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => {
+                                            setSelectedDelete(kat.id);
+                                            setOpenDelete(true);
+                                        }}
+                                    >
+                                        <Minus className="w-4 h-4 text-red-500" />
+                                    </Button>
                                 </div>
-                                <DialogFooter className="flex justify-end gap-3">
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        onClick={() => setOpenAdd(false)}
-                                    >
-                                        Batal
-                                    </Button>
-                                    <Button
-                                        type="button"
-                                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                                        onClick={handleAddKategori}
-                                    >
-                                        Simpan
-                                    </Button>
-                                </DialogFooter>
-                            </DialogContent>
-                        </Dialog>
-                    </div>
+                            ))
+                        ) : (
+                            <SelectItem disabled>
+                                Tidak ada data kategori
+                            </SelectItem>
+                        )}
+                    </SelectContent>
+                </Select>
+            </div>
 
-                    <Select
-                        onValueChange={(val) =>
-                            form.setData("kat_iuran_id", val)
-                        }
-                    >
-                        <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Pilih jenis iuran" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {kategori.length > 0 ? (
-                                kategori.map((kat) => (
-                                    <div
-                                        key={kat.id}
-                                        className="flex items-center justify-between"
-                                    >
-                                        <SelectItem
-                                            value={kat.id.toString()}
-                                            className="flex-1"
-                                        >
-                                            {kat.nm_kat}
-                                        </SelectItem>
-                                        <Button
-                                            type="button"
-                                            size="icon"
-                                            variant="ghost"
-                                            onClick={() => {
-                                                setSelectedDelete(kat.id);
-                                                setOpenDelete(true);
-                                            }}
-                                        >
-                                            <Minus className="w-4 h-4 text-red-500" />
-                                        </Button>
-                                    </div>
-                                ))
-                            ) : (
-                                <SelectItem disabled>
-                                    Tidak ada data kategori
-                                </SelectItem>
-                            )}
-                        </SelectContent>
-                    </Select>
-                </div>
+            {/* Nominal */}
+            <div className="space-y-2">
+                <Label>
+                    Nominal <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                    type="text"
+                    placeholder="Rp 0"
+                    value={data.nominal}
+                    onChange={handleNominalChange}
+                />
+            </div>
 
-                {/* Nominal */}
-                <div className="space-y-2">
-                    <Label>
-                        Nominal <span className="text-red-500">*</span>
-                    </Label>
-                    <Input
-                        type="text"
-                        placeholder="Rp 0"
-                        value={form.data.nominal}
-                        onChange={handleNominalChange}
-                    />
-                </div>
+            {/* Keterangan */}
+            <div className="space-y-2">
+                <Label>
+                    Keterangan <span className="text-red-500">*</span>
+                </Label>
+                <Textarea
+                    placeholder="Contoh: Iuran kebersihan bulan Oktober"
+                    value={data.ket}
+                    onChange={(e) => setData("ket", e.target.value)}
+                />
+            </div>
 
-                {/* Keterangan */}
-                <div className="space-y-2">
-                    <Label>Keterangan</Label>
-                    <Textarea
-                        placeholder="Contoh: Iuran kebersihan bulan Oktober"
-                        value={form.data.ket}
-                        onChange={(e) => form.setData("ket", e.target.value)}
-                    />
-                </div>
-
-                {/* Tombol aksi */}
-                <div className="flex justify-end gap-4 pt-2">
-                    <Button
-                        type="reset"
-                        onClick={() => form.reset()}
-                        className="bg-gray-500 hover:bg-gray-600 text-white"
-                    >
-                        Batal
-                    </Button>
-                    <Button
-                        type="submit"
-                        disabled={form.processing}
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                    >
-                        {form.processing ? "Menyimpan..." : "Tambah Pemasukan"}
-                    </Button>
-                </div>
-            </form>
+            {/* Tombol aksi */}
+            <div className="flex justify-end gap-4 pt-2">
+                <Button
+                    type="reset"
+                    onClick={() => reset()}
+                    className="bg-gray-500 hover:bg-gray-600 text-white"
+                >
+                    Batal
+                </Button>
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                >
+                    {isLoading ? "Menyimpan..." : "Tambah Pemasukan"}
+                </Button>
+            </div>
 
             {/* Popup konfirmasi hapus */}
             <Dialog open={openDelete} onOpenChange={setOpenDelete}>
@@ -316,6 +348,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-        </>
+        </form>
     );
 }
