@@ -9,12 +9,14 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight, ChevronsUpDown } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
 
 export default function Dashboard() {
-    const { transaksi = [] } = usePage().props;
+    const { transaksi = [], auth } = usePage().props;
+    const userRole = auth?.user?.role_id;
+
     const [sortField, setSortField] = useState("tgl");
     const [sortOrder, setSortOrder] = useState("desc");
     const [currentPage, setCurrentPage] = useState(1);
@@ -65,30 +67,43 @@ export default function Dashboard() {
 
                 {/* Tombol Aksi */}
                 <div className="flex gap-2 mt-4 md:mt-0">
-                    <Button
-                        className="bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
-                        onClick={() => router.visit("/kegiatan/tambah")}
-                    >
-                        Tambah Kegiatan
-                    </Button>
-                    <Button
-                        className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
-                        onClick={() => router.visit("/ringkasan/pemasukan")}
-                    >
-                        Tambah Pemasukan
-                    </Button>
-                    <Button
-                        className="bg-red-500 hover:bg-red-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
-                        onClick={() => router.visit("/ringkasan/pengeluaran")}
-                    >
-                        Tambah Pengeluaran
-                    </Button>
+                    {/* Role 2 dan 4 bisa tambah kegiatan */}
+                    {(userRole === 2 || userRole === 4) && (
+                        <Button
+                            className="bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
+                            onClick={() => router.visit("/kegiatan/tambah")}
+                        >
+                            Tambah Kegiatan
+                        </Button>
+                    )}
+
+                    {/* Role 2 dan 3 bisa tambah pemasukan & pengeluaran */}
+                    {(userRole === 2 || userRole === 3) && (
+                        <>
+                            <Button
+                                className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
+                                onClick={() =>
+                                    router.visit("/ringkasan/pemasukan")
+                                }
+                            >
+                                Tambah Pemasukan
+                            </Button>
+                            <Button
+                                className="bg-red-500 hover:bg-red-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
+                                onClick={() =>
+                                    router.visit("/ringkasan/pengeluaran")
+                                }
+                            >
+                                Tambah Pengeluaran
+                            </Button>
+                        </>
+                    )}
                 </div>
             </div>
 
             {/* TABEL TRANSAKSI */}
-            <div className="px38 pb-10">
-                <div className="rounded-xl border  overflow-hidden">
+            <div className="px-8 pb-10">
+                <div className="rounded-xl border overflow-hidden">
                     <Table>
                         <TableHeader>
                             <TableRow className="bg-white">
@@ -146,8 +161,17 @@ export default function Dashboard() {
                                         <TableCell>
                                             {formatRupiah(t.jumlah_sisa)}
                                         </TableCell>
-                                        <TableCell className="text-right">
-                                            {/* badge */}
+                                        <TableCell className="text-left">
+                                            {t.status === "Pemasukan" && (
+                                                <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 font-medium">
+                                                    Pemasukan
+                                                </Badge>
+                                            )}
+                                            {t.status === "Pengeluaran" && (
+                                                <Badge className="bg-red-50 text-red-700 hover:bg-red-50 font-medium">
+                                                    Pengeluaran
+                                                </Badge>
+                                            )}
                                         </TableCell>
                                     </TableRow>
                                 ))
