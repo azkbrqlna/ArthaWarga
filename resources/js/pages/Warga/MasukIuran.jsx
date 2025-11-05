@@ -14,6 +14,7 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { CalendarDays, CreditCard, ClipboardList } from "lucide-react";
 
 export default function MasukIuran() {
+  // Kode ini sudah benar. Ia mengharapkan 'iuran' sebagai array.
   const { iuran = [], auth } = usePage().props;
 
   const [sortField, setSortField] = useState("tanggal");
@@ -28,6 +29,7 @@ export default function MasukIuran() {
     }
   };
 
+  // Kode ini mengharapkan 'iuran' sebagai array.
   const sortedData = useMemo(() => {
     return [...iuran].sort((a, b) => {
       const valA = a[sortField];
@@ -41,12 +43,14 @@ export default function MasukIuran() {
     });
   }, [iuran, sortField, sortOrder]);
 
+  // Semua kalkulasi ini mengharapkan 'iuran' sebagai array.
   const totalIuran = iuran.length;
   const belumLunas = iuran.filter((x) => x.status === "Belum Lunas").length;
   const totalNominal = iuran.reduce((sum, x) => sum + parseInt(x.harga_tagihan), 0);
 
   const formatRupiah = (val) =>
     "Rp " + parseInt(val || 0).toLocaleString("id-ID");
+  
 
   return (
     <AppLayout>

@@ -58,3 +58,5 @@ Route::resource('kegiatan', KegiatanController::class)
 
 //untuk masuk iuran warga
 Route::resource('masuk-iuran', MasukIuranController::class);
+
+
