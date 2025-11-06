@@ -81,7 +81,7 @@ export default function Dashboard() {
     return (
         <AppLayout>
             {/* padding global kanan kiri */}
-            <div className="px-8 space-y-10">
+            <div className="space-y-10">
                 {/* HEADER DASHBOARD */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full bg-white">
                     <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
@@ -331,6 +331,7 @@ export default function Dashboard() {
                             (_, i) => i + 1
                         ).map((num) => (
                             <Button
+                                className="bg-blue-500 hover:bg-blue-300"
                                 key={num}
                                 variant={
                                     num === currentPage ? "default" : "outline"

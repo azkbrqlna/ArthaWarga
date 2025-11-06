@@ -79,7 +79,7 @@ export default function Pengumuman({ kategori_iuran = [] }) {
 
     return (
         <AppLayout>
-            <div className="pl-0 pr-8 pb-10 md:pr-12 md:pb-12 max-w-5xl mx-auto">
+            <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
                 <h1 className="text-3xl font-bold mb-8">TAMBAH PENGUMUMAN</h1>
 
                 <Breadcrumbs

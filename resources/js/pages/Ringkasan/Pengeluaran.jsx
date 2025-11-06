@@ -116,7 +116,7 @@ export default function Pengeluaran() {
 
     return (
         <AppLayout>
-            <div className="max-w-4xl mx-auto pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
+            <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
                 <h1 className="text-3xl font-bold mb-8">TAMBAH PENGELUARAN</h1>
 
                 <Breadcrumbs
