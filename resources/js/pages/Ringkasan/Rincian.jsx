@@ -15,6 +15,7 @@ import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Rincian() {
     const { rincian = {} } = usePage().props;
+    console.log(rincian.bkt_nota);
 
     const formatRupiah = (val) =>
         "Rp " + parseInt(val || 0).toLocaleString("id-ID");
@@ -141,8 +142,10 @@ export default function Rincian() {
                     </div>
 
                     {!!rincian.bkt_nota && (
-                        <div className="mt-6">
-                            <p className="text-gray-500 mb-2">Bukti Nota</p>
+                        <div>
+                            <p className="text-gray-500 mb-2 text-sm">
+                                Bukti Nota
+                            </p>
                             <img
                                 src={rincian.bkt_nota}
                                 alt="Bukti Nota"
