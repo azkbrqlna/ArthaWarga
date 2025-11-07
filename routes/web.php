@@ -13,7 +13,6 @@ use Inertia\Inertia;
 Route::get('/', fn() => Inertia::render('Welcome'));
 
 // 🔐 Login & Logout
-Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
