@@ -17,11 +17,11 @@ return new class extends Migration
             $table->string('nm_lengkap');
             $table->string('foto_profil')->nullable();
             $table->string('no_hp');
-            
             $table->string('alamat');
             $table->string('rt');
             $table->string('rw');
             $table->string('kode_pos');
+            $table->enum('status', ['tetap', 'kontrak'])->default('tetap');
             $table->timestamps();
         });
     }
