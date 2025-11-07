@@ -1,6 +1,12 @@
 import AppLayoutSuperadmin from "@/layouts/AppLayoutSuperadmin";
 import React from "react";
-import { Database, Banknote, Clock, CalendarIcon, ArrowUpDown } from "lucide-react";
+import {
+  Database,
+  Banknote,
+  Clock,
+  CalendarIcon,
+  ArrowUpDown,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -47,7 +53,22 @@ export default function Superadmin() {
       status: "Pemasukan",
       perubahanOleh: "Sekretaris RT 09",
     },
+    // Tambahkan lebih banyak data untuk menguji pagination
   ]);
+
+  // 🔽 Pagination setup
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const rowsPerPage = 8;
+  const totalPages = Math.ceil(data.length / rowsPerPage);
+
+  const indexOfLast = currentPage * rowsPerPage;
+  const indexOfFirst = indexOfLast - rowsPerPage;
+  const currentData = data.slice(indexOfFirst, indexOfLast);
+
+  const handlePageChange = (page) => {
+    if (page < 1 || page > totalPages) return;
+    setCurrentPage(page);
+  };
 
   // 🔽 fungsi untuk mengurutkan data
   const handleSort = (key) => {
@@ -156,7 +177,7 @@ export default function Superadmin() {
                     </tr>
                   </thead>
                   <tbody>
-                    {data.map((trx, i) => (
+                    {currentData.map((trx, i) => (
                       <tr key={i} className="border-b hover:bg-gray-100">
                         <td className="py-2 px-3">{trx.tanggal}</td>
                         <td className="py-2 px-3">{trx.kategori}</td>
@@ -187,16 +208,37 @@ export default function Superadmin() {
               Geser tabel ke kanan untuk melihat kolom lainnya →
             </p>
 
-            {/* Pagination dummy */}
+            {/* Pagination aktif */}
             <div className="flex justify-end mt-4 gap-2">
-              {[1, 2, 3, 4, 5].map((n) => (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage - 1)}
+                disabled={currentPage === 1}
+              >
+                Prev
+              </Button>
+              {Array.from({ length: totalPages }, (_, i) => (
                 <button
-                  key={n}
-                  className={`px-3 py-1 rounded ${n === 1 ? "bg-gray-300" : "hover:bg-gray-200"}`}
+                  key={i}
+                  onClick={() => handlePageChange(i + 1)}
+                  className={`px-3 py-1 rounded ${
+                    currentPage === i + 1
+                      ? "bg-gray-300 font-semibold"
+                      : "hover:bg-gray-200"
+                  }`}
                 >
-                  {n}
+                  {i + 1}
                 </button>
               ))}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => handlePageChange(currentPage + 1)}
+                disabled={currentPage === totalPages}
+              >
+                Next
+              </Button>
             </div>
           </div>
         </main>

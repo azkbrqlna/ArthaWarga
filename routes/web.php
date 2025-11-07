@@ -40,6 +40,10 @@ Route::prefix('superadmin')->group(function () {
     })->name('superadmin.profil');
 });
 
+Route::get('/superadmin/edit-profil', function () {
+    return inertia('Superadmin/EditProfil');
+});
+
 Route::get('/manajemen_data', function () {
     return Inertia::render('ManajemenData');
 });

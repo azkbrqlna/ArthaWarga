@@ -36,15 +36,15 @@ export default function ManajemenData() {
 
     return (
         <AppLayoutSuperadmin>
-            <div className="flex flex-col min-h-screen bg-white">
+            <div className="flex flex-col min-h-screen px-10 bg-white">
                 <main className="flex-1 p-6 md:p-8 w-full">
-                    <h1 className="text-2xl md:text-3xl font-bold mb-6">
+                    <h1 className="text-2xl md:text-3xl font-bold border-b-2 border-gray-200 py-3 md:py-5 text-shadow-lg">
                         Manajemen Data
                     </h1>
 
                     {/* 🔍 Search + Filter + Add Button */}
                     <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-4">
-                        <div className="flex items-center w-full sm:w-1/2 relative">
+                        <div className="flex items-center w-full sm:w-1/2 relative ">
                             <Search className="absolute left-3 top-2.5 h-4 w-4 text-gray-400" />
                             <Input
                                 type="text"

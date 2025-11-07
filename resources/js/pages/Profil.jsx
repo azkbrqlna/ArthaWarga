@@ -1,10 +1,11 @@
 import AppLayoutSuperadmin from "@/layouts/AppLayoutSuperadmin";
 import React from "react";
+import { Link } from "@inertiajs/react"; // ✅ tambahkan ini
 
 export default function Profil() {
     return (
         <AppLayoutSuperadmin>
-            <div className="h-screen bg-gradient-to-r from-blue-100 via-white to-yellow-100 rounded-3xl p-10 shadow ">
+            <div className="h-screen bg-gradient-to-r from-blue-100 via-white to-yellow-100 p-10 shadow ">
                 {/* Judul */}
                 <h1 className="text-4xl font-bold text-gray-900 mb-8">
                     Hai, ini profilmu!
@@ -23,7 +24,7 @@ export default function Profil() {
                 </div>
 
                 {/* Kartu Data Profil */}
-                <div className="bg-white rounded-3xl shadow p-10">
+                <div className="h-[60vh] bg-white rounded-3xl shadow p-10">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
                         {/* Kiri */}
                         <div className="flex flex-col gap-6">
@@ -74,9 +75,13 @@ export default function Profil() {
 
                     {/* Tombol */}
                     <div className="mt-10">
-                        <button className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition">
+                        {/* ✅ ubah button jadi Link Inertia */}
+                        <Link
+                            href="/superadmin/edit-profil"
+                            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition"
+                        >
                             Edit Profil
-                        </button>
+                        </Link>
                     </div>
                 </div>
             </div>
