@@ -8,7 +8,6 @@ class PemasukanBOP extends Model
 {
     protected $table = 'masuk_bop';
     protected $fillable = [
-        'sumber_id', 
         'tgl',
         'nominal',
         'ket',

@@ -13,12 +13,17 @@ return new class extends Migration
     {
         Schema::create('masuk_iuran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('kat_iuran_id')->constrained('kat_iuran')->cascadeOnDelete();
+            $table->foreignId('usr_id')->nullable()->constrained('usr')->cascadeOnDelete();
+            $table->foreignId('pengumuman_id')->nullable()->constrained('pengumuman')->cascadeOnDelete();
+            $table->foreignId('kat_iuran_id')->nullable()->constrained('kat_iuran')->cascadeOnDelete();
             $table->date('tgl');
-            $table->decimal('nominal', 12,2);
-            $table->text('ket');
-            $table->integer('jml_kk');
-            $table->decimal('total', 12, 2);
+            $table->integer('nominal')->nullable();
+            $table->string('ket')->nullable();
+            $table->string('bkt_byr')->nullable();  
+            $table->string('bkt_nota')->nullable();
+            $table->date('tgl_byr')->nullable();
+            $table->date('tgl_approved')->nullable();
+            $table->enum('status', ['tagihan','pending', 'approved', 'rejected'])->nullable();
             $table->timestamps();
         });
     }

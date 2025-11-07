@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('masuk_bop', function (Blueprint $table) {
             $table->id();
             $table->date('tgl');
-            $table->decimal('nominal', 12,2);
+            $table->integer('nominal');
             $table->text('ket');
             $table->string('bkt_nota');
             $table->timestamps();

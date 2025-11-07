@@ -12,6 +12,7 @@ import { usePage } from "@inertiajs/react";
 import AppLayout from "@/layouts/Applayout";
 import FormBOP from "./FormBOP";
 import FormIuran from "./FormIuran";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Pemasukan() {
     const [jenis, setJenis] = useState("bop");
@@ -26,6 +27,12 @@ export default function Pemasukan() {
             <h1 className="text-3xl font-bold mb-8">TAMBAH PEMASUKAN</h1>
 
             {/* Pilihan jenis dan tanggal */}
+            <Breadcrumbs
+                items={[
+                    { label: "Dashboard", href: route("dashboard") },
+                    { label: "Tambah Pemasukan" },
+                ]}
+            />
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12 w-full">
                 {/* Jenis Pemasukan */}
                 <div className="space-y-2">

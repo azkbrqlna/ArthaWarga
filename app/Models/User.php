@@ -16,11 +16,11 @@ class User extends Authenticatable
 
     public function role()
     {
-        return $this->belongsTo(Role::class);
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
-    public function user_iuran()
+    public function masuk_iuran()
     {
-        return $this->hasMany(UserIuran::class);
+        return $this->hasMany(PemasukanIuran::class);
     }
 }

@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('kat_keg', function (Blueprint $table) {
             $table->id();
             $table->string('nm_kat');
-            $table->string('ket');
             $table->timestamps();
         });
     }

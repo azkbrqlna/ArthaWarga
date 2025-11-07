@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('pengeluaran', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('keg_id')->constrained('keg');
+            $table->enum('tipe', ['bop', 'iuran']);
+            $table->foreignId('keg_id')->constrained('keg')->cascadeOnDelete();
             $table->date('tgl');
-            $table->decimal('jml', 12, 2);
+            $table->integer('nominal');
             $table->string('ket');
+            $table->string('bkt_nota')->nullable();
             $table->timestamps();
         });
     }

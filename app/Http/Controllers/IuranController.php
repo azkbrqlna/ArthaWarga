@@ -4,12 +4,23 @@ namespace App\Http\Controllers;
 
 use App\Models\KategoriIuran;
 use App\Models\PemasukanIuran;
+use App\Models\Pengumuman;
 use App\Models\User;
-use App\Models\UserIuran;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Inertia\Inertia;
 
 class IuranController extends Controller
 {
+    
+    public function pemasukan()
+    {
+        $kategori_iuran = KategoriIuran::whereNotIn('id', [1, 2])->get();
+
+        return Inertia::render('Ringkasan/Pemasukan', [
+            'kategori_iuran' => $kategori_iuran
+        ]);
+    }
     public function kat_iuran_create(Request $request)
     {
         $validated = $request->validate([
@@ -25,8 +36,6 @@ class IuranController extends Controller
         ]);
     }
 
-
-
     public function kat_iuran_delete($id)
     {
         $kategori = KategoriIuran::find($id);
@@ -36,6 +45,15 @@ class IuranController extends Controller
                 'success' => false,
                 'message' => 'Data kategori iuran tidak ditemukan.'
             ], 404);
+        }
+
+        $dipakai = PemasukanIuran::where('kat_iuran_id', $id)->exists();
+
+        if ($dipakai) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori ini sudah digunakan di data iuran lain dan tidak dapat dihapus.'
+            ], 400);
         }
 
         $kategori->delete();
@@ -48,11 +66,11 @@ class IuranController extends Controller
 
     public function index()
     {
-        return response()->json([
-            'data' => PemasukanIuran::select('kat_iuran_id', 'tgl', 'nominal', 'ket', 'jml_kk', 'total')
-                ->latest()
-                ->get()
-        ]);
+        $data = PemasukanIuran::select('kat_iuran_id', 'tgl', 'nominal', 'ket')
+            ->latest()
+            ->get();
+
+        return response()->json(['data' => $data]);
     }
 
     public function iuran_create(Request $request)
@@ -62,24 +80,20 @@ class IuranController extends Controller
             'tgl' => 'required|date',
             'nominal' => 'required|numeric|min:0',
             'ket' => 'nullable|string',
-            'jml_kk' => 'required|numeric|min:0',
-            'total' => 'required|numeric|min:0',
         ]);
 
-        $iuran = PemasukanIuran::create($validated);
-
-        $users = User::all();
-        foreach ($users as $user) {
-            UserIuran::create([
-                'usr_id' => $user->id,
-                'masuk_iuran_id' => $iuran->id,
-                'tgl' => now(),
-                'is_paid' => false,
-                'is_approved' => false
-            ]);
-        }
-
+        $iuran = PemasukanIuran::create([
+            'usr_id' => Auth::user()->id,
+            'kat_iuran_id' => $validated['kat_iuran_id'],
+            'tgl' => $validated['tgl'],
+            'nominal' => $validated['nominal'],
+            'ket' => $validated['ket'],
+            'status' => 'approved',
+        ]);
+       
         return back()->with('success', 'Data iuran berhasil disimpan.');
     }
 
+    
 }
+
