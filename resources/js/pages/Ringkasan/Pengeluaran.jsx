@@ -13,13 +13,13 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { Upload } from "lucide-react";
+import { Banknote, CircleDollarSign, Upload } from "lucide-react";
 import { useNotify } from "@/components/ToastNotification";
 import axios from "axios";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Pengeluaran() {
-    const { kegiatans = [] } = usePage().props;
+    const { kegiatans = [], totalBop, totalIuran } = usePage().props;
     const { notifySuccess, notifyError } = useNotify();
 
     const { data, setData, reset } = useForm({
@@ -125,6 +125,40 @@ export default function Pengeluaran() {
                         { label: "Tambah Pengeluaran" },
                     ]}
                 />
+                {/* Ringkasan Dana Sekarang */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8 mt-4">
+                    <div className="flex items-center gap-4 border rounded-xl p-4 shadow-sm bg-white">
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                            <CircleDollarSign className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium">
+                                Dana BOP Sekarang
+                            </p>
+                            <p className="text-xl font-semibold">
+                                {formatRupiah(
+                                    String(usePage().props.totalBop || "0")
+                                )}
+                            </p>
+                        </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 border rounded-xl p-4 shadow-sm bg-white">
+                        <div className="bg-gray-100 p-3 rounded-lg">
+                            <Banknote className="w-6 h-6" />
+                        </div>
+                        <div>
+                            <p className="text-sm text-gray-500 font-medium">
+                                Dana Iuran Sekarang
+                            </p>
+                            <p className="text-xl font-semibold">
+                                {formatRupiah(
+                                    String(usePage().props.totalIuran || "0")
+                                )}
+                            </p>
+                        </div>
+                    </div>
+                </div>
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Jenis dan tanggal */}

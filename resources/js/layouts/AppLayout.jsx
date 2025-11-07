@@ -1,5 +1,11 @@
 import React from "react";
-import { SquareCheckBig, LayoutTemplate, Menu, LogOut } from "lucide-react";
+import {
+    SquareCheckBig,
+    LayoutTemplate,
+    Menu,
+    LogOut,
+    Database,
+} from "lucide-react";
 import {
     Sidebar,
     SidebarProvider,
@@ -17,14 +23,9 @@ import { usePage, useForm } from "@inertiajs/react";
 import { Toaster } from "sonner";
 import AIChat from "@/components/AIChat";
 
-const items = [
-    { title: "Ringkasan Keuangan", url: "/dashboard", icon: LayoutTemplate },
-    { title: "Approval", url: "/approval", icon: SquareCheckBig },
-];
-
 export default function AppLayout({ children }) {
-    const { url, props } = usePage(); // 🔹 ambil props dari inertia
-    const { auth } = props; // 🔹 ambil auth di sini
+    const { url, props } = usePage();
+    const { auth } = props;
     const { post } = useForm();
 
     const handleLogout = (e) => {
@@ -32,15 +33,32 @@ export default function AppLayout({ children }) {
         post(route("logout"));
     };
 
-    // 🔹 ambil dua kata pertama dari nm_lengkap
     const displayName = auth?.user?.nm_lengkap
         ? auth.user.nm_lengkap.split(" ").slice(0, 2).join(" ")
         : "Guest";
 
-    // 🔹 avatar unik dari nama
     const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
         displayName
     )}`;
+
+    // 🔹 menu normal untuk non-admin
+    const defaultItems = [
+        {
+            title: "Ringkasan Keuangan",
+            url: "/dashboard",
+            icon: LayoutTemplate,
+        },
+        { title: "Approval", url: "/approval", icon: SquareCheckBig },
+    ];
+
+    // 🔹 menu khusus admin
+    const adminItems = [
+        { title: "Dashboard", url: "/dashboard", icon: LayoutTemplate },
+        { title: "Manajemen Data", url: "/manajemen-data", icon: Database },
+    ];
+
+    // 🔹 pilih menu berdasarkan role
+    const items = auth?.user?.role_id === 1 ? adminItems : defaultItems;
 
     return (
         <SidebarProvider>
@@ -58,8 +76,11 @@ export default function AppLayout({ children }) {
                         <div>
                             <SidebarGroup>
                                 <SidebarGroupLabel className="font-bold text-lg px-4 pt-4 text-black">
-                                    ArthaWarga
+                                    {auth?.user?.role_id === 1
+                                        ? "Selamat Datang Admin"
+                                        : "ArthaWarga"}
                                 </SidebarGroupLabel>
+
                                 <SidebarGroupContent>
                                     <SidebarMenu className="mt-6 flex flex-col gap-3 px-4">
                                         {items.map((item) => {
@@ -99,7 +120,7 @@ export default function AppLayout({ children }) {
                             </SidebarGroup>
                         </div>
 
-                        {/* 🔹 Profil + Logout */}
+                        {/* Profil + Logout */}
                         <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
                             <div className="flex items-center gap-2">
                                 <img

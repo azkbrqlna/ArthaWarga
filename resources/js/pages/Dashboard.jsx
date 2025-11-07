@@ -184,10 +184,23 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500 font-medium">
-                                        Saldo Awal
+                                        Total Pemasukan
                                     </p>
                                     <p className="text-lg font-semibold text-gray-900">
                                         {formatRupiah(saldoAwal)}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                                <div className="bg-gray-100 p-2 rounded-lg">
+                                    <Clock className="w-5 h-5 text-gray-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium">
+                                        Total Pengeluaran
+                                    </p>
+                                    <p className="text-lg font-semibold text-gray-900">
+                                        {formatRupiah(totalPengeluaran)}
                                     </p>
                                 </div>
                             </div>
@@ -198,24 +211,10 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500 font-medium">
-                                        Sisa Saldo
+                                        Saldo Sekarang
                                     </p>
                                     <p className="text-lg font-semibold text-gray-900">
                                         {formatRupiah(sisaSaldo)}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
-                                <div className="bg-gray-100 p-2 rounded-lg">
-                                    <Clock className="w-5 h-5 text-gray-600" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 font-medium">
-                                        Pengeluaran
-                                    </p>
-                                    <p className="text-lg font-semibold text-gray-900">
-                                        {formatRupiah(totalPengeluaran)}
                                     </p>
                                 </div>
                             </div>
