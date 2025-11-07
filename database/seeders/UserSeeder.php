@@ -34,7 +34,7 @@ class UserSeeder extends Seeder
             'pw'         => Hash::make('password123'),
             'no_hp'      => '081234567890',
             'role_id'    => $superadminRole,
-            'status'     => 'aktif',
+            'status'     => 'tetap', 
             'alamat'     => 'Jl. Merdeka No. 1, Desa Maju',
             'rt'         => '01',
             'rw'         => '02',
@@ -43,7 +43,7 @@ class UserSeeder extends Seeder
             'updated_at' => now(),
         ]);
 
-        // Fungsi pembuat user acak sesuai struktur controller
+        // === Fungsi pembuat user acak ===
         $buatUser = function ($roleId, $namaRole) use ($faker) {
             return [
                 'nm_lengkap' => $faker->name(),
@@ -52,7 +52,7 @@ class UserSeeder extends Seeder
                 'pw'         => Hash::make('password123'),
                 'no_hp'      => '08' . $faker->numerify('##########'),
                 'role_id'    => $roleId,
-                'status'     => $faker->randomElement(['aktif', 'nonaktif']),
+                'status'     => $faker->randomElement(['tetap', 'kontrak']), 
                 'alamat'     => $faker->address(),
                 'rt'         => str_pad($faker->numberBetween(1, 9), 2, '0', STR_PAD_LEFT),
                 'rw'         => str_pad($faker->numberBetween(1, 5), 2, '0', STR_PAD_LEFT),
