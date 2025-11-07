@@ -15,7 +15,7 @@ class SuperAdminController extends Controller
         $users = User::with('role')->paginate(10);
         $roles = Role::all();
 
-        return Inertia::render('Superadmin', [
+        return Inertia::render('ManajemenData', [
             'users' => $users,
             'roles' => $roles,
             'flash' => [
@@ -28,7 +28,7 @@ class SuperAdminController extends Controller
     {
         $roles = Role::all();
 
-        return Inertia::render('Superadmin', [
+        return Inertia::render('ManajemenData', [
             'roles' => $roles
         ]);
     }
@@ -71,7 +71,7 @@ class SuperAdminController extends Controller
         $user = User::findOrFail($id);
         $roles = Role::all();
 
-        return Inertia::render('Superadmin', [
+        return Inertia::render('ManajemenData', [
             'user' => $user,
             'roles' => $roles
         ]);
