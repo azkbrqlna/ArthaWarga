@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PemasukanIuran;
+use App\Models\Pengumuman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -13,15 +14,30 @@ class MasukIuranController extends Controller
     public function index()
     {
         $userId = Auth::id();
+        $pengumuman = Pengumuman::all();
 
         $iurans = PemasukanIuran::with(['pengumuman.kat_iuran'])
             ->where('usr_id', $userId)
             ->orderByDesc('tgl')
             ->paginate(10)
             ->withQueryString();
+        
+        $totalIuran = PemasukanIuran::where('usr_id', $userId)->count();
+
+        $unpaidIuran = PemasukanIuran::where('usr_id', $userId)
+            ->where('status', 'tagihan')
+            ->count();
+
+        $paidIuran = PemasukanIuran::where('usr_id', $userId)
+            ->where('status', 'approved')
+            ->count();
 
         return Inertia::render('Warga/MasukIuranIndex', [
             'iurans' => $iurans,
+            'pengumuman' => $pengumuman,
+            'totalIuran' => $totalIuran,
+            'pendingIuran' => $unpaidIuran,
+            'paidIuran' => $paidIuran
         ]);
     }
 
