@@ -51,7 +51,7 @@ class PengeluaranController extends Controller
             'nominal' => 'required|numeric|min:0',
             'ket' => 'required|string',
             'tipe' => 'required|in:bop,iuran',
-            'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($request->hasFile('bkt_nota')) {
