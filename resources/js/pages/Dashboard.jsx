@@ -96,7 +96,7 @@ export default function Dashboard() {
                                 <Button
                                     className="bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                     onClick={() =>
-                                        router.visit("/ringkasan/kegiatan")
+                                        router.visit("/dashboard/kegiatan")
                                     }
                                 >
                                     Tambah Kegiatan
@@ -108,7 +108,7 @@ export default function Dashboard() {
                                     <Button
                                         className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
-                                            router.visit("/ringkasan/pemasukan")
+                                            router.visit("/dashboard/pemasukan")
                                         }
                                     >
                                         Tambah Pemasukan
@@ -117,7 +117,7 @@ export default function Dashboard() {
                                         className="bg-red-500 hover:bg-red-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
                                             router.visit(
-                                                "/ringkasan/pengeluaran"
+                                                "/dashboard/pengeluaran"
                                             )
                                         }
                                     >
@@ -127,7 +127,7 @@ export default function Dashboard() {
                                         className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
                                             router.visit(
-                                                "/ringkasan/pengumuman"
+                                                "/dashboard/pengumuman"
                                             )
                                         }
                                     >

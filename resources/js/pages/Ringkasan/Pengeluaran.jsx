@@ -1,5 +1,5 @@
 import React, { useState, useRef } from "react";
-import { useForm, usePage } from "@inertiajs/react";
+import { useForm, usePage, router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import AppLayout from "@/layouts/AppLayout";
 import { Input } from "@/components/ui/input";
@@ -19,7 +19,7 @@ import axios from "axios";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Pengeluaran() {
-    const { kegiatans = [], totalBop, totalIuran } = usePage().props;
+    const { kegiatans = [], sisaBop, sisaIuran } = usePage().props;
     const { notifySuccess, notifyError } = useNotify();
 
     const { data, setData, reset } = useForm({
@@ -103,6 +103,9 @@ export default function Pengeluaran() {
                 headers: { "Content-Type": "multipart/form-data" },
             });
             notifySuccess("Berhasil", "Pengeluaran berhasil disimpan!");
+
+            router.visit("/dashboard");
+
             reset();
             setPreview(null);
             if (fileInputRef.current) fileInputRef.current.value = null;
@@ -137,7 +140,7 @@ export default function Pengeluaran() {
                             </p>
                             <p className="text-xl font-semibold">
                                 {formatRupiah(
-                                    String(usePage().props.totalBop || "0")
+                                    String(usePage().props.sisaBop || "0")
                                 )}
                             </p>
                         </div>
@@ -153,7 +156,7 @@ export default function Pengeluaran() {
                             </p>
                             <p className="text-xl font-semibold">
                                 {formatRupiah(
-                                    String(usePage().props.totalIuran || "0")
+                                    String(usePage().props.sisaIuran || "0")
                                 )}
                             </p>
                         </div>
