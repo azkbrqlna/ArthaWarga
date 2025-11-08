@@ -8,14 +8,14 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
 
-class SuperAdminController extends Controller
+class SuperadminController extends Controller
 {
     public function users()
     {
         $users = User::with('role')->paginate(10);
         $roles = Role::all();
 
-        return Inertia::render('Superadmin', [
+        return Inertia::render('ManajemenData', [
             'users' => $users,
             'roles' => $roles,
             'flash' => [
@@ -28,7 +28,7 @@ class SuperAdminController extends Controller
     {
         $roles = Role::all();
 
-        return Inertia::render('Superadmin', [
+        return Inertia::render('ManajemenData', [
             'roles' => $roles
         ]);
     }
@@ -39,7 +39,7 @@ class SuperAdminController extends Controller
             'nm_lengkap' => 'required|string',
             'no_kk' => 'required|digits:16|unique:usr,no_kk',
             'email' => 'required|email|unique:usr,email',
-            'pw' => 'required|min:6',
+            'password' => 'required|min:6',
             'no_hp' => 'nullable',
             'role_id' => 'required',
             'status' => 'required',
@@ -53,7 +53,7 @@ class SuperAdminController extends Controller
             'nm_lengkap' => $request->nm_lengkap,
             'email' => $request->email,
             'no_kk' => $request->no_kk,
-            'pw' => Hash::make($request->pw),
+            'password' => Hash::make($request->password),
             'no_hp' => $request->no_hp,
             'role_id' => $request->role_id,
             'status' => $request->status,
@@ -71,7 +71,7 @@ class SuperAdminController extends Controller
         $user = User::findOrFail($id);
         $roles = Role::all();
 
-        return Inertia::render('Superadmin', [
+        return Inertia::render('ManajemenData', [
             'user' => $user,
             'roles' => $roles
         ]);
@@ -107,8 +107,8 @@ class SuperAdminController extends Controller
             'kode_pos' => $request->kode_pos
         ];
 
-        if ($request->filled('pw')) {
-            $data['pw'] = Hash::make($request->pw);
+        if ($request->filled('password')) {
+            $data['password'] = Hash::make($request->password);
         }
 
         $user->update($data);

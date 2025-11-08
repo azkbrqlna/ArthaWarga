@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('role_id')->constrained('role')->cascadeOnDelete();
             $table->string('email')->unique();
             $table->string('no_kk', 16)->unique();
-            $table->string('pw');
+            $table->string('password');
             $table->string('nm_lengkap');
             $table->string('foto_profil')->nullable();
             $table->string('no_hp');
