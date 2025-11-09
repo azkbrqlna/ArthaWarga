@@ -1,5 +1,6 @@
 <?php
 
+// Controller
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\IuranController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\SuperAdminController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -47,3 +49,16 @@ Route::get('/superadmin', fn() => Inertia::render('Superadmin'))->name('superadm
 Route::get('/manajemen-data/{id}/edit', [UserController::class, 'edit'])->name('manajemen-data.edit');
 Route::put('/manajemen-data/{id}', [UserController::class, 'update'])->name('manajemen-data.update');
 
+Route::get('/tambah_data', fn() => Inertia::render('TambahData'))->name('tambahdata');
+Route::get('/manajemen_data', fn() => Inertia::render('ManajemenData'))->name('manajemendata');
+Route::get('/superadmin', fn() => Inertia::render('Superadmin'))->name('superadmin');
+
+Route::get('/manajemen-data/{id}/edit', [UserController::class, 'edit'])->name('manajemen-data.edit');
+Route::put('/manajemen-data/{id}', [UserController::class, 'update'])->name('manajemen-data.update');
+
+Route::get('/users', [SuperAdminController::class, 'users'])->name('users');
+Route::get('/users/create', [SuperAdminController::class, 'createUser'])->name('users.create');
+Route::post('/users/store', [SuperAdminController::class, 'storeUser'])->name('users.store');
+Route::get('/users/edit/{id}', [SuperAdminController::class, 'editUser'])->name('users.edit');
+Route::post('/users/update/{id}', [SuperAdminController::class, 'updateUser'])->name('users.update');
+Route::delete('/users/delete/{id}', [SuperAdminController::class, 'deleteUser'])->name('users.delete');

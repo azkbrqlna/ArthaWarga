@@ -8,12 +8,20 @@ class User extends Authenticatable
 {
     protected $table = 'usr';
     protected $fillable = [
-        'email', 'no_kk','password', 'nm_lengkap', 'foto_profil', 'no_hp',
-        'kode_prov', 'kode_kota_kab', 'kode_kec', 'kode_desa',
-        'rt_rw','kode_pos'
+        'nm_lengkap', 'no_kk', 'email', 'password', 'no_hp' , 'role_id', 'status', 'alamat', 'foto_profil',
+        'rt', 'rw','kode_pos'
     ];
 
+    protected $hidden = [
+        'password',
+        'remember_token', 
+    ];
 
+    protected $casts = [
+        'password' => 'hashed', // Gunakan 'hashed' untuk Laravel 10.x+
+        'email_verified_at' => 'datetime',
+    ];
+    
     public function role()
     {
         return $this->belongsTo(Role::class, 'role_id');

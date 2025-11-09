@@ -4,7 +4,7 @@ import React from "react";
 export default function Profil() {
     return (
         <AppLayoutSuperadmin>
-            <div className="h-[88vh] bg-gradient-to-r from-blue-100 via-white to-yellow-100 rounded-3xl p-10 shadow ">
+            <div className="h-screen bg-gradient-to-r from-blue-100 via-white to-yellow-100 rounded-3xl p-10 shadow ">
                 {/* Judul */}
                 <h1 className="text-4xl font-bold text-gray-900 mb-8">
                     Hai, ini profilmu!
