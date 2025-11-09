@@ -16,7 +16,7 @@ export default function ManajemenData() {
     const [search, setSearch] = useState("");
     const [roleFilter, setRoleFilter] = useState("all");
 
-    // ✅ Dummy data
+    // Dummy data
     const data = [
         { noKK: "3374035809021001", nama: "Eiren Wibi Hidayat", email: "eirenwibihidayat000@gmail.com", role: "Ketua RT" },
         { noKK: "3374035809021001", nama: "Vian Wibi Hidayat", email: "eirenwibihidayat000@gmail.com", role: "Sekretaris RT" },

@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/select";
 
 export default function EditData({ user }) {
-  // Gunakan useForm biar data bisa langsung dikirim ke backend
   const { data, setData, put, processing } = useForm({
     nama: user.nama || "",
     kk: user.kk || "",
