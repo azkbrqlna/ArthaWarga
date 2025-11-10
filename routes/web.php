@@ -1,5 +1,6 @@
 <?php
 
+// Controller
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
@@ -7,6 +8,7 @@ use App\Http\Controllers\IuranController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\SuperAdminController;
 use App\Http\Controllers\MasukIuranController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
@@ -42,6 +44,12 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/pengeluaran', [PengeluaranController::class, 'pengeluaran'])->name('pengeluaran.store');
     Route::get('/rincian/{id}', [DashboardController::class, 'rincian'])->name('rincian.show');
 
+Route::get('/users', [SuperAdminController::class, 'users'])->name('users');
+Route::get('/users/create', [SuperAdminController::class, 'createUser'])->name('users.create');
+Route::post('/users/store', [SuperAdminController::class, 'storeUser'])->name('users.store');
+Route::get('/users/edit/{id}', [SuperAdminController::class, 'editUser'])->name('users.edit');
+Route::post('/users/update/{id}', [SuperAdminController::class, 'updateUser'])->name('users.update');
+Route::delete('/users/delete/{id}', [SuperAdminController::class, 'deleteUser'])->name('users.delete');
     // Masuk Iuran (untuk warga)
     Route::get('/masuk-iuran', [MasukIuranController::class, 'index'])->name('masuk-iuran.index');
     Route::get('/masuk-iuran/{id}', [MasukIuranController::class, 'show'])->name('masuk-iuran.show');

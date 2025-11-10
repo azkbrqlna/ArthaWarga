@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback } from "react"; // Menambahkan useCallback
 import { motion } from "framer-motion";
-
+import { usePage } from "@inertiajs/react";
 import heroImage from "../assets/hero.png";
 import modelheroImage from "../assets/model_hero.png";
 import ketuaRtImage from "../assets/ketua-rt.png";
@@ -30,6 +30,7 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@inertiajs/react";
 // --- Komponen Role Card (Tidak Berubah) ---
+
 const RoleCard = ({ title, color, desc, image }) => (
     <motion.div
         initial={{ opacity: 0, y: 60 }}
@@ -87,6 +88,7 @@ const FeatureCard = ({ title, description, icon }) => (
 );
 
 export default function Welcome() {
+    const { auth } = usePage().props;
     const { notifySuccess, notifyError } = useNotify();
     const { data, setData, post, processing, errors, reset } = useForm({
         email: "",
@@ -122,8 +124,13 @@ export default function Welcome() {
                     window.location.href = "/dashboard";
                 }, 1200);
             },
-            onError: () => {
-                notifyError("Email atau password salah.");
+            onError: (errors) => {
+                // ambil pesan error dari Laravel inertia
+                if (errors.email || errors.password) {
+                    notifyError(errors.email || errors.password);
+                } else {
+                    notifyError("Email atau password salah.");
+                }
             },
         });
     };
@@ -241,65 +248,84 @@ export default function Welcome() {
                     </ul>
 
                     {/* LOGIN BUTTON (Tidak Berubah) */}
-                    <Dialog open={open} onOpenChange={setOpen}>
-                        <DialogTrigger asChild>
-                            <button className="bg-white text-blue-700 px-5 py-2 rounded-full font-semibold hover:bg-blue-700 hover:text-white border border-blue-700">
-                                Login
-                            </button>
-                        </DialogTrigger>
+                    {auth?.user ? (
+                        <a
+                            href="/dashboard"
+                            className="bg-blue-700 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-800 transition"
+                        >
+                            Dashboard
+                        </a>
+                    ) : (
+                        <Dialog open={open} onOpenChange={setOpen}>
+                            <DialogTrigger asChild>
+                                <button className="bg-white text-blue-700 px-5 py-2 rounded-full font-semibold hover:bg-blue-700 hover:text-white border border-blue-700">
+                                    Login
+                                </button>
+                            </DialogTrigger>
 
-                        <DialogContent className="sm:max-w-md">
-                            <DialogHeader>
-                                <DialogTitle className="text-center text-2xl font-bold mb-3">
-                                    Masuk ke Arthawarga
-                                </DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={handleLogin} className="space-y-4 ">
-                                <div>
-                                    <Label className="pb-3">Email</Label>
-                                    <Input
-                                        type="email"
-                                        value={data.email}
-                                        onChange={(e) =>
-                                            setData("email", e.target.value)
-                                        }
-                                        required
-                                    />
-                                    {errors.email && (
-                                        <p className="text-red-500 text-sm mt-1">
-                                            {errors.email}
-                                        </p>
-                                    )}
-                                </div>
-                                <div>
-                                    <Label className="pb-3">Password</Label>
-                                    <Input
-                                        type="password"
-                                        value={data.password}
-                                        onChange={(e) =>
-                                            setData("password", e.target.value)
-                                        }
-                                        required
-                                    />
-                                    {errors.password && (
-                                        <p className="text-red-500 text-sm mt-1">
-                                            {errors.password}
-                                        </p>
-                                    )}
-                                </div>
-                                <DialogFooter>
-                                    <Button
-                                        type="submit"
-                                        className="w-full bg-blue-700 hover:bg-blue-800"
-                                        disabled={processing}
-                                    >
-                                        {processing ? "Memproses..." : "Login"}
-                                    </Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-                    {/* Tombol Burger Hitam (MODIFIKASI WARNA) */}
+                            <DialogContent className="sm:max-w-md">
+                                <DialogHeader>
+                                    <DialogTitle className="text-center text-2xl font-bold mb-3">
+                                        Masuk ke Arthawarga
+                                    </DialogTitle>
+                                </DialogHeader>
+                                <form
+                                    onSubmit={handleLogin}
+                                    className="space-y-4 "
+                                >
+                                    <div>
+                                        <Label className="pb-3">Email</Label>
+                                        <Input
+                                            type="email"
+                                            value={data.email}
+                                            onChange={(e) =>
+                                                setData("email", e.target.value)
+                                            }
+                                            required
+                                        />
+                                        {errors.email && (
+                                            <p className="text-sm text-red-600 mt-1">
+                                                {errors.email}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div>
+                                        <Label className="pb-3">Password</Label>
+                                        <Input
+                                            type="password"
+                                            value={data.password}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "password",
+                                                    e.target.value
+                                                )
+                                            }
+                                            required
+                                        />
+                                        {errors.password && (
+                                            <p className="text-sm text-red-600 mt-1">
+                                                {errors.password}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <DialogFooter>
+                                        <Button
+                                            type="submit"
+                                            className="w-full bg-blue-700 hover:bg-blue-800"
+                                            disabled={processing}
+                                        >
+                                            {processing
+                                                ? "Memproses..."
+                                                : "Login"}
+                                        </Button>
+                                    </DialogFooter>
+                                </form>
+                            </DialogContent>
+                        </Dialog>
+                    )}
+
                     <button
                         className={`md:hidden text-3xl transition-colors duration-300 ${
                             isScrolled ? "text-gray-900" : "text-gray-900"
@@ -428,7 +454,7 @@ export default function Welcome() {
             <section id="roles" className="bg-white px-6 md:px-20 pb-20 pt-20">
                 <h2
                     className="text-4xl font-extrabold text-center mb-16 
-                    bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-950"
+                        bg-clip-text text-transparent bg-gradient-to-r from-blue-600 to-blue-950"
                 >
                     Peran Pengguna
                 </h2>

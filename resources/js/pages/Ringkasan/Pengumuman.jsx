@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { useNotify } from "@/components/ToastNotification";
 import AppLayout from "@/layouts/AppLayout";
 import axios from "axios";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Pengumuman({ kategori_iuran = [] }) {
     const { notifySuccess, notifyError } = useNotify();
@@ -78,10 +79,15 @@ export default function Pengumuman({ kategori_iuran = [] }) {
 
     return (
         <AppLayout>
-            <div className="p-8 max-w-5xl mx-auto">
-                <h1 className="text-2xl font-bold text-gray-800 mb-8">
-                    Buat Pengumuman Iuran
-                </h1>
+            <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
+                <h1 className="text-3xl font-bold mb-8">TAMBAH PENGUMUMAN</h1>
+
+                <Breadcrumbs
+                    items={[
+                        { label: "Dashboard", href: route("dashboard") },
+                        { label: "Tambah Pengumuman" },
+                    ]}
+                />
 
                 <form onSubmit={handleSubmit} className="space-y-6">
                     {/* Judul */}

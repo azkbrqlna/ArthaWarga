@@ -1,132 +1,158 @@
+// resources/js/Pages/Ringkasan/Rincian.jsx
 import React from "react";
-import { usePage } from "@inertiajs/react";
+import { usePage, router } from "@inertiajs/react";
 import AppLayout from "@/layouts/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+import { Button } from "@/components/ui/button";
+import {
+    ArrowLeft,
+    Wallet,
+    Coins,
+    PiggyBank,
+    ArrowDownCircle,
+} from "lucide-react";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Rincian() {
-    const { transaksi } = usePage().props;
+    const { rincian = {} } = usePage().props;
+    console.log(rincian.bkt_nota);
 
     const formatRupiah = (val) =>
         "Rp " + parseInt(val || 0).toLocaleString("id-ID");
+    const formatTanggalWaktu = (dateString) => {
+        if (!dateString) return "-";
+        const date = new Date(dateString);
+        return date.toLocaleString("id-ID", {
+            dateStyle: "long",
+            timeStyle: "short",
+        });
+    };
+
+    const cards = [
+        {
+            title: "Jumlah awal",
+            icon: <PiggyBank className="h-5 w-5 text-amber-500" />,
+            value: formatRupiah(rincian.jumlah_awal),
+            bg: "bg-orange-50",
+            text: "text-orange-700",
+        },
+        {
+            title: "Jumlah digunakan",
+            icon: <ArrowDownCircle className="h-5 w-5 text-pink-500" />,
+            value: formatRupiah(rincian.jumlah_digunakan),
+            bg: "bg-pink-50",
+            text: "text-pink-700",
+        },
+        {
+            title: "Jumlah Sisa",
+            icon: <Wallet className="h-5 w-5 text-green-500" />,
+            value: formatRupiah(rincian.jumlah_sisa),
+            bg: "bg-green-50",
+            text: "text-green-700",
+        },
+        {
+            title: "Jenis",
+            icon: (
+                <Coins
+                    className={`h-5 w-5 ${
+                        rincian.status === "Pemasukan"
+                            ? "text-emerald-500"
+                            : "text-red-500"
+                    }`}
+                />
+            ),
+            value: rincian.status || "-",
+            bg: rincian.status === "Pemasukan" ? "bg-emerald-50" : "bg-red-50",
+            text:
+                rincian.status === "Pemasukan"
+                    ? "text-emerald-700"
+                    : "text-red-700",
+        },
+    ];
 
     return (
         <AppLayout>
-            <div className="p-8 space-y-6">
-                <div>
-                    <h1 className="text-3xl font-bold text-gray-800">
-                        RINCIAN
-                    </h1>
-                    <p className="text-sm text-gray-500 mt-1">
-                        Dashboard &gt;{" "}
-                        <span className="text-emerald-500 font-semibold">
-                            Rincian
-                        </span>
-                    </p>
+            <div className="pl-0 pr-8 pb-10 md:pr-12 md:pb-12  space-y-10">
+                {/* Header */}
+                <h1 className="text-3xl font-bold mb-8">RINCIAN</h1>
+
+                {/* Pilihan jenis dan tanggal */}
+                <Breadcrumbs
+                    items={[
+                        { label: "Dashboard", href: route("dashboard") },
+                        { label: "Tambah Rincian" },
+                    ]}
+                />
+
+                {/* Cards Summary */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    {cards.map((c, i) => (
+                        <Card
+                            key={i}
+                            className="rounded-2xl border border-gray-100 shadow-sm"
+                        >
+                            <CardContent className="p-5 flex flex-col justify-between">
+                                <div className="flex justify-between items-start">
+                                    <div className={`p-2 rounded-lg ${c.bg}`}>
+                                        {c.icon}
+                                    </div>
+                                    <div className="text-gray-400 text-lg">
+                                        ⋯
+                                    </div>
+                                </div>
+                                <div className="mt-4">
+                                    <p className="text-sm text-gray-500 font-medium">
+                                        {c.title}
+                                    </p>
+                                    <p
+                                        className={`text-lg font-semibold ${c.text}`}
+                                    >
+                                        {c.value}
+                                    </p>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    ))}
                 </div>
 
-                {/* Kartu Ringkasan */}
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                    <Card className="shadow-sm">
-                        <CardContent className="p-4">
-                            <p className="text-gray-500">Jumlah awal</p>
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {formatRupiah(transaksi.nominal)}
-                            </h2>
-                            <p className="text-emerald-500 text-sm font-semibold mt-1">
-                                +1.29%
+                {/* Detail Section */}
+                <div className="bg-white border rounded-2xl shadow-sm p-6 space-y-4">
+                    <h2 className="text-lg font-semibold text-gray-800 mb-4">
+                        Detail Transaksi
+                    </h2>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-y-4 gap-x-6 text-sm text-gray-700">
+                        <div>
+                            <p className="text-gray-500">Tanggal Transaksi</p>
+                            <p className="font-medium">{rincian.tgl}</p>
+                        </div>
+                        <div>
+                            <p className="text-gray-500">Kategori</p>
+                            <p className="font-medium">{rincian.kategori}</p>
+                        </div>
+                        <div className="md:col-span-2">
+                            <p className="text-gray-500">Keterangan</p>
+                            <p className="font-medium">{rincian.ket || "-"}</p>
+                        </div>
+                        {/* <div className="md:col-span-2">
+                            <p className="text-gray-500">Dibuat pada</p>
+                            <p className="font-medium">
+                                {formatTanggalWaktu(rincian.created_at)}
                             </p>
-                        </CardContent>
-                    </Card>
+                        </div> */}
+                    </div>
 
-                    <Card className="shadow-sm">
-                        <CardContent className="p-4">
-                            <p className="text-gray-500">Jumlah digunakan</p>
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {formatRupiah(transaksi.nominal / 2)}
-                            </h2>
-                            <p className="text-red-500 text-sm font-semibold mt-1">
-                                -1.29%
+                    {!!rincian.bkt_nota && (
+                        <div>
+                            <p className="text-gray-500 mb-2 text-sm">
+                                Bukti Nota
                             </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="shadow-sm">
-                        <CardContent className="p-4">
-                            <p className="text-gray-500">Jumlah sisa</p>
-                            <h2 className="text-2xl font-bold text-gray-800">
-                                {formatRupiah(transaksi.nominal / 2)}
-                            </h2>
-                            <p className="text-emerald-500 text-sm font-semibold mt-1">
-                                +1.29%
-                            </p>
-                        </CardContent>
-                    </Card>
-
-                    <Card className="shadow-sm">
-                        <CardContent className="p-4">
-                            <p className="text-gray-500">Jenis</p>
-                            <h2 className="text-2xl font-bold text-red-600">
-                                {transaksi.tipe === "bop"
-                                    ? "BOP"
-                                    : transaksi.tipe === "iuran"
-                                    ? "Iuran"
-                                    : "Pengeluaran"}
-                            </h2>
-                        </CardContent>
-                    </Card>
-                </div>
-
-                {/* Form Detail Barang */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
-                    <div>
-                        <Label>
-                            Nama Barang <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            type="text"
-                            value={transaksi.ket}
-                            readOnly
-                            className="mt-1"
-                        />
-                    </div>
-
-                    <div>
-                        <Label>
-                            Tanggal <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            type="date"
-                            value={transaksi.tgl}
-                            readOnly
-                            className="mt-1"
-                        />
-                    </div>
-
-                    <div>
-                        <Label>
-                            Jumlah <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            type="number"
-                            value={10}
-                            readOnly
-                            className="mt-1"
-                        />
-                    </div>
-
-                    <div>
-                        <Label>
-                            Harga Satuan <span className="text-red-500">*</span>
-                        </Label>
-                        <Input
-                            type="text"
-                            value="Rp. 2.000"
-                            readOnly
-                            className="mt-1"
-                        />
-                    </div>
+                            <img
+                                src={rincian.bkt_nota}
+                                alt="Bukti Nota"
+                                className="rounded-lg border max-w-sm"
+                            />
+                        </div>
+                    )}
                 </div>
             </div>
         </AppLayout>

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef } from "react";
 import { useForm, usePage } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import AppLayout from "@/layouts/AppLayout";
@@ -6,9 +6,17 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from "@/components/ui/select";
 import { Upload } from "lucide-react";
 import { useNotify } from "@/components/ToastNotification";
 import axios from "axios";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Pengeluaran() {
     const { kegiatans = [] } = usePage().props;
@@ -27,7 +35,7 @@ export default function Pengeluaran() {
     const [isLoading, setIsLoading] = useState(false);
     const fileInputRef = useRef(null);
 
-    // 🔹 Format nominal ke Rupiah
+    // Format nominal ke rupiah
     const formatRupiah = (value) => {
         if (!value) return "";
         const numberString = value.replace(/[^,\d]/g, "");
@@ -65,55 +73,23 @@ export default function Pengeluaran() {
         e.preventDefault();
         setIsLoading(true);
 
-        // 🔹 Validasi user-friendly sebelum kirim
-        if (!data.tipe) {
+        if (
+            !data.tipe ||
+            !data.tgl ||
+            !data.keg_id ||
+            !data.nominal ||
+            !data.ket.trim() ||
+            !data.bkt_nota
+        ) {
             notifyError(
-                "Jenis belum dipilih",
-                "Pilih jenis pengeluaran terlebih dahulu."
-            );
-            setIsLoading(false);
-            return;
-        }
-        if (!data.tgl) {
-            notifyError("Tanggal kosong", "Masukkan tanggal pengeluaran.");
-            setIsLoading(false);
-            return;
-        }
-        if (!data.keg_id) {
-            notifyError(
-                "Kegiatan belum dipilih",
-                "Pilih kegiatan terkait pengeluaran ini."
-            );
-            setIsLoading(false);
-            return;
-        }
-        if (!data.nominal || data.nominal === "Rp 0") {
-            notifyError(
-                "Nominal kosong",
-                "Masukkan jumlah uang yang dikeluarkan."
-            );
-            setIsLoading(false);
-            return;
-        }
-        if (!data.ket.trim()) {
-            notifyError(
-                "Deskripsi kosong",
-                "Tuliskan keterangan atau tujuan pengeluaran."
-            );
-            setIsLoading(false);
-            return;
-        }
-        if (!data.bkt_nota) {
-            notifyError(
-                "Bukti belum diunggah",
-                "Unggah foto nota atau kwitansi pengeluaran."
+                "Data belum lengkap",
+                "Periksa semua kolom wajib diisi."
             );
             setIsLoading(false);
             return;
         }
 
         const cleanNominal = data.nominal.replace(/[^0-9]/g, "");
-
         const formData = new FormData();
         formData.append("tipe", data.tipe);
         formData.append("tgl", data.tgl);
@@ -126,31 +102,13 @@ export default function Pengeluaran() {
             await axios.post(route("pengeluaran.store"), formData, {
                 headers: { "Content-Type": "multipart/form-data" },
             });
-
             notifySuccess("Berhasil", "Pengeluaran berhasil disimpan!");
             reset();
             setPreview(null);
             if (fileInputRef.current) fileInputRef.current.value = null;
         } catch (error) {
             console.error(error);
-            let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";
-            if (error.response) {
-                switch (error.response.status) {
-                    case 422:
-                        pesan = "Periksa kembali data yang kamu isi.";
-                        break;
-                    case 413:
-                        pesan = "Ukuran file terlalu besar (maksimal 2MB).";
-                        break;
-                    case 500:
-                        pesan =
-                            "Server sedang bermasalah. Coba beberapa saat lagi.";
-                        break;
-                    default:
-                        pesan = error.response.data?.message || pesan;
-                }
-            }
-            notifyError("Gagal Menyimpan", pesan);
+            notifyError("Gagal", "Terjadi kesalahan saat menyimpan data.");
         } finally {
             setIsLoading(false);
         }
@@ -158,34 +116,38 @@ export default function Pengeluaran() {
 
     return (
         <AppLayout>
-            <div className="max-w-4xl mx-auto p-8">
-                <h1 className="text-2xl font-bold text-gray-800 mb-8">
-                    Tambah Pengeluaran
-                </h1>
+            <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
+                <h1 className="text-3xl font-bold mb-8">TAMBAH PENGELUARAN</h1>
+
+                <Breadcrumbs
+                    items={[
+                        { label: "Dashboard", href: route("dashboard") },
+                        { label: "Tambah Pengeluaran" },
+                    ]}
+                />
 
                 <form onSubmit={handleSubmit} className="space-y-6">
-                    {/* Jenis */}
-                    {/* Jenis & Tanggal dalam satu baris */}
+                    {/* Jenis dan tanggal */}
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        {/* Jenis Pengeluaran */}
                         <div className="space-y-2">
                             <Label>
                                 Jenis Pengeluaran{" "}
                                 <span className="text-red-500">*</span>
                             </Label>
-                            <select
+                            <Select
                                 value={data.tipe}
-                                onChange={(e) =>
-                                    setData("tipe", e.target.value)
-                                }
-                                className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-rose-400"
+                                onValueChange={(val) => setData("tipe", val)}
                             >
-                                <option value="bop">BOP</option>
-                                <option value="iuran">Iuran</option>
-                            </select>
+                                <SelectTrigger className="w-full border border-gray-300  transition-colors">
+                                    <SelectValue placeholder="Pilih jenis" />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="bop">BOP</SelectItem>
+                                    <SelectItem value="iuran">Iuran</SelectItem>
+                                </SelectContent>
+                            </Select>
                         </div>
 
-                        {/* Tanggal */}
                         <div className="space-y-2">
                             <Label>
                                 Tanggal <span className="text-red-500">*</span>
@@ -194,7 +156,7 @@ export default function Pengeluaran() {
                                 type="date"
                                 value={data.tgl}
                                 onChange={(e) => setData("tgl", e.target.value)}
-                                className="w-full"
+                                className="w-full  transition-colors"
                             />
                         </div>
                     </div>
@@ -204,18 +166,30 @@ export default function Pengeluaran() {
                         <Label>
                             Kegiatan <span className="text-red-500">*</span>
                         </Label>
-                        <select
+                        <Select
                             value={data.keg_id}
-                            onChange={(e) => setData("keg_id", e.target.value)}
-                            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-rose-400"
+                            onValueChange={(val) => setData("keg_id", val)}
                         >
-                            <option value="">Pilih kegiatan</option>
-                            {kegiatans.map((k) => (
-                                <option key={k.id} value={k.id}>
-                                    {k.nm_keg}
-                                </option>
-                            ))}
-                        </select>
+                            <SelectTrigger className="w-full border border-gray-300  transition-colors">
+                                <SelectValue placeholder="Pilih kegiatan" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {kegiatans.length > 0 ? (
+                                    kegiatans.map((k) => (
+                                        <SelectItem
+                                            key={k.id}
+                                            value={String(k.id)}
+                                        >
+                                            {k.nm_keg}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    <SelectItem disabled>
+                                        Tidak ada kegiatan
+                                    </SelectItem>
+                                )}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     {/* Nominal */}
@@ -228,10 +202,11 @@ export default function Pengeluaran() {
                             placeholder="Rp 0"
                             value={data.nominal}
                             onChange={handleNominalChange}
+                            className=" transition-colors"
                         />
                     </div>
 
-                    {/* Deskripsi */}
+                    {/* Keterangan */}
                     <div className="space-y-2">
                         <Label>
                             Keterangan <span className="text-red-500">*</span>
@@ -240,10 +215,11 @@ export default function Pengeluaran() {
                             placeholder="Tuliskan keterangan pengeluaran..."
                             value={data.ket}
                             onChange={(e) => setData("ket", e.target.value)}
+                            className=" transition-colors"
                         />
                     </div>
 
-                    {/* Bukti Nota */}
+                    {/* Bukti nota */}
                     <div className="space-y-2">
                         <Label>
                             Bukti Nota / Kwitansi{" "}
@@ -251,7 +227,7 @@ export default function Pengeluaran() {
                         </Label>
                         <label
                             htmlFor="nota"
-                            className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg py-10 cursor-pointer hover:bg-gray-50 transition-colors duration-200"
+                            className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg py-10 cursor-pointer hover:bg-gray-50 transition-colors"
                         >
                             {preview ? (
                                 <img
@@ -278,7 +254,7 @@ export default function Pengeluaran() {
                         </label>
                     </div>
 
-                    {/* Tombol Aksi */}
+                    {/* Tombol */}
                     <div className="flex justify-end gap-4 pt-2">
                         <Button
                             type="reset"

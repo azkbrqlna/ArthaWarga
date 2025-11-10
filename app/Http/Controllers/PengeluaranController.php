@@ -20,6 +20,9 @@ class PengeluaranController extends Controller
 
         $kegiatans = Kegiatan::select('id', 'nm_keg')->get();
 
+        $totalBop = PemasukanBOP::sum('nominal');
+        $totalIuran = PemasukanIuran::where('status', 'approved')->sum('nominal');
+
         return Inertia::render('Ringkasan/Pengeluaran', [
             'pengeluarans' => $pengeluarans,
             'saldo' => [
@@ -27,6 +30,8 @@ class PengeluaranController extends Controller
                 'iuran' => $saldoIuran,
             ],
             'kegiatans' => $kegiatans,
+            'totalBop' => $totalBop,
+            'totalIuran' => $totalIuran,
         ]);
     }
 

@@ -1,5 +1,5 @@
 import React from "react";
-import { SquareCheckBig, LayoutTemplate, Menu, LogOut } from "lucide-react";
+import { Inbox, Menu, Grid2x2Plus } from "lucide-react";
 import {
     Sidebar,
     SidebarProvider,
@@ -12,40 +12,32 @@ import {
     SidebarMenuItem,
     SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { Button } from "@/components/ui/button";
-import { usePage, useForm } from "@inertiajs/react";
+import { WelcomeCard } from "@/components/ui/welcome-card";
+import { usePage, Link } from "@inertiajs/react";
 import { Toaster } from "sonner";
 import AIChat from "@/components/AIChat";
 
 const items = [
-    { title: "Ringkasan Keuangan", url: "/dashboard", icon: LayoutTemplate },
-    { title: "Approval", url: "/approval", icon: SquareCheckBig },
+    {
+        title: "Dashboard",
+        url: "/superadmin",
+        icon: Grid2x2Plus,
+    },
+    {
+        title: "Manajemen Data",
+        url: "/manajemen_data",
+        icon: Inbox,
+    },
 ];
 
-export default function AppLayout({ children }) {
-    const { url, props } = usePage(); // 🔹 ambil props dari inertia
-    const { auth } = props; // 🔹 ambil auth di sini
-    const { post } = useForm();
-
-    const handleLogout = (e) => {
-        e.preventDefault();
-        post(route("logout"));
-    };
-
-    // 🔹 ambil dua kata pertama dari nm_lengkap
-    const displayName = auth?.user?.nm_lengkap
-        ? auth.user.nm_lengkap.split(" ").slice(0, 2).join(" ")
-        : "Guest";
-
-    // 🔹 avatar unik dari nama
-    const avatarUrl = `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(
-        displayName
-    )}`;
+export default function AppLayoutSuperadmin({ children }) {
+    const { url } = usePage();
+    const isProfilActive = url.startsWith("/superadmin/profil");
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-white">
-                {/* Sidebar Trigger Mobile */}
+            <div className="flex min-h-screen w-full">
+                {/* Tombol Sidebar (Mobile) */}
                 <div className="fixed top-4 left-4 z-50 md:hidden">
                     <SidebarTrigger className="bg-white rounded-md shadow p-2">
                         <Menu className="w-5 h-5 text-gray-700" />
@@ -53,27 +45,35 @@ export default function AppLayout({ children }) {
                 </div>
 
                 {/* Sidebar */}
-                <Sidebar className="hidden md:flex flex-col bg-[#59B5F7] border-r border-black/10 rounded-tr-[48px] justify-between h-full">
+                <Sidebar className="hidden md:flex flex-col  bg-[#59B5F7] border-r border-black/10 rounded-tr-[48px] justify-between h-full">
                     <SidebarContent className="flex flex-col justify-between h-full">
                         <div>
+                            {/* Header Sidebar */}
                             <SidebarGroup>
                                 <SidebarGroupLabel className="font-bold text-lg px-4 pt-4 text-black">
                                     ArthaWarga
                                 </SidebarGroupLabel>
+
+                                {/* Say Welcome */}
+                                <WelcomeCard name="Superadmin" lastUpdate="11/12/2025" />
+                                
+                                {/* Menu Navigasi */}
                                 <SidebarGroupContent>
                                     <SidebarMenu className="mt-6 flex flex-col gap-3 px-4">
                                         {items.map((item) => {
-                                            const isActive = url.startsWith(
-                                                item.url
-                                            );
+                                            const isActive =
+                                                item.url === "/superadmin"
+                                                    ? url === "/superadmin"
+                                                    : url.startsWith(item.url);
+
                                             return (
                                                 <SidebarMenuItem
                                                     key={item.title}
                                                 >
                                                     <SidebarMenuButton asChild>
-                                                        <a
+                                                        <Link
                                                             href={item.url}
-                                                            className={`flex items-center gap-2 px-3 py-2 rounded-full transition-colors ${
+                                                            className={`flex items-center gap-2 px-3 py-2 rounded-full transition-colors  ${
                                                                 isActive
                                                                     ? "bg-[#EEF2FF] text-[#4F46E5] font-medium"
                                                                     : "text-gray-700 hover:bg-[#EEF2FF]/70"
@@ -89,7 +89,7 @@ export default function AppLayout({ children }) {
                                                             <span className="text-sm">
                                                                 {item.title}
                                                             </span>
-                                                        </a>
+                                                        </Link>
                                                     </SidebarMenuButton>
                                                 </SidebarMenuItem>
                                             );
@@ -99,42 +99,34 @@ export default function AppLayout({ children }) {
                             </SidebarGroup>
                         </div>
 
-                        {/* 🔹 Profil + Logout */}
-                        <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
-                            <div className="flex items-center gap-2">
-                                <img
-                                    src={avatarUrl}
-                                    alt="avatar"
-                                    className="w-8 h-8 rounded-full"
-                                />
-                                <div className="flex flex-col">
-                                    <p className="text-xs text-gray-600">
-                                        Welcome back 👋
-                                    </p>
-                                    <p className="font-medium text-sm">
-                                        {displayName}
-                                    </p>
-                                </div>
+                        {/* Profil */}
+                        <Link
+                            href="/superadmin/profil"
+                            className={`border-t border-black/80 p-3 flex items-center gap-2 transition-colors ${
+                                isProfilActive
+                                    ? "bg-[#59B5F7]/90 font-semibold text-gray-800"
+                                    : "text-gray-700 hover:bg-[#59B5F7]/70"
+                            }`}
+                        >
+                            <img
+                                src="https://api.dicebear.com/7.x/avataaars/svg?seed=Johnathan"
+                                alt="avatar"
+                                className="w-8 h-8 rounded-full"
+                            />
+                            <div className="flex-1">
+                                <p className="text-xs text-gray-600">
+                                    Welcome back 👋
+                                </p>
+                                <p className="font-medium text-sm">Johnathan</p>
                             </div>
-
-                            <Button
-                                variant="ghost"
-                                size="icon"
-                                onClick={handleLogout}
-                                title="Logout"
-                                className="hover:bg-red-100 text-red-600"
-                            >
-                                <LogOut className="w-5 h-5" />
-                            </Button>
-                        </div>
+                            <span className="text-lg text-gray-600">›</span>
+                        </Link>
                     </SidebarContent>
                 </Sidebar>
 
-                {/* Main Content */}
+                {/* Konten Utama */}
                 <main className="flex-1 h-full overflow-y-auto overflow-x-hidden">
-                    <div className="w-full h-full px-8 py-10 md:px-12 md:py-12 bg-white">
-                        {children}
-                    </div>
+                    <div className="w-full h-full p-0 bg-white">{children}</div>
                 </main>
             </div>
 
