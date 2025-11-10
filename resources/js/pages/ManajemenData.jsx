@@ -106,7 +106,7 @@ export default function ManajemenData() {
                                             size="icon"
                                             className="bg-red-500 hover:bg-red-600"
                                             onClick={() => {
-                                                if (confirm(`Yakin mau hapus data ${item.nama}?`)) {
+                                                if (confirm(`Yakin mau hapus data ${item.nm_lengkap}?`)) {
                                                 router.delete(route('superadmin.deleteUser', item.id));
                                                 }
                                             }}

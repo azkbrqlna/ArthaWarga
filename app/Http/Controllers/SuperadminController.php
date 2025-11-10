@@ -19,7 +19,8 @@ class SuperadminController extends Controller
             'users' => $users,
             'roles' => $roles,
             'flash' => [
-                'success' => session('success')
+                'success' => session('success'),
+                'error' => session('error'),
             ]
         ]);
     }
@@ -123,7 +124,7 @@ class SuperadminController extends Controller
         $user = User::findOrFail($id);
 
         if ($user->role_id == 1) {
-            return back()->with('error', 'Akun Superadmin tidak bisa dihapus');
+            return back()->with('error', 'Akun tidak bisa dihapus');
         }
 
         $user->delete();
