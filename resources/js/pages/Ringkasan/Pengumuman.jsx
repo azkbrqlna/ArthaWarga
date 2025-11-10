@@ -152,9 +152,9 @@ export default function Pengumuman({ kategori_iuran = [] }) {
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                            className="bg-amber-500 hover:bg-amber-600 text-white"
                         >
-                            {isLoading ? "Menyimpan..." : "Kirim Pengumuman"}
+                            {isLoading ? "Menyimpan..." : "Tambah Pengumuman"}
                         </Button>
                     </div>
                 </form>
