@@ -20,7 +20,6 @@ return new class extends Migration
             $table->integer('nominal')->nullable();
             $table->string('ket')->nullable();
             $table->string('bkt_byr')->nullable();  
-            $table->string('bkt_nota')->nullable();
             $table->date('tgl_byr')->nullable();
             $table->date('tgl_approved')->nullable();
             $table->enum('status', ['tagihan','pending', 'approved', 'rejected'])->nullable();

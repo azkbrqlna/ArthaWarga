@@ -9,8 +9,7 @@ class User extends Authenticatable
     protected $table = 'usr';
     protected $fillable = [
         'email', 'no_kk','password', 'nm_lengkap', 'foto_profil', 'no_hp',
-        'kode_prov', 'kode_kota_kab', 'kode_kec', 'kode_desa',
-        'rt_rw','kode_pos'
+        'alamat', 'rt', 'rw', 'kode_pos'
     ];
 
 
