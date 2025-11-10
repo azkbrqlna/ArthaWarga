@@ -9,6 +9,8 @@ use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\MasukIuranController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ProfileWargaController;
 use Inertia\Inertia;
 
 Route::get('/', fn() => Inertia::render('Welcome'));
@@ -45,5 +47,10 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/masuk-iuran/{id}', [MasukIuranController::class, 'show'])->name('masuk-iuran.show');
     Route::post('/masuk-iuran/upload', [MasukIuranController::class, 'store'])->name('masuk-iuran.store');
 
-});
+ 
 
+});
+   //PERCOBAAN PROFILE WARGA
+Route::middleware(['auth'])->group(function () {
+    Route::get('/profil', [ProfileWargaController::class, 'index'])->name('profil.index');
+});
