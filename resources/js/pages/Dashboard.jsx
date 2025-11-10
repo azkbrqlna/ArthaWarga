@@ -17,7 +17,6 @@ import {
     Banknote,
     Calculator,
     Clock,
-    Database,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -28,13 +27,7 @@ export default function Dashboard() {
         saldoAwal,
         sisaSaldo,
         totalPengeluaran,
-        userTotal,
-        saldoBop,
-        saldoIuran,
-        totalBop,
-        totalIuran
     } = usePage().props;
-
     const userRole = auth?.user?.role_id;
 
     const [sortField, setSortField] = useState("tgl");
@@ -147,7 +140,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* RINGKASAN */}
-                <div>
+                <div className="">
                     <div className="flex items-center justify-between mb-3">
                         <h2 className="text-sm font-semibold text-gray-800">
                             RINGKASAN
@@ -166,10 +159,14 @@ export default function Dashboard() {
                                     variant="outline"
                                     onClick={() => {
                                         setSelectedDate("");
-                                        router.get(route("dashboard"), {}, {
-                                            preserveScroll: true,
-                                            preserveState: true,
-                                        });
+                                        router.get(
+                                            route("dashboard"),
+                                            {},
+                                            {
+                                                preserveScroll: true,
+                                                preserveState: true,
+                                            }
+                                        );
                                     }}
                                     className="text-gray-700 text-xs"
                                 >
@@ -251,7 +248,7 @@ export default function Dashboard() {
                                         Saldo Awal
                                     </p>
                                     <p className="text-lg font-semibold text-gray-900">
-                                        {formatRupiah(totalIuran)}
+                                        {formatRupiah(saldoAwal)}
                                     </p>
                                 </div>
                             </div>
@@ -266,36 +263,6 @@ export default function Dashboard() {
                                     </p>
                                     <p className="text-lg font-semibold text-gray-900">
                                         {formatRupiah(sisaSaldo)}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    ) : (
-                        // 🔸 SELAIN ROLE = 1 → 3 KARTU DEFAULT
-                        <div className="flex flex-col md:flex-row gap-4 w-full">
-                            <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
-                                <div className="bg-gray-100 p-2 rounded-lg">
-                                    <Banknote className="w-5 h-5 text-gray-600" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 font-medium">
-                                        Total Pemasukan
-                                    </p>
-                                    <p className="text-lg font-semibold text-gray-900">
-                                        {formatRupiah(saldoAwal)}
-                                    </p>
-                                </div>
-                            </div>
-                            <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
-                                <div className="bg-gray-100 p-2 rounded-lg">
-                                    <Clock className="w-5 h-5 text-gray-600" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 font-medium">
-                                        Pengeluaran
-                                    </p>
-                                    <p className="text-lg font-semibold text-gray-900">
-                                        {formatRupiah(totalPengeluaran)}
                                     </p>
                                 </div>
                             </div>
@@ -314,7 +281,7 @@ export default function Dashboard() {
                                 </div>
                             </div>
                         </div>
-                    )}
+                    </div>
                 </div>
 
                 {/* TABEL TRANSAKSI */}
@@ -324,11 +291,23 @@ export default function Dashboard() {
                             <TableHeader>
                                 <TableRow className="bg-white">
                                     {[
-                                        { key: "tgl", label: "Tanggal Transaksi" },
+                                        {
+                                            key: "tgl",
+                                            label: "Tanggal Transaksi",
+                                        },
                                         { key: "kategori", label: "Kategori" },
-                                        { key: "jumlah_awal", label: "Jumlah Awal" },
-                                        { key: "jumlah_digunakan", label: "Jumlah Digunakan" },
-                                        { key: "jumlah_sisa", label: "Jumlah Sisa" },
+                                        {
+                                            key: "jumlah_awal",
+                                            label: "Jumlah Awal",
+                                        },
+                                        {
+                                            key: "jumlah_digunakan",
+                                            label: "Jumlah Digunakan",
+                                        },
+                                        {
+                                            key: "jumlah_sisa",
+                                            label: "Jumlah Sisa",
+                                        },
                                         { key: "status", label: "Status" },
                                     ].map((col) => (
                                         <TableHead
@@ -357,9 +336,17 @@ export default function Dashboard() {
                                         >
                                             <TableCell>{t.tgl}</TableCell>
                                             <TableCell>{t.kategori}</TableCell>
-                                            <TableCell>{formatRupiah(t.jumlah_awal)}</TableCell>
-                                            <TableCell>{formatRupiah(t.jumlah_digunakan)}</TableCell>
-                                            <TableCell>{formatRupiah(t.jumlah_sisa)}</TableCell>
+                                            <TableCell>
+                                                {formatRupiah(t.jumlah_awal)}
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatRupiah(
+                                                    t.jumlah_digunakan
+                                                )}
+                                            </TableCell>
+                                            <TableCell>
+                                                {formatRupiah(t.jumlah_sisa)}
+                                            </TableCell>
                                             <TableCell className="text-left">
                                                 {t.status === "Pemasukan" && (
                                                     <Badge className="bg-emerald-50 text-emerald-700 hover:bg-emerald-50 font-medium">
@@ -376,7 +363,10 @@ export default function Dashboard() {
                                     ))
                                 ) : (
                                     <TableRow>
-                                        <TableCell colSpan={6} className="text-center text-gray-500">
+                                        <TableCell
+                                            colSpan={6}
+                                            className="text-center text-gray-500"
+                                        >
                                             Tidak ada data transaksi
                                         </TableCell>
                                     </TableRow>
@@ -390,12 +380,17 @@ export default function Dashboard() {
                         <Button
                             variant="outline"
                             disabled={currentPage === 1}
-                            onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
+                            onClick={() =>
+                                setCurrentPage((p) => Math.max(p - 1, 1))
+                            }
                         >
                             <ChevronLeft className="h-4 w-4" />
                         </Button>
 
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((num) => (
+                        {Array.from(
+                            { length: totalPages },
+                            (_, i) => i + 1
+                        ).map((num) => (
                             <Button
                                 key={num}
                                 className={
@@ -418,7 +413,9 @@ export default function Dashboard() {
                             variant="outline"
                             disabled={currentPage === totalPages}
                             onClick={() =>
-                                setCurrentPage((p) => Math.min(p + 1, totalPages))
+                                setCurrentPage((p) =>
+                                    Math.min(p + 1, totalPages)
+                                )
                             }
                         >
                             <ChevronRight className="h-4 w-4" />

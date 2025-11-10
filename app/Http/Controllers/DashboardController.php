@@ -187,6 +187,12 @@ $final = [];
         $saldoAwal = $totalBop + $totalIuran;
         $sisaSaldo = $saldoAwal - $totalPengeluaran;
         $userTotal = User::count();
+        $totalPengeluaranBop = Pengeluaran::where('tipe', 'bop')->sum('nominal');
+        $totalPengeluaranIuran = Pengeluaran::where('tipe', 'iuran')->sum('nominal');
+
+        // 🔹 Hitung saldo masing-masing
+        $sisaBop = $totalBop - $totalPengeluaranBop;
+        $sisaIuran = $totalIuran - $totalPengeluaranIuran;
 
         return Inertia::render('Dashboard', [
             'transaksi' => $final,
@@ -194,7 +200,9 @@ $final = [];
             'sisaSaldo' => $sisaSaldo,
             'totalPengeluaran' => $totalPengeluaran,
             'userTotal' => $userTotal,
-            'selectedDate' => $selectedDate, // biar tanggal tetap muncul di input
+            'selectedDate' => $selectedDate,
+            'sisaBop' => $sisaBop,
+            'sisaIuran' => $sisaIuran
         ]);
     }
 
