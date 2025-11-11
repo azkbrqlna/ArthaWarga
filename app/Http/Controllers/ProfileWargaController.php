@@ -33,39 +33,12 @@ class ProfileWargaController extends Controller
                 'nm_lengkap'     => $user->nm_lengkap,
                 'foto_profil'    => $user->foto_profil,
                 'no_hp'          => $user->no_hp,
-                'kode_prov'      => $user->kode_prov,
-                'kode_kota_kab'  => $user->kode_kota_kab,
-                'kode_kec'       => $user->kode_kec,
-                'kode_desa'      => $user->kode_desa,
+                'alamat'         => $user->alamat,
                 'rt'             => $user->rt,
                 'rw'             => $user->rw,
                 'kode_pos'       => $user->kode_pos,
             ]
         ]);
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
-    {
-        //
     }
 
     /**
@@ -84,11 +57,4 @@ class ProfileWargaController extends Controller
         //
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
-    }
 }

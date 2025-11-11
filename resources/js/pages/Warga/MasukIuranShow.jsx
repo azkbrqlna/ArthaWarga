@@ -5,11 +5,20 @@ import { Upload, Droplet, LayoutDashboard } from "lucide-react";
 export default function IuranAir({ iuran }) {
   const [preview, setPreview] = useState(null);
 
-  // Pakai useForm agar otomatis bisa kirim FormData ke backend Laravel
+  // derive jenis_iuran and total from the provided iuran prop (no backend change required)
+  const derivedJenis =
+    iuran?.kategori_iuran?.nm_kat ||
+    iuran?.pengumuman?.kat_iuran?.nm_kat ||
+    iuran?.pengumuman?.judul ||
+    "Iuran";
+
+  const derivedTotal = iuran?.nominal ?? 0;
+
+  // useForm to prepare FormData for submission
   const { data, setData, post, processing, errors, reset } = useForm({
     id: iuran?.id || "",
-    jenis_iuran: "Air",
-    total: 60000,
+    jenis_iuran: derivedJenis,
+    total: derivedTotal,
     bkt_byr: null,
   });
 
@@ -35,7 +44,7 @@ export default function IuranAir({ iuran }) {
       forceFormData: true,
       onSuccess: () => {
         alert("Bukti pembayaran berhasil dikirim!");
-        reset();
+        reset(); // reset will restore initial form state
         setPreview(null);
         router.visit(route("masuk-iuran.index"));
       },
@@ -47,7 +56,7 @@ export default function IuranAir({ iuran }) {
 
   return (
     <>
-      <Head title="Iuran Air Anda" />
+      <Head title={`Iuran — ${data.jenis_iuran}`} />
       <div className="flex min-h-screen bg-white overflow-hidden">
         {/* Sidebar */}
         <div className="w-[250px] bg-gradient-to-b from-[#5AB2FF] to-[#4D9BFF] flex flex-col justify-between rounded-r-3xl shadow-md">
@@ -78,7 +87,7 @@ export default function IuranAir({ iuran }) {
 
         {/* Main Content */}
         <div className="flex-1 p-10 overflow-auto">
-          <h1 className="text-2xl font-semibold mb-8">Iuran Air Anda</h1>
+          <h1 className="text-2xl font-semibold mb-8">Iuran — {data.jenis_iuran}</h1>
 
           <form className="max-w-3xl" onSubmit={handleSubmit}>
             {/* Jenis Iuran */}
@@ -97,7 +106,7 @@ export default function IuranAir({ iuran }) {
               <label className="block text-sm mb-2">Total</label>
               <input
                 type="text"
-                value={`Rp. ${data.total.toLocaleString("id-ID")}`}
+                value={`Rp. ${Number(data.total).toLocaleString("id-ID")}`}
                 readOnly
                 className="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-400"
               />
