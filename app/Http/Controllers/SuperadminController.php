@@ -12,7 +12,7 @@ class SuperadminController extends Controller
 {
     public function users()
     {
-        $users = User::with('role')->paginate(10);
+        $users = User::with('role')->where('role_id', '!=', 1)->paginate(10);
         $roles = Role::all();
 
         return Inertia::render('ManajemenData', [
@@ -27,7 +27,7 @@ class SuperadminController extends Controller
 
     public function createUser()
     {
-        $roles = Role::all();
+        $roles = Role::where('id', '!=', 1)->get();
 
         return Inertia::render('TambahData', [
             'roles' => $roles
@@ -71,7 +71,7 @@ class SuperadminController extends Controller
     public function editUser($id)
     {
         $user = User::with('role')->findOrFail($id);
-        $roles = Role::all();
+        $roles = Role::where('id', '!=', 1)->get();
 
         return Inertia::render('EditData', [
             'user' => $user,

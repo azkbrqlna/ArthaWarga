@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/select";
 
 export default function EditData({ user, roles }) {
-  const { data, setData, put, processing, errors } = useForm({
+  const { data, setData, put, processing, errors, notifySuccess, notifyError } = useForm({
     nm_lengkap: user.nm_lengkap || "",
     no_kk: user.no_kk || "",
     email: user.email || "",
@@ -30,8 +30,13 @@ export default function EditData({ user, roles }) {
     e.preventDefault();
     put(route("manajemen-data.update", user.id), {
       preserveScroll: true,
-      onSuccess: () => alert("Data berhasil diperbarui!"),
-      onError: () => alert("Terjadi kesalahan, periksa kembali form."),
+      onSuccess: () => {
+        notifySuccess("Berhasil", "Data berhasil diperbarui!");
+              resizeTo();
+      },
+      onError: () => {
+        notifyError("Terjadi kesalahan, silakan cek kembali form.");
+      }
     });
   };
 

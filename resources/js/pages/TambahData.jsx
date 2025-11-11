@@ -10,8 +10,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useNotify } from "@/components/ToastNotification";
 
 export default function TambahData({ roles }) {
+   const { notifySuccess, notifyError } = useNotify();
   // Form state
   const { data, setData, post, processing, errors } = useForm({
     nm_lengkap: "",
@@ -33,10 +35,11 @@ export default function TambahData({ roles }) {
     post(route("superadmin.storeUser"), {
       preserveScroll: true,
       onSuccess: () => {
-        alert("Data berhasil disimpan!");
+       notifySuccess("Berhasil", "Data iuran berhasil disimpan!");
+            reset();
       },
       onError: () => {
-        alert("Terjadi kesalahan, silakan cek kembali form.");
+        notifyError("Terjadi kesalahan, silakan cek kembali form.");
       },
     });
   };
