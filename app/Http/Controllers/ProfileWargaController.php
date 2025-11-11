@@ -36,6 +36,7 @@ class ProfileWargaController extends Controller
                 'rt'             => $user->rt,
                 'rw'             => $user->rw,
                 'kode_pos'       => $user->kode_pos,
+                'alamat'         => $user->alamat
             ]
         ]);
     }
@@ -88,12 +89,13 @@ public function update(Request $request, $id)
         'rt' => 'nullable|string',
         'rw' => 'nullable|string',
         'kode_pos' => 'nullable|string',
+        'alamat' => 'nullable|string',
     ]);
 
     if (empty($validated['password'])) {
         unset($validated['password']);
     }
-    
+
     $user->update($validated);
 
     return redirect()->back()->with('success', 'Profil berhasil diperbarui!');
