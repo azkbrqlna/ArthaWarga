@@ -181,7 +181,7 @@ export default function Dashboard() {
 
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
                         <div className="flex flex-col md:flex-row gap-4 w-full">
-                            {(userRole === 1) && (
+                            {userRole === 1 && (
                                 <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
                                     <div className="bg-gray-100 p-2 rounded-lg">
                                         <Banknote className="w-5 h-5 text-gray-600" />
@@ -197,21 +197,23 @@ export default function Dashboard() {
                                     </div>
                                 </div>
                             )}
-                            {(userRole === 1) && (
-                            <><div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
-                                    <div className="bg-gray-100 p-2 rounded-lg">
-                                        <Banknote className="w-5 h-5 text-gray-600" />
-                                    </div>
+                            {userRole === 1 && (
+                                <>
+                                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                                        <div className="bg-gray-100 p-2 rounded-lg">
+                                            <Banknote className="w-5 h-5 text-gray-600" />
+                                        </div>
 
-                                    <div>
-                                        <p className="text-xs text-gray-500 font-medium">
-                                            Dana BOP Sekarang
-                                        </p>
-                                        <p className="text-lg font-semibold text-gray-900">
-                                            {formatRupiah(sisaBop)}
-                                        </p>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-medium">
+                                                Dana BOP Sekarang
+                                            </p>
+                                            <p className="text-lg font-semibold text-gray-900">
+                                                {formatRupiah(sisaBop)}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div><div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
                                         <div className="bg-gray-100 p-2 rounded-lg">
                                             <Clock className="w-5 h-5 text-gray-600" />
                                         </div>
@@ -223,7 +225,8 @@ export default function Dashboard() {
                                                 {formatRupiah(sisaIuran)}
                                             </p>
                                         </div>
-                                    </div><div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                                    </div>
+                                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
                                         <div className="bg-gray-100 p-2 rounded-lg">
                                             <Calculator className="w-5 h-5 text-gray-600" />
                                         </div>
@@ -235,23 +238,29 @@ export default function Dashboard() {
                                                 {formatRupiah(sisaSaldo)}
                                             </p>
                                         </div>
-                                    </div></>
+                                    </div>
+                                </>
                             )}
-                            {(userRole === 2 || userRole === 3 || userRole === 4 || userRole === 5) && (
-                            <><div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
-                                    <div className="bg-gray-100 p-2 rounded-lg">
-                                        <Banknote className="w-5 h-5 text-gray-600" />
-                                    </div>
+                            {(userRole === 2 ||
+                                userRole === 3 ||
+                                userRole === 4 ||
+                                userRole === 5) && (
+                                <>
+                                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                                        <div className="bg-gray-100 p-2 rounded-lg">
+                                            <Banknote className="w-5 h-5 text-gray-600" />
+                                        </div>
 
-                                    <div>
-                                        <p className="text-xs text-gray-500 font-medium">
-                                            Total Pemasukan
-                                        </p>
-                                        <p className="text-lg font-semibold text-gray-900">
-                                            {formatRupiah(saldoAwal)}
-                                        </p>
+                                        <div>
+                                            <p className="text-xs text-gray-500 font-medium">
+                                                Total Pemasukan
+                                            </p>
+                                            <p className="text-lg font-semibold text-gray-900">
+                                                {formatRupiah(saldoAwal)}
+                                            </p>
+                                        </div>
                                     </div>
-                                </div><div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
                                         <div className="bg-gray-100 p-2 rounded-lg">
                                             <Clock className="w-5 h-5 text-gray-600" />
                                         </div>
@@ -263,7 +272,8 @@ export default function Dashboard() {
                                                 {formatRupiah(totalPengeluaran)}
                                             </p>
                                         </div>
-                                    </div><div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                                    </div>
+                                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
                                         <div className="bg-gray-100 p-2 rounded-lg">
                                             <Calculator className="w-5 h-5 text-gray-600" />
                                         </div>
@@ -275,7 +285,8 @@ export default function Dashboard() {
                                                 {formatRupiah(sisaSaldo)}
                                             </p>
                                         </div>
-                                    </div></>
+                                    </div>
+                                </>
                             )}
                         </div>
                     </div>

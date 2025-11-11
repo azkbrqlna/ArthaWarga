@@ -7,6 +7,7 @@ use App\Http\Controllers\IuranController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
+use App\Http\Controllers\ProfileWargaController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -37,8 +38,12 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/dashboard/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
     Route::post('/pengeluaran', [PengeluaranController::class, 'pengeluaran'])->name('pengeluaran.store');
     Route::get('/rincian/{id}', [DashboardController::class, 'rincian'])->name('rincian.show');
+    
+    Route::get('/profil', [ProfileWargaController::class, 'index'])->name('profil.index');
+    Route::put('/profil/update/{id}', [ProfileWargaController::class, 'update'])->name('profil.update');
+
+    Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
 });
-Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
 
 
 

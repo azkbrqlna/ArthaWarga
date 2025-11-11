@@ -17,13 +17,9 @@ return new class extends Migration
             $table->string('nm_lengkap');
             $table->string('foto_profil')->nullable();
             $table->string('no_hp');
-            
-            $table->string('kode_prov');
-            $table->string('kode_kota_kab');
-            $table->string('kode_kec');
-            $table->string('kode_desa');
-
-            $table->string('rt_rw');
+            $table->text('alamat');
+            $table->string('rt');
+            $table->string('rw');
             $table->string('kode_pos');
             $table->timestamps();
         });
