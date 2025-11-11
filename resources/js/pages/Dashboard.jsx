@@ -401,11 +401,6 @@ export default function Dashboard() {
                         ).map((num) => (
                             <Button
                                 key={num}
-                                className={
-                                    num === currentPage
-                                        ? "bg-blue-500 text-white"
-                                        : "bg-white border text-gray-700"
-                                }
                                 onClick={() => setCurrentPage(num)}
                                 className={`${
                                     num === currentPage

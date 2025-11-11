@@ -33,8 +33,6 @@ import AIChat from "@/components/AIChat";
 export default function AppLayout({ children }) {
     const { url, props } = usePage();
     const { auth } = props;
-    const { url, props } = usePage();
-    const { auth } = props;
     const { post } = useForm();
     const isProfilPage = url.startsWith("/profil");
 
@@ -78,9 +76,7 @@ export default function AppLayout({ children }) {
         <SidebarProvider>
             <div
                 className={`flex min-h-screen w-full ${
-                    isProfilPage
-                        ? "bg-blue-100"
-                        : "bg-white"
+                    isProfilPage ? "bg-blue-100" : "bg-white"
                 }`}
             >
                 {/* Sidebar Trigger Mobile */}
@@ -103,7 +99,6 @@ export default function AppLayout({ children }) {
                                         ? "Selamat Datang Admin"
                                         : "ArthaWarga"}
                                 </SidebarGroupLabel>
-
 
                                 <SidebarGroupContent>
                                     <SidebarMenu className="mt-6 flex flex-col gap-3 px-4">
