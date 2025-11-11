@@ -19,7 +19,7 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { usePage, useForm } from "@inertiajs/react";
+import { usePage, useForm, Link } from "@inertiajs/react";
 import { Toaster } from "sonner";
 import AIChat from "@/components/AIChat";
 
@@ -27,6 +27,7 @@ export default function AppLayout({ children }) {
     const { url, props } = usePage();
     const { auth } = props;
     const { post } = useForm();
+    const isProfilPage = url.startsWith("/profil");
 
     const handleLogout = (e) => {
         e.preventDefault();
@@ -63,7 +64,13 @@ export default function AppLayout({ children }) {
 
     return (
         <SidebarProvider>
-            <div className="flex min-h-screen w-full bg-white">
+            <div
+                className={`flex min-h-screen w-full ${
+                    isProfilPage
+                        ? "bg-blue-100"
+                        : "bg-white"
+                }`}
+            >
                 {/* Sidebar Trigger Mobile */}
                 <div className="fixed top-4 left-4 z-50 md:hidden">
                     <SidebarTrigger className="bg-white rounded-md shadow p-2">
@@ -123,7 +130,11 @@ export default function AppLayout({ children }) {
 
                         {/* Profil + Logout */}
                         <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
-                            <div className="flex items-center gap-2">
+                            {/* 🔗 Klik avatar atau nama = ke halaman profil */}
+                            <Link
+                                href="/profil"
+                                className="flex items-center gap-2 hover:bg-gray-100 rounded-lg p-1 transition"
+                            >
                                 <img
                                     src={avatarUrl}
                                     alt="avatar"
@@ -133,12 +144,13 @@ export default function AppLayout({ children }) {
                                     <p className="text-xs text-gray-600">
                                         Welcome back 👋
                                     </p>
-                                    <p className="font-medium text-sm">
+                                    <p className="font-medium text-sm text-gray-900">
                                         {displayName}
                                     </p>
                                 </div>
-                            </div>
+                            </Link>
 
+                            {/* Tombol Logout */}
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -154,7 +166,11 @@ export default function AppLayout({ children }) {
 
                 {/* Main Content */}
                 <main className="flex-1 h-full overflow-y-auto overflow-x-hidden">
-                    <div className="w-full h-full px-8 py-10 md:px-12 md:py-12 bg-white">
+                    <div
+                        className={`w-full h-full bg-white ${
+                            isProfilPage ? "" : "px-8 py-10 md:px-12 md:py-12"
+                        }`}
+                    >
                         {children}
                     </div>
                 </main>
