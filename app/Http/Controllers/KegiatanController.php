@@ -24,9 +24,10 @@ class KegiatanController extends Controller
                            ->paginate($request->input('per_page', 10))
                            ->withQueryString();
 
-        return Inertia::render('Ringkasan/KegiatanIndex', [
-            'kegiatans' => $kegiatans
-        ]);
+        return Inertia::render('Kegiatan/Kegiatan', [
+    'kegiatans' => $kegiatans
+]);
+
     }
 
     /**

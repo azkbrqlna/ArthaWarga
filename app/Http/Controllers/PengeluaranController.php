@@ -23,6 +23,13 @@ class PengeluaranController extends Controller
         $totalBop = PemasukanBOP::sum('nominal');
         $totalIuran = PemasukanIuran::where('status', 'approved')->sum('nominal');
 
+        $totalPengeluaranBop = Pengeluaran::where('tipe', 'bop')->sum('nominal');
+        $totalPengeluaranIuran = Pengeluaran::where('tipe', 'iuran')->sum('nominal');
+
+        // 🔹 Hitung saldo masing-masing
+        $sisaBop = $totalBop - $totalPengeluaranBop;
+        $sisaIuran = $totalIuran - $totalPengeluaranIuran;
+
         return Inertia::render('Ringkasan/Pengeluaran', [
             'pengeluarans' => $pengeluarans,
             'saldo' => [
@@ -30,20 +37,21 @@ class PengeluaranController extends Controller
                 'iuran' => $saldoIuran,
             ],
             'kegiatans' => $kegiatans,
-            'totalBop' => $totalBop,
-            'totalIuran' => $totalIuran,
+            'sisaBop' => $sisaBop,
+            'sisaIuran' => $sisaIuran,
         ]);
     }
 
     public function pengeluaran(Request $request)
     {
+        
         $validated = $request->validate([
             'tgl' => 'required|date',
             'keg_id' => 'required|exists:keg,id',
             'nominal' => 'required|numeric|min:0',
             'ket' => 'required|string',
             'tipe' => 'required|in:bop,iuran',
-            'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($request->hasFile('bkt_nota')) {
@@ -70,6 +78,6 @@ class PengeluaranController extends Controller
 
         Pengeluaran::create($validated);
 
-        return back()->with('success', 'Pengeluaran dari ' . strtoupper($validated['tipe']) . ' berhasil disimpan.');
+        return redirect()->route('dashboard')->with('success', 'Pengeluaran dari ' . strtoupper($validated['tipe']) . ' berhasil disimpan.');
     }
 }
