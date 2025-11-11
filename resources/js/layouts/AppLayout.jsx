@@ -1,11 +1,3 @@
-import React from "react";
-import {
-    SquareCheckBig,
-    LayoutTemplate,
-    Menu,
-    LogOut,
-    Database,
-} from "lucide-react";
 import {
     SquareCheckBig,
     LayoutTemplate,
