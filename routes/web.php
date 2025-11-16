@@ -28,7 +28,7 @@ Route::middleware(['role.access'])->group(function () {
 
     Route::get('/bop', [BopController::class, 'index']);
     Route::get('/iuran', [IuranController::class, 'index']);
-    Route::post('/bop/create', [BopController::class, 'bop_create'])->name('x');
+    Route::post('/bop/create', [BopController::class, 'bop_create'])->name('bop.create');
     Route::post('/iuran/create', [IuranController::class, 'iuran_create'])->name('iuran.create');
 
     Route::get('/dashboard/pengumuman', [PengumumanController::class, 'pengumuman'])->name('pengumuman');
