@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from "react";
 import axios from "axios";
-import { useForm } from "@inertiajs/react";
+import { useForm, router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -107,6 +107,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
 
             notifySuccess("Berhasil", "Data iuran berhasil disimpan!");
             reset();
+            router.visit("/dashboard");
         } catch (error) {
             console.error(error);
             let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";

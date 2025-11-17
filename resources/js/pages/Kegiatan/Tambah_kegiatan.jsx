@@ -1,5 +1,5 @@
 import React, { useRef, useState } from "react";
-import { useForm } from "@inertiajs/react";
+import { useForm, router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -135,6 +135,7 @@ export default function TambahKegiatan() {
             reset();
             setPreview(null);
             if (fileInputRef.current) fileInputRef.current.value = null;
+            router.visit("/kegiatan");
         } catch (error) {
             console.error(error);
             let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";
@@ -329,7 +330,7 @@ export default function TambahKegiatan() {
                         <Button
                             type="submit"
                             disabled={isLoading}
-                            className="bg-emerald-500 hover:bg-emerald-600 text-white"
+                            className="bg-blue-500 hover:bg-blue-600 text-white"
                         >
                             {isLoading ? "Menyimpan..." : "Tambah Kegiatan"}
                         </Button>

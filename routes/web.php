@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AuthController;
 // Controller
 use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\BopController;
@@ -15,18 +16,17 @@ use Inertia\Inertia;
 Route::get('/', fn() => Inertia::render('Welcome'));
 
 // 🔐 Login & Logout
-Route::get('/login', [AuthController::class, 'index'])->name('login');
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['role.access'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
 
-    Route::get('/ringkasan/pemasukan', [IuranController::class, 'pemasukan'])->name('pemasukan.index');
+    Route::get('/dashboard/pemasukan', [IuranController::class, 'pemasukan'])->name('pemasukan.index');
     Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])->name('kat_iuran.create');
     Route::delete('/kategori-iuran/{id}', [IuranController::class, 'kat_iuran_delete'])->name('kat_iuran.delete');
 
-    Route::get('/ringkasan/kegiatan', [KegiatanController::class, 'create'])->name('kegiatan.create');
+    Route::get('/dashboard/kegiatan', [KegiatanController::class, 'create'])->name('kegiatan.create');
     Route::post('/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
 
     Route::get('/bop', [BopController::class, 'index']);
@@ -34,13 +34,16 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/bop/create', [BopController::class, 'bop_create'])->name('bop.create');
     Route::post('/iuran/create', [IuranController::class, 'iuran_create'])->name('iuran.create');
 
-    Route::get('/ringkasan/pengumuman', [PengumumanController::class, 'pengumuman'])->name('pengumuman');
+    Route::get('/dashboard/pengumuman', [PengumumanController::class, 'pengumuman'])->name('pengumuman');
     Route::post('/pengumuman/create', [PengumumanController::class, 'pengumuman_create'])->name('pengumuman.create');
 
-    Route::get('/ringkasan/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
+    Route::get('/dashboard/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
     Route::post('/pengeluaran', [PengeluaranController::class, 'pengeluaran'])->name('pengeluaran.store');
     Route::get('/rincian/{id}', [DashboardController::class, 'rincian'])->name('rincian.show');
 });
+Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
+
+
 
 Route::get('/users', [SuperAdminController::class, 'users'])->name('users');
 Route::get('/users/create', [SuperAdminController::class, 'createUser'])->name('users.create');
