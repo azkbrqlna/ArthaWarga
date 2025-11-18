@@ -74,14 +74,16 @@ export default function Profil() {
                                 onChange={handleChange}
                                 disabled={!isEditing}
                             />
-                            <InputField
-                                label="Password"
-                                name="password"
-                                type="password"
-                                value={formData.password}
-                                onChange={handleChange}
-                                disabled={!isEditing}
-                            />
+                            {isEditing && (
+                                <InputField
+                                    label="Password"
+                                    name="password"
+                                    type="password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    disabled={!isEditing}
+                                />
+                            )}
                             <InputField
                                 label="Email"
                                 name="email"

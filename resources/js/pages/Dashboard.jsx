@@ -17,6 +17,7 @@ import {
     Banknote,
     Calculator,
     Clock,
+    Database,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -184,7 +185,7 @@ export default function Dashboard() {
                             {userRole === 1 && (
                                 <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
                                     <div className="bg-gray-100 p-2 rounded-lg">
-                                        <Banknote className="w-5 h-5 text-gray-600" />
+                                        <Database className="w-5 h-5 text-gray-600" />
                                     </div>
 
                                     <div>
@@ -215,7 +216,7 @@ export default function Dashboard() {
                                     </div>
                                     <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
                                         <div className="bg-gray-100 p-2 rounded-lg">
-                                            <Clock className="w-5 h-5 text-gray-600" />
+                                            <Banknote className="w-5 h-5 text-gray-600" />
                                         </div>
                                         <div>
                                             <p className="text-xs text-gray-500 font-medium">

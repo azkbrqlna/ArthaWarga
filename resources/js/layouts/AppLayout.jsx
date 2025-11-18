@@ -4,6 +4,8 @@ import {
     Menu,
     LogOut,
     Database,
+    Inbox,
+    Grid2x2Plus,
 } from "lucide-react";
 import {
     Sidebar,
@@ -52,12 +54,8 @@ export default function AppLayout({ children }) {
     ];
 
     const adminItems = [
-        {
-            title: "Dashboard",
-            url: "/dashboard",
-            icon: LayoutTemplate,
-        },
-        { title: "Manajemen Data", url: "/manajemen-data", icon: Database },
+        { title: "Dashboard", url: "/dashboard", icon: Grid2x2Plus },
+        { title: "Manajemen Data", url: "/manajemen-data", icon: Inbox },
     ];
 
     // 🔹 pilih menu berdasarkan role
