@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\BlockApiAccess;
 use App\Http\Middleware\HandleInertiaRequests;
 use App\Http\Middleware\RoleMiddleware;
 use Illuminate\Foundation\Application;

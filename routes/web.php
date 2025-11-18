@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranController;
@@ -13,7 +13,6 @@ use Inertia\Inertia;
 
 Route::get('/', fn() => Inertia::render('Welcome'));
 
-// 🔐 Login & Logout
 Route::post('/login', [AuthController::class, 'login'])->name('login.post');
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
@@ -26,6 +25,7 @@ Route::middleware(['role.access'])->group(function () {
 
     Route::get('/dashboard/kegiatan', [KegiatanController::class, 'create'])->name('kegiatan.create');
     Route::post('/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
+    Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
 
     Route::get('/bop', [BopController::class, 'index']);
     Route::get('/iuran', [IuranController::class, 'index']);
@@ -42,7 +42,6 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/profil', [ProfileWargaController::class, 'index'])->name('profil.index');
     Route::put('/profil/update/{id}', [ProfileWargaController::class, 'update'])->name('profil.update');
 
-    Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
 });
 
 

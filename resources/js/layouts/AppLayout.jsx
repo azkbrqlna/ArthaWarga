@@ -1,4 +1,3 @@
-import React from "react";
 import {
     SquareCheckBig,
     LayoutTemplate,
@@ -6,7 +5,7 @@ import {
     LogOut,
     Database,
     Inbox,
-    Grid2x2Plus
+    Grid2x2Plus,
 } from "lucide-react";
 import {
     Sidebar,
@@ -44,18 +43,16 @@ export default function AppLayout({ children }) {
         displayName
     )}`;
 
-    // 🔹 menu normal untuk non-admin
     const defaultItems = [
         {
             title: "Ringkasan Keuangan",
             url: "/dashboard",
             icon: LayoutTemplate,
         },
-        { title: "Kegiatan", url: "/kegiatan", icon: SquareCheckBig },
+        { title: "Kegiatan", url: "/kegiatan", icon: Database },
         { title: "Approval", url: "/approval", icon: SquareCheckBig },
     ];
 
-    // 🔹 menu khusus admin
     const adminItems = [
         { title: "Dashboard", url: "/dashboard", icon: Grid2x2Plus },
         { title: "Manajemen Data", url: "/manajemen-data", icon: Inbox },
@@ -68,9 +65,7 @@ export default function AppLayout({ children }) {
         <SidebarProvider>
             <div
                 className={`flex min-h-screen w-full ${
-                    isProfilPage
-                        ? "bg-blue-100"
-                        : "bg-white"
+                    isProfilPage ? "bg-blue-100" : "bg-white"
                 }`}
             >
                 {/* Sidebar Trigger Mobile */}
@@ -86,9 +81,7 @@ export default function AppLayout({ children }) {
                         <div>
                             <SidebarGroup>
                                 <SidebarGroupLabel className="font-bold text-lg px-4 pt-4 text-black">
-                                    {auth?.user?.role_id === 1
-                                        ? "Selamat Datang Admin"
-                                        : "ArthaWarga"}
+                                    ArthaWarga
                                 </SidebarGroupLabel>
 
                                 <SidebarGroupContent>
@@ -130,6 +123,7 @@ export default function AppLayout({ children }) {
                             </SidebarGroup>
                         </div>
 
+                        {/* Profil + Logout */}
                         {/* Profil + Logout */}
                         <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
                             {/* 🔗 Klik avatar atau nama = ke halaman profil */}

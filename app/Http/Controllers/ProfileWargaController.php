@@ -36,7 +36,10 @@ class ProfileWargaController extends Controller
                 'rt'             => $user->rt,
                 'rw'             => $user->rw,
                 'kode_pos'       => $user->kode_pos,
+<<<<<<< HEAD
+=======
                 'alamat'         => $user->alamat
+>>>>>>> 937f3200f59178ba5361e5245e60d0a4f6276a0f
             ]
         ]);
     }
