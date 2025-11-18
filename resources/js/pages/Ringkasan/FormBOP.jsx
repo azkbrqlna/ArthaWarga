@@ -1,5 +1,5 @@
 import React, { useRef, useState, useEffect } from "react";
-import { useForm } from "@inertiajs/react";
+import { useForm, router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -104,6 +104,7 @@ export default function FormBOP({ tanggal }) {
             reset();
             setPreview(null);
             if (fileInputRef.current) fileInputRef.current.value = null;
+            router.visit("/dashboard");
         } catch (error) {
             console.error(error);
             let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";

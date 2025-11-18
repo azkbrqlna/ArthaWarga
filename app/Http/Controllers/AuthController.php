@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Auth;
+namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
@@ -9,10 +9,6 @@ use Inertia\Inertia;
 
 class AuthController extends Controller
 {
-    public function index()
-    {
-        return Inertia::render('Login');
-    }
 
     public function login(Request $request)
     {

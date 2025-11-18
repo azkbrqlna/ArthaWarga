@@ -96,7 +96,7 @@ export default function Dashboard() {
                                 <Button
                                     className="bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                     onClick={() =>
-                                        router.visit("/ringkasan/kegiatan")
+                                        router.visit("/dashboard/kegiatan")
                                     }
                                 >
                                     Tambah Kegiatan
@@ -108,7 +108,7 @@ export default function Dashboard() {
                                     <Button
                                         className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
-                                            router.visit("/ringkasan/pemasukan")
+                                            router.visit("/dashboard/pemasukan")
                                         }
                                     >
                                         Tambah Pemasukan
@@ -117,7 +117,7 @@ export default function Dashboard() {
                                         className="bg-red-500 hover:bg-red-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
                                             router.visit(
-                                                "/ringkasan/pengeluaran"
+                                                "/dashboard/pengeluaran"
                                             )
                                         }
                                     >
@@ -127,7 +127,7 @@ export default function Dashboard() {
                                         className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
                                             router.visit(
-                                                "/ringkasan/pengumuman"
+                                                "/dashboard/pengumuman"
                                             )
                                         }
                                     >
@@ -184,10 +184,23 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500 font-medium">
-                                        Saldo Awal
+                                        Total Pemasukan
                                     </p>
                                     <p className="text-lg font-semibold text-gray-900">
                                         {formatRupiah(saldoAwal)}
+                                    </p>
+                                </div>
+                            </div>
+                            <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                                <div className="bg-gray-100 p-2 rounded-lg">
+                                    <Clock className="w-5 h-5 text-gray-600" />
+                                </div>
+                                <div>
+                                    <p className="text-xs text-gray-500 font-medium">
+                                        Total Pengeluaran
+                                    </p>
+                                    <p className="text-lg font-semibold text-gray-900">
+                                        {formatRupiah(totalPengeluaran)}
                                     </p>
                                 </div>
                             </div>
@@ -198,24 +211,10 @@ export default function Dashboard() {
                                 </div>
                                 <div>
                                     <p className="text-xs text-gray-500 font-medium">
-                                        Sisa Saldo
+                                        Saldo Sekarang
                                     </p>
                                     <p className="text-lg font-semibold text-gray-900">
                                         {formatRupiah(sisaSaldo)}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
-                                <div className="bg-gray-100 p-2 rounded-lg">
-                                    <Clock className="w-5 h-5 text-gray-600" />
-                                </div>
-                                <div>
-                                    <p className="text-xs text-gray-500 font-medium">
-                                        Pengeluaran
-                                    </p>
-                                    <p className="text-lg font-semibold text-gray-900">
-                                        {formatRupiah(totalPengeluaran)}
                                     </p>
                                 </div>
                             </div>
@@ -331,12 +330,13 @@ export default function Dashboard() {
                             (_, i) => i + 1
                         ).map((num) => (
                             <Button
-                                className="bg-blue-500 hover:bg-blue-300"
                                 key={num}
-                                variant={
-                                    num === currentPage ? "default" : "outline"
-                                }
                                 onClick={() => setCurrentPage(num)}
+                                className={`${
+                                    num === currentPage
+                                        ? "bg-blue-500 text-white"
+                                        : "bg-white border text-blue-500"
+                                } hover:bg-blue-300`}
                             >
                                 {num}
                             </Button>
