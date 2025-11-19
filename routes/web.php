@@ -5,6 +5,7 @@ use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranController;
 use App\Http\Controllers\KegiatanController;
+use App\Http\Controllers\MasukIuranController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\ProfileWargaController;
@@ -43,6 +44,9 @@ Route::middleware(['role.access'])->group(function () {
     Route::put('/profil/update/{id}', [ProfileWargaController::class, 'update'])->name('profil.update');
 
     Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
+       Route::get('/masuk-iuran', [MasukIuranController::class, 'index'])->name('masuk-iuran.index');
+    Route::get('/masuk-iuran/{id}', [MasukIuranController::class, 'show'])->name('masuk-iuran.show');
+    Route::post('/masuk-iuran/upload', [MasukIuranController::class, 'store'])->name('masuk-iuran.store');
 });
 
 
