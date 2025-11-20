@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('pengumuman', function (Blueprint $table) {
             $table->id();
             $table->string('judul');
+            $table->integer('jumlah');
             $table->string('ket');
             $table->foreignId('kat_iuran_id')->constrained('kat_iuran')->cascadeOnDelete();
             $table->timestamps();

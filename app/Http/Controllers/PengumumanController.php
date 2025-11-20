@@ -25,12 +25,14 @@ class PengumumanController extends Controller
         $validated = $request->validate([
             'judul' => 'required|string',
             'ket' => 'required|string',
+            'jumlah' => 'required|integer',
             'kat_iuran_id' => 'required|exists:kat_iuran,id',
         ]);
 
         $pengumuman = Pengumuman::create([
             'judul' => $validated['judul'],
             'ket' => $validated['ket'],
+            'jumlah' => $validated['jumlah'],
             'kat_iuran_id' => $validated['kat_iuran_id'],
         ]);
 

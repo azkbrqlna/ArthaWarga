@@ -19,18 +19,19 @@ class MasukIuranController extends Controller
 
         $iurans = PemasukanIuran::with(['pengumuman.kat_iuran'])
             ->where('usr_id', $userId)
+            ->whereIn('kat_iuran_id', [1, 2])
             ->orderByDesc('tgl')
             ->paginate(10)
             ->withQueryString();
         
-        $totalIuran = PemasukanIuran::where('usr_id', $userId)->count();
+        $totalIuran = PemasukanIuran::where('usr_id', $userId)->whereIn('kat_iuran_id', [1, 2])->count();
 
         $unpaidIuran = PemasukanIuran::where('usr_id', $userId)
-            ->where('status', 'tagihan')
+            ->where('status', 'tagihan')->whereIn('kat_iuran_id', [1, 2])
             ->count();
 
         $paidIuran = PemasukanIuran::where('usr_id', $userId)
-            ->where('status', 'approved')
+            ->where('status', 'approved')->whereIn('kat_iuran_id', [1, 2])
             ->count();
 
         return Inertia::render('Warga/MasukIuranIndex', [

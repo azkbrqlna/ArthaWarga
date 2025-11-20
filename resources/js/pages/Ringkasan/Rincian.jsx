@@ -7,44 +7,25 @@ import { Wallet, Coins, PiggyBank, ArrowDownCircle } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Rincian() {
-<<<<<<< HEAD
-    const {
-        rincian = {},
-        pemasukanBop,
-        jumlahPemasukanIuran,
-    } = usePage().props;
-=======
     const { rincian = {}, pemasukanBOP, pemasukanIuran } = usePage().props;
->>>>>>> 1eff0aed2d85491608026d948ca88dfa00b1febe
 
     const formatRupiah = (val) =>
         "Rp " + parseInt(val || 0).toLocaleString("id-ID");
 
     const isIncome = rincian.status === "Pemasukan";
 
-<<<<<<< HEAD
-=======
     // ================================
     // FIX — Ambil nominal pemasukan
     // ================================
->>>>>>> 1eff0aed2d85491608026d948ca88dfa00b1febe
     const nominalPemasukan = (() => {
         if (!isIncome) return rincian.jumlah_digunakan;
 
         if (rincian.kategori === "BOP") {
-<<<<<<< HEAD
-            return pemasukanBop ?? 0;
-        }
-
-        if (rincian.kategori === "Iuran") {
-            return jumlahPemasukanIuran ?? 0;
-=======
             return pemasukanBOP || rincian.jumlah_digunakan;
         }
 
         if (rincian.kategori === "Iuran") {
             return pemasukanIuran || rincian.jumlah_digunakan;
->>>>>>> 1eff0aed2d85491608026d948ca88dfa00b1febe
         }
 
         return rincian.jumlah_digunakan;
@@ -59,13 +40,7 @@ export default function Rincian() {
             text: "text-orange-700",
         },
         {
-            title: isIncome
-                ? rincian.kategori === "BOP"
-                    ? `Pemasukan BOP: ${formatRupiah(pemasukanBop)}`
-                    : rincian.kategori === "Iuran"
-                    ? `Pemasukan Iuran: ${formatRupiah(jumlahPemasukanIuran)}`
-                    : "Jumlah Pemasukan"
-                : "Jumlah digunakan",
+            title: isIncome ? "Jumlah Pemasukan" : "Jumlah digunakan",
             icon: (
                 <ArrowDownCircle
                     className={`h-5 w-5 ${
