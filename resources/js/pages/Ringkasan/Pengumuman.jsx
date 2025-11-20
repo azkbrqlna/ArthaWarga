@@ -10,67 +10,97 @@ import AppLayout from "@/layouts/AppLayout";
 import axios from "axios";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem,
+} from "@/components/ui/select";
+
 export default function Pengumuman({ kategori_iuran = [] }) {
     const { notifySuccess, notifyError } = useNotify();
     const { data, setData, reset } = useForm({
         judul: "",
         ket: "",
+        jumlah: "",
         kat_iuran_id: "",
     });
 
     const [isLoading, setIsLoading] = useState(false);
 
+    // ============================
+    // FORMAT RUPIAH
+    // ============================
+    const formatRupiah = (value) => {
+        if (!value) return "";
+        const numberString = value.replace(/[^,\d]/g, "");
+        const split = numberString.split(",");
+        const sisa = split[0].length % 3;
+        let rupiah = split[0].substr(0, sisa);
+        const ribuan = split[0].substr(sisa).match(/\d{3}/gi);
+
+        if (ribuan) {
+            const separator = sisa ? "." : "";
+            rupiah += separator + ribuan.join(".");
+        }
+
+        rupiah = split[1] !== undefined ? rupiah + "," + split[1] : rupiah;
+        return "Rp " + rupiah;
+    };
+
+    const handleJumlahChange = (e) => {
+        const raw = e.target.value;
+        const formatted = formatRupiah(raw);
+        setData("jumlah", formatted);
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setIsLoading(true);
 
-        // 🔸 validasi manual biar lebih ramah pengguna
+        // Validasi
         if (!data.judul.trim()) {
-            notifyError(
-                "Judul kosong",
-                "Masukkan judul pengumuman terlebih dahulu."
-            );
+            notifyError("Judul kosong", "Masukkan judul pengumuman.");
             setIsLoading(false);
             return;
         }
         if (!data.ket.trim()) {
-            notifyError(
-                "Keterangan kosong",
-                "Tuliskan isi pengumuman dengan jelas."
-            );
+            notifyError("Keterangan kosong", "Masukkan isi pengumuman.");
+            setIsLoading(false);
+            return;
+        }
+        if (!data.jumlah || data.jumlah === "Rp 0") {
+            notifyError("Jumlah kosong", "Masukkan nominal tagihan.");
             setIsLoading(false);
             return;
         }
         if (!data.kat_iuran_id) {
-            notifyError(
-                "Kategori belum dipilih",
-                "Pilih kategori iuran yang sesuai."
-            );
+            notifyError("Kategori belum dipilih", "Pilih kategori iuran.");
             setIsLoading(false);
             return;
         }
 
+        const cleanJumlah = data.jumlah.replace(/[^0-9]/g, "");
+
         try {
-            await axios.post(route("pengumuman.create"), data);
+            await axios.post(route("pengumuman.create"), {
+                judul: data.judul,
+                ket: data.ket,
+                jumlah: cleanJumlah,
+                kat_iuran_id: data.kat_iuran_id,
+            });
 
             notifySuccess("Berhasil", "Pengumuman berhasil dibuat!");
             reset();
             router.visit("/dashboard");
         } catch (error) {
-            console.error(error);
-            let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";
+            let pesan = "Terjadi kesalahan, coba lagi nanti.";
             if (error.response) {
-                switch (error.response.status) {
-                    case 422:
-                        pesan = "Periksa kembali data yang kamu isi.";
-                        break;
-                    case 500:
-                        pesan =
-                            "Server sedang bermasalah. Coba beberapa saat lagi.";
-                        break;
-                    default:
-                        pesan = error.response.data?.message || pesan;
-                }
+                if (error.response.status === 422)
+                    pesan = "Periksa data yang kamu isi.";
+                if (error.response.status === 500)
+                    pesan = "Server sedang bermasalah.";
             }
             notifyError("Gagal Menyimpan", pesan);
         } finally {
@@ -80,7 +110,7 @@ export default function Pengumuman({ kategori_iuran = [] }) {
 
     return (
         <AppLayout>
-            <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
+            <div className="w-full min-h-screen bg-white pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
                 <h1 className="text-3xl font-bold mb-8">TAMBAH PENGUMUMAN</h1>
 
                 <Breadcrumbs
@@ -112,9 +142,22 @@ export default function Pengumuman({ kategori_iuran = [] }) {
                             <span className="text-red-500">*</span>
                         </Label>
                         <Textarea
-                            placeholder="Tuliskan detail pengumuman atau informasi tambahan..."
+                            placeholder="Tuliskan detail pengumuman..."
                             value={data.ket}
                             onChange={(e) => setData("ket", e.target.value)}
+                        />
+                    </div>
+
+                    {/* Jumlah */}
+                    <div className="space-y-2">
+                        <Label>
+                            Jumlah <span className="text-red-500">*</span>
+                        </Label>
+                        <Input
+                            type="text"
+                            placeholder="Rp 0"
+                            value={data.jumlah}
+                            onChange={handleJumlahChange}
                         />
                     </div>
 
@@ -124,23 +167,31 @@ export default function Pengumuman({ kategori_iuran = [] }) {
                             Kategori Iuran{" "}
                             <span className="text-red-500">*</span>
                         </Label>
-                        <select
+
+                        <Select
                             value={data.kat_iuran_id}
-                            onChange={(e) =>
-                                setData("kat_iuran_id", e.target.value)
+                            onValueChange={(value) =>
+                                setData("kat_iuran_id", value)
                             }
-                            className="border border-gray-300 rounded-md px-3 py-2 w-full focus:ring-2 focus:ring-emerald-400"
                         >
-                            <option value="">Pilih kategori</option>
-                            {kategori_iuran.map((kat) => (
-                                <option key={kat.id} value={kat.id}>
-                                    {kat.nm_kat}
-                                </option>
-                            ))}
-                        </select>
+                            <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Pilih kategori" />
+                            </SelectTrigger>
+
+                            <SelectContent>
+                                {kategori_iuran.map((kat) => (
+                                    <SelectItem
+                                        key={kat.id}
+                                        value={String(kat.id)}
+                                    >
+                                        {kat.nm_kat}
+                                    </SelectItem>
+                                ))}
+                            </SelectContent>
+                        </Select>
                     </div>
 
-                    {/* Tombol Aksi */}
+                    {/* Tombol */}
                     <div className="flex justify-end gap-4 pt-2">
                         <Button
                             type="reset"
@@ -149,6 +200,7 @@ export default function Pengumuman({ kategori_iuran = [] }) {
                         >
                             Batal
                         </Button>
+
                         <Button
                             type="submit"
                             disabled={isLoading}

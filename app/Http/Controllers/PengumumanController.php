@@ -55,15 +55,34 @@ class PengumumanController extends Controller
     public function approval()
     {
         $iurans = PemasukanIuran::with(['pengumuman.kat_iuran'])
-            ->where('status', 'pending')
+            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('kat_iuran_id', [1, 2])
             ->orderByDesc('tgl')
-            ->paginate(10)
-            ->withQueryString();
+            ->paginate(10);
+
+        $jumlahTagihan = PemasukanIuran::whereIn('masuk_iuran.status', ['pending', 'tagihan'])
+            ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
+            ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+            ->sum('pengumuman.jumlah');
+
+
+       $jumlahApproved = PemasukanIuran::where('masuk_iuran.status', 'approved')
+            ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
+            ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+            ->sum('pengumuman.jumlah');
+
+
+        // dd($iurans);
+        // dd($jumlahTagihan, $jumlahApproved);
+
 
         return Inertia::render('Ringkasan/Approval', [
             'iurans' => $iurans,
+            'jumlahTagihan' => $jumlahTagihan,
+            'jumlahApproved' => $jumlahApproved,
         ]);
     }
+
 
 
 

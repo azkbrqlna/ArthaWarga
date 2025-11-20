@@ -10,6 +10,7 @@ import {
     TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent } from "@/components/ui/dialog";
 import {
     ChevronsUpDown,
     ChevronLeft,
@@ -218,23 +219,31 @@ export default function Kegiatan() {
                 </div>
 
                 {/* Popup Image Preview */}
-                {selectedImage && (
-                    <div className="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50">
+                <Dialog
+                    open={!!selectedImage}
+                    onOpenChange={() => setSelectedImage(null)}
+                >
+                    <DialogContent className="max-w-3xl p-0 overflow-hidden">
                         <div className="relative">
+                            {/* Tombol close */}
                             <button
-                                className="absolute top-2 right-2 bg-white rounded-full p-1 shadow"
                                 onClick={() => setSelectedImage(null)}
+                                className="absolute top-3 right-3 bg-white rounded-full p-1 shadow z-50"
                             >
                                 <X className="h-5 w-5 text-gray-700" />
                             </button>
-                            <img
-                                src={selectedImage}
-                                alt="Preview"
-                                className="max-w-[90vw] max-h-[85vh] rounded-lg shadow-lg"
-                            />
+
+                            {/* Gambarnya */}
+                            {selectedImage && (
+                                <img
+                                    src={selectedImage}
+                                    alt="Preview"
+                                    className="w-full h-auto rounded-lg"
+                                />
+                            )}
                         </div>
-                    </div>
-                )}
+                    </DialogContent>
+                </Dialog>
             </div>
         </AppLayout>
     );
