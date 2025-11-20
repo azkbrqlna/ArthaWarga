@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('bkt_nota')->nullable();
             $table->date('tgl_byr')->nullable();
             $table->date('tgl_approved')->nullable();
-            $table->enum('status', ['tagihan','pending', 'approved', 'rejected'])->nullable();
+            $table->enum('status', ['tagihan','pending', 'approved'])->nullable();
             $table->timestamps();
         });
     }

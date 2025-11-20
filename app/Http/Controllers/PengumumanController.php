@@ -51,4 +51,37 @@ class PengumumanController extends Controller
 
         return back()->with('success', 'Pengumuman berhasil dibuat dan tagihan dikirim ke semua warga.');
     }
+
+    public function approval()
+    {
+        $iurans = PemasukanIuran::with(['pengumuman.kat_iuran'])
+            ->where('status', 'pending')
+            ->orderByDesc('tgl')
+            ->paginate(10)
+            ->withQueryString();
+
+        return Inertia::render('Ringkasan/Approval');
+    }
+
+
+
+    public function approval_patch(Request $request, $id)
+    {
+        $request->validate([
+            'status' => 'required|in:approved,tagihan'
+        ]);
+
+        $iuran = PemasukanIuran::findOrFail($id);
+
+        if ($request->status === 'approved') {
+            $iuran->status = 'approved';
+        } else {
+            $iuran->status = 'tagihan';
+        }
+
+        $iuran->save();
+
+        return back()->with('success', 'Status berhasil diperbarui.');
+    }
+
 }
