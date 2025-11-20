@@ -60,7 +60,9 @@ class PengumumanController extends Controller
             ->paginate(10)
             ->withQueryString();
 
-        return Inertia::render('Ringkasan/Approval');
+        return Inertia::render('Ringkasan/Approval', [
+            'iurans' => $iurans,
+        ]);
     }
 
 
