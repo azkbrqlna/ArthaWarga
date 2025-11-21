@@ -54,8 +54,9 @@ class PengumumanController extends Controller
 
     public function approval()
     {
-        $iurans = PemasukanIuran::with(['pengumuman.kat_iuran'])
-            ->where('status', ['pending', 'approved'])
+        $iurans = PemasukanIuran::with(['pengumuman.kat_iuran', 'user'])
+            ->whereIn('status', ['pending', 'approved'])
+            ->whereIn('kat_iuran_id', [1, 2])
             ->orderByDesc('tgl')
             ->paginate(10);
 
@@ -71,7 +72,7 @@ class PengumumanController extends Controller
             ->sum('pengumuman.jumlah');
 
 
-        // dd($iurans);
+        // dd($iurans->first()->toArray());
         // dd($jumlahTagihan, $jumlahApproved);
 
 

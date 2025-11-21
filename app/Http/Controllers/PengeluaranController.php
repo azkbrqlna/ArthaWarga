@@ -15,18 +15,26 @@ class PengeluaranController extends Controller
     {
         $pengeluarans = Pengeluaran::with('kegiatan')->latest()->get();
 
+        $jumlahApproved = PemasukanIuran::where('masuk_iuran.status', 'approved')
+            ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
+            ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+            ->sum('pengumuman.jumlah');
+
+        $totalIuranManual = PemasukanIuran::where('status', 'approved')
+            ->whereNull('pengumuman_id')
+            ->sum('nominal');
+
+        $totalIuran = $totalIuranManual + $jumlahApproved;
+
         $saldoBop = PemasukanBOP::sum('nominal') - Pengeluaran::where('tipe', 'bop')->sum('nominal');
-        $saldoIuran = PemasukanIuran::where('status', 'approved')->sum('nominal') - Pengeluaran::where('tipe', 'iuran')->sum('nominal');
+        $saldoIuran = $totalIuran - Pengeluaran::where('tipe', 'iuran')->sum('nominal');
 
         $kegiatans = Kegiatan::select('id', 'nm_keg')->get();
 
         $totalBop = PemasukanBOP::sum('nominal');
-        $totalIuran = PemasukanIuran::where('status', 'approved')->sum('nominal');
-
         $totalPengeluaranBop = Pengeluaran::where('tipe', 'bop')->sum('nominal');
         $totalPengeluaranIuran = Pengeluaran::where('tipe', 'iuran')->sum('nominal');
 
-        // 🔹 Hitung saldo masing-masing
         $sisaBop = $totalBop - $totalPengeluaranBop;
         $sisaIuran = $totalIuran - $totalPengeluaranIuran;
 
@@ -42,9 +50,9 @@ class PengeluaranController extends Controller
         ]);
     }
 
+
     public function pengeluaran(Request $request)
     {
-        
         $validated = $request->validate([
             'tgl' => 'required|date',
             'keg_id' => 'required|exists:keg,id',
@@ -62,11 +70,19 @@ class PengeluaranController extends Controller
             $validated['bkt_nota'] = $path;
         }
 
-        // Hitung saldo sesuai tipe dana
         if ($validated['tipe'] === 'bop') {
             $totalMasuk = PemasukanBOP::sum('nominal');
         } else {
-            $totalMasuk = PemasukanIuran::where('status', 'approved')->sum('nominal');
+            $jumlahApproved = PemasukanIuran::where('masuk_iuran.status', 'approved')
+                ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
+                ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+                ->sum('pengumuman.jumlah');
+
+            $totalIuranManual = PemasukanIuran::where('status', 'approved')
+                ->whereNull('pengumuman_id')
+                ->sum('nominal');
+
+            $totalMasuk = $totalIuranManual + $jumlahApproved;
         }
 
         $totalKeluar = Pengeluaran::where('tipe', $validated['tipe'])->sum('nominal');
