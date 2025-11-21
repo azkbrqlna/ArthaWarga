@@ -21,6 +21,9 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+// Import komponen chart yang baru dibuat (sesuaikan path)
+import FinancialLineChart from "@/components/FinancialLineChart";
+
 export default function Dashboard() {
     const {
         transaksi = [],
@@ -59,7 +62,7 @@ export default function Dashboard() {
                     ? valA.localeCompare(valB)
                     : valB.localeCompare(valA);
             }
-            return sortOrder === "asc" ? valA - valB : valB - valA;
+            return sortOrder === "asc" ? valA - valB : valB - a[sortField];
         });
     }, [transaksi, sortField, sortOrder]);
 
@@ -81,6 +84,67 @@ export default function Dashboard() {
             { preserveScroll: true, preserveState: true }
         );
     };
+
+    // LOGIKA DATA CHART (Sesuaikan dengan kebutuhan data riil Anda)
+    // LOGIKA DATA CHART (Diperbarui untuk Sorting yang Benar)
+    const chartData = useMemo(() => {
+        const monthlyData = {};
+        
+        // 1. Grouping data
+        transaksi.forEach(t => {
+            const date = new Date(t.tgl);
+            // Format key YYYY-MM agar mudah disortir secara string
+            // Tambahkan +1 pada getMonth karena Januari dimulai dari 0
+            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; 
+
+            if (!monthlyData[monthKey]) {
+                monthlyData[monthKey] = {
+                    pemasukan: 0,
+                    pengeluaran: 0,
+                    dateObj: date, // Simpan objek date asli untuk sorting nanti
+                };
+            }
+
+            // Hitung nominal riil
+            const nominal = t.status === "Pemasukan" 
+                ? (t.jumlah_sisa - t.jumlah_awal) 
+                : t.jumlah_digunakan;
+            
+            if (t.status === "Pemasukan") {
+                monthlyData[monthKey].pemasukan += nominal;
+            } else if (t.status === "Pengeluaran") {
+                monthlyData[monthKey].pengeluaran += nominal;
+            }
+        });
+
+        // 2. Sorting & Calculating Cumulative Saldo
+        // Kita ambil data saldo awal global sebagai titik start (opsional, bisa mulai dari 0)
+        let currentSaldo = 0; 
+
+        // Sort keys (YYYY-MM) secara Ascending (A-Z) agar grafik bergerak dari kiri (lama) ke kanan (baru)
+        const sortedKeys = Object.keys(monthlyData).sort();
+
+        const finalChartData = sortedKeys.map(key => {
+            const data = monthlyData[key];
+            
+            // Update saldo berjalan
+            currentSaldo = currentSaldo + data.pemasukan - data.pengeluaran;
+            
+            // Buat label bulan yang cantik (Contoh: "Okt 2025")
+            const monthLabel = data.dateObj.toLocaleString('id-ID', { month: 'short', year: 'numeric' });
+            
+            return {
+                month: monthLabel,
+                pemasukan: data.pemasukan,
+                pengeluaran: data.pengeluaran,
+                saldo: currentSaldo,
+            };
+        });
+
+        return finalChartData;
+    }, [transaksi]);
+    // AKHIR LOGIKA DATA CHART
+
 
     return (
         <AppLayout>
@@ -292,6 +356,13 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
+                
+                {/* CHART KEJUTAN */}
+                <div className="mt-8 mb-8">
+                    {/* Mengirim data yang sudah diproses ke komponen chart */}
+                    <FinancialLineChart data={chartData} />
+                </div>
+                {/* AKHIR CHART KEJUTAN */}
 
                 {/* TABEL TRANSAKSI */}
                 <div className="pb-10">
