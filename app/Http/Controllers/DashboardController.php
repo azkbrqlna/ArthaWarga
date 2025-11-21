@@ -182,31 +182,21 @@ class DashboardController extends Controller
 
             $totalBop = PemasukanBOP::sum('nominal');
 
-            $jumlahApproved = PemasukanIuran::where('masuk_iuran.status', 'approved')
-                ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
-                ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
-                ->sum('pengumuman.jumlah');
-
-            $totalIuranManual = PemasukanIuran::where('status', 'approved')
-                ->whereNull('pengumuman_id')
+            $totalIuran = PemasukanIuran::where('status', 'approved')
                 ->sum('nominal');
 
-            $totalIuran = $totalIuranManual + $jumlahApproved;
-
             $totalPengeluaran = Pengeluaran::sum('nominal');
-            $totalPengeluaranBop = Pengeluaran::where('tipe', 'bop')->sum('nominal');
-            $totalPengeluaranIuran = Pengeluaran::where('tipe', 'iuran')->sum('nominal');
 
             $saldoAwal = $totalBop + $totalIuran;
             $sisaSaldo = $saldoAwal - $totalPengeluaran;
 
-            $sisaBop = $totalBop - $totalPengeluaranBop;
-            $sisaIuran = $totalIuran - $totalPengeluaranIuran;
-
             $userTotal = User::count();
 
+            $totalPengeluaranBop = Pengeluaran::where('tipe', 'bop')->sum('nominal');
+            $totalPengeluaranIuran = Pengeluaran::where('tipe', 'iuran')->sum('nominal');
 
-            
+            $sisaBop = $totalBop - $totalPengeluaranBop;
+            $sisaIuran = $totalIuran - $totalPengeluaranIuran;
 
             return Inertia::render('Dashboard', [
                 'transaksi' => $final,
