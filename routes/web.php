@@ -3,6 +3,7 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\DownloaderController;
 use App\Http\Controllers\IuranController;
 use App\Http\Controllers\KegiatanController;
 use App\Http\Controllers\MasukIuranController;
@@ -51,6 +52,9 @@ Route::middleware(['role.access'])->group(function () {
 
     Route::get('/approval', [PengumumanController::class, 'approval'])->name('approval');
     Route::patch('/approval/{id}', [PengumumanController::class, 'approval_patch'])->name('approval.patch');
+
+    //DOWNLOADER
+    Route::get('/download/pdf', [DownloaderController::class, 'download'])->name('download.pdf');
 });
 
 
