@@ -2,8 +2,19 @@ import React from "react";
 import { Link } from "@inertiajs/react";
 import AppLayout from "@/layouts/AppLayout";
 
-
 export default function MasukIuranIndex({ iurans, totalIuran, pendingIuran, paidIuran }) {
+
+  // helper untuk format periode berdasarkan created_at pengumuman
+  function formatPeriode(createdAt) {
+    if (!createdAt) return "-";
+    const dt = new Date(createdAt);
+    const months = [
+      "Januari","Februari","Maret","April","Mei","Juni",
+      "Juli","Agustus","September","Oktober","November","Desember"
+    ];
+    return months[dt.getMonth()] + " " + dt.getFullYear();
+  }
+
   return (    
     <AppLayout title="Daftar Tagihan Iuran">
       <div className="p-8">
@@ -110,6 +121,7 @@ export default function MasukIuranIndex({ iurans, totalIuran, pendingIuran, paid
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Tanggal</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Periode</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Kategori</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Judul</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase">Status</th>
@@ -120,6 +132,12 @@ export default function MasukIuranIndex({ iurans, totalIuran, pendingIuran, paid
                 {iurans.data.map((iuran) => (
                   <tr key={iuran.id} className="hover:bg-gray-50">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{iuran.tgl}</td>
+
+                    {/* Periode (dihitung dari created_at pengumuman) */}
+                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                      {formatPeriode(iuran.pengumuman?.created_at)}
+                    </td>
+
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                       {{
                         1: "Air",

@@ -45,6 +45,7 @@ class PengumumanController extends Controller
                 'kat_iuran_id' => $validated['kat_iuran_id'],
                 'pengumuman_id' => $pengumuman->id,
                 'tgl' => now(),
+                'nominal' => $validated['jumlah'],
                 'status' => 'tagihan',
             ]);
         }
