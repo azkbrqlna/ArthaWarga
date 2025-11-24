@@ -18,7 +18,7 @@ class KegiatanApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $data
+            'data'    => $data
         ]);
     }
 
@@ -38,7 +38,7 @@ class KegiatanApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'data' => $kegiatan
+            'data'    => $kegiatan
         ]);
     }
 
@@ -57,8 +57,11 @@ class KegiatanApiController extends Controller
         ]);
 
         if ($request->hasFile('dok_keg')) {
-            $filename = now()->format('Ymd_His') . '_keg.' . $request->file('dok_keg')->getClientOriginalExtension();
-            $data['dok_keg'] = $request->file('dok_keg')->storeAs('keg', $filename, 'public');
+            $filename = now()->format('Ymd_His') . '_keg.' 
+                      . $request->file('dok_keg')->getClientOriginalExtension();
+
+            $data['dok_keg'] = $request->file('dok_keg')
+                ->storeAs('keg', $filename, 'public');
         }
 
         $kegiatan = Kegiatan::create($data);
@@ -66,12 +69,12 @@ class KegiatanApiController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Kegiatan berhasil dibuat',
-            'data' => $kegiatan
+            'data'    => $kegiatan
         ]);
     }
 
     /**
-     * PATCH update kegiatan
+     * UPDATE kegiatan
      */
     public function update(Request $request, $id)
     {
@@ -79,13 +82,12 @@ class KegiatanApiController extends Controller
 
         if (!$kegiatan) {
             return response()->json([
-                'success' => false,
                 'message' => 'Kegiatan tidak ditemukan'
             ], 404);
         }
 
         $data = $request->validate([
-            'nm_keg'      => 'nullable|string|max:255',
+            'nm_keg'      => 'required|string|max:255',
             'tgl_mulai'   => 'nullable|date',
             'tgl_selesai' => 'nullable|date|after_or_equal:tgl_mulai',
             'pj_keg'      => 'nullable|string|max:255',
@@ -93,22 +95,12 @@ class KegiatanApiController extends Controller
             'dok_keg'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
-        if ($request->hasFile('dok_keg')) {
-            if ($kegiatan->dok_keg && Storage::disk('public')->exists($kegiatan->dok_keg)) {
-                Storage::disk('public')->delete($kegiatan->dok_keg);
-            }
-
-            $filename = now()->format('Ymd_His') . '_keg.' . $request->file('dok_keg')->getClientOriginalExtension();
-            $data['dok_keg'] = $request->file('dok_keg')->storeAs('keg', $filename, 'public');
-        }
-
         $kegiatan->update($data);
 
         return response()->json([
-            'success' => true,
-            'message' => 'Kegiatan berhasil diperbarui',
-            'data' => $kegiatan
-        ]);
+            'message' => 'Data kegiatan berhasil diperbarui',
+            'data'    => $kegiatan
+        ], 200);
     }
 
     /**

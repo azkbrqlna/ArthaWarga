@@ -7,9 +7,28 @@ use App\Models\PemasukanBOP;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 
+/**
+ * @OA\Tag(
+ *     name="BOP",
+ *     description="API untuk manajemen pemasukan BOP"
+ * )
+ */
 class BopApiController extends Controller
 {
 
+    /**
+     * @OA\Get(
+     *     path="/api/bop",
+     *     summary="Ambil semua data pemasukan BOP",
+     *     tags={"BOP"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Data berhasil diambil"
+     *     )
+     * )
+     */
     public function index()
     {
         $data = PemasukanBOP::select('id', 'tgl', 'nominal', 'ket', 'bkt_nota')
@@ -23,6 +42,54 @@ class BopApiController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/bop/create",
+     *     summary="Tambah pemasukan BOP",
+     *     tags={"BOP"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 required={"tgl", "nominal", "ket"},
+     *
+     *                 @OA\Property(
+     *                     property="tgl",
+     *                     type="string",
+     *                     format="date",
+     *                     example="2025-01-25"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="nominal",
+     *                     type="number",
+     *                     format="float",
+     *                     example=250000
+     *                 ),
+     *                 @OA\Property(
+     *                     property="ket",
+     *                     type="string",
+     *                     example="Pembelian ATK"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="bkt_nota",
+     *                     description="Upload file nota (jpg, jpeg, png, pdf)",
+     *                     type="string",
+     *                     format="binary",
+     *                     nullable=true
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=201,
+     *         description="Data berhasil disimpan"
+     *     )
+     * )
+     */
     public function bop_create(Request $request)
     {
         $validated = $request->validate([
@@ -32,7 +99,6 @@ class BopApiController extends Controller
             'bkt_nota'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Upload file jika ada
         if ($request->hasFile('bkt_nota')) {
             $file      = $request->file('bkt_nota');
             $extension = $file->getClientOriginalExtension();
@@ -51,6 +117,31 @@ class BopApiController extends Controller
         ], 201);
     }
 
+    /**
+     * @OA\Delete(
+     *     path="/api/bop/delete/{id}",
+     *     summary="Hapus pemasukan BOP",
+     *     tags={"BOP"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID data BOP",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Data berhasil dihapus"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan"
+     *     )
+     * )
+     */
     public function destroy($id)
     {
         $data = PemasukanBOP::find($id);
@@ -62,7 +153,6 @@ class BopApiController extends Controller
             ], 404);
         }
 
-        // Hapus file nota jika ada
         if ($data->bkt_nota && Storage::disk('public')->exists($data->bkt_nota)) {
             Storage::disk('public')->delete($data->bkt_nota);
         }
@@ -75,6 +165,64 @@ class BopApiController extends Controller
         ]);
     }
 
+    /**
+     * @OA\Post(
+     *     path="/api/bop/update/{id}",
+     *     summary="Perbarui pemasukan BOP",
+     *     tags={"BOP"},
+     *     security={{"bearerAuth":{}}},
+     *
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID data BOP",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *
+     *     @OA\RequestBody(
+     *         required=false,
+     *         @OA\MediaType(
+     *             mediaType="multipart/form-data",
+     *             @OA\Schema(
+     *                 @OA\Property(
+     *                     property="tgl",
+     *                     type="string",
+     *                     format="date",
+     *                     example="2025-02-01"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="nominal",
+     *                     type="number",
+     *                     format="float",
+     *                     example=300000
+     *                 ),
+     *                 @OA\Property(
+     *                     property="ket",
+     *                     type="string",
+     *                     example="Perbaikan printer"
+     *                 ),
+     *                 @OA\Property(
+     *                     property="bkt_nota",
+     *                     description="Upload nota baru (opsional)",
+     *                     type="string",
+     *                     format="binary",
+     *                     nullable=true
+     *                 )
+     *             )
+     *         )
+     *     ),
+     *
+     *     @OA\Response(
+     *         response=200,
+     *         description="Data berhasil diperbarui"
+     *     ),
+     *     @OA\Response(
+     *         response=404,
+     *         description="Data tidak ditemukan"
+     *     )
+     * )
+     */
     public function update(Request $request, $id)
     {
         $data = PemasukanBOP::find($id);
@@ -93,10 +241,7 @@ class BopApiController extends Controller
             'bkt_nota'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        // Jika upload file baru
         if ($request->hasFile('bkt_nota')) {
-
-            // Hapus file lama
             if ($data->bkt_nota && Storage::disk('public')->exists($data->bkt_nota)) {
                 Storage::disk('public')->delete($data->bkt_nota);
             }
