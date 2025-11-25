@@ -15,7 +15,7 @@ class IuranApiController extends Controller
      */
     public function index()
     {
-        $data = PemasukanIuran::with('kategori')
+        $data = PemasukanIuran::with('kategori_iuran')
             ->select('id', 'kat_iuran_id', 'tgl', 'nominal', 'ket', 'usr_id')
             ->latest()
             ->get();
