@@ -21,13 +21,13 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'password' => 'hashed', // Gunakan 'hashed' untuk Laravel 10.x+
+        'password' => 'hashed', 
         'email_verified_at' => 'datetime',
     ];
     
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id');
+        return $this->belongsTo(Role::class, 'role_id', 'id');
     }
 
     public function masuk_iuran()

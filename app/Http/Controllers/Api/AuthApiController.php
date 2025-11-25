@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthApiController extends Controller
 {
+     /**
+     * Login pengguna
+     * @unauthenticated
+    */
     public function login(Request $request)
     {
         $credentials = $request->validate([

@@ -85,6 +85,9 @@ class IuranApiController extends Controller
         ]);
     }
 
+    /**
+     * POST buat iuran
+     */
     public function iuran_create(Request $request)
     {
         $validated = $request->validate([
@@ -107,6 +110,58 @@ class IuranApiController extends Controller
             'success' => true,
             'message' => 'Data iuran berhasil disimpan.',
             'data' => $iuran
+        ]);
+    }
+
+    /**
+     * PATCH / PUT untuk update iuran
+     */
+    public function iuran_update(Request $request, $id)
+    {
+        $iuran = PemasukanIuran::find($id);
+
+        if (!$iuran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data iuran tidak ditemukan.'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'kat_iuran_id' => 'sometimes|exists:kat_iuran,id',
+            'tgl'          => 'sometimes|date',
+            'nominal'      => 'sometimes|numeric|min:0',
+            'ket'          => 'nullable|string',
+        ]);
+
+        $iuran->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data iuran berhasil diperbarui.',
+            'data' => $iuran
+        ]);
+    }
+
+    /**
+     * DELETE iuran
+     */
+    public function iuran_delete($id)
+    {
+        $iuran = PemasukanIuran::find($id);
+
+        if (!$iuran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data iuran tidak ditemukan.'
+            ], 404);
+        }
+
+        $iuran->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data iuran berhasil dihapus.'
         ]);
     }
 }
