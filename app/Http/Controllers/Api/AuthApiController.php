@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 class AuthApiController extends Controller
 {
      /**
-     * Login pengguna
+     * Login 
      * @unauthenticated
     */
     public function login(Request $request)
@@ -38,6 +38,10 @@ class AuthApiController extends Controller
         ]);
     }
 
+    /**
+     * Logout 
+     * @authenticated
+    */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

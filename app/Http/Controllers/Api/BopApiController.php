@@ -17,6 +17,8 @@ class BopApiController extends Controller
 {
 
     /**
+     * Get all data pemasukan BOP 
+     * @authenticated
      * @OA\Get(
      *     path="/api/bop",
      *     summary="Ambil semua data pemasukan BOP",
@@ -43,6 +45,8 @@ class BopApiController extends Controller
     }
 
     /**
+     * Create data pemasukan BOP 
+     * @authenticated
      * @OA\Post(
      *     path="/api/bop/create",
      *     summary="Tambah pemasukan BOP",
@@ -118,6 +122,8 @@ class BopApiController extends Controller
     }
 
     /**
+     * Delete data pemasukan BOP by ID
+     * @authenticated
      * @OA\Delete(
      *     path="/api/bop/delete/{id}",
      *     summary="Hapus pemasukan BOP",
@@ -166,6 +172,8 @@ class BopApiController extends Controller
     }
 
     /**
+     * Update data pemasukan BOP By ID
+     * @authenticated
      * @OA\Post(
      *     path="/api/bop/update/{id}",
      *     summary="Perbarui pemasukan BOP",
