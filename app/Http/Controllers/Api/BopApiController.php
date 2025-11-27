@@ -18,13 +18,13 @@ class BopApiController extends Controller
 {
 
     /**
-     * Lihat daftar pemasukan BOP
-     *
+     * Ambil Data BOP
+     * 
      * @OA\Get(
-     *     path="/api/bop",
-     *     summary="Lihat daftar pemasukan BOP",
-     *     tags={"BOP"},
-     *     security={{"bearerAuth":{}}},
+     * path="/api/bop",
+     * summary="Ambil semua data pemasukan BOP",
+     * tags={"BOP"},
+     * security={{"bearerAuth":{}}},
      *
      * @OA\Response(
      * response=200,
@@ -46,8 +46,8 @@ class BopApiController extends Controller
     }
 
     /**
-     * Tambah pemasukan BOP
-     *
+     * Tambah data BOP
+     * 
      * @OA\Post(
      * path="/api/bop/create",
      * summary="Tambah pemasukan BOP",
@@ -102,7 +102,6 @@ class BopApiController extends Controller
             'tgl'       => 'required|date',
             'nominal'   => 'required|numeric|min:0',
             'ket'       => 'required|string',
-            // PERUBAHAN UTAMA DI SINI
             'bkt_nota'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048', 
         ]);
 
@@ -144,8 +143,8 @@ class BopApiController extends Controller
     // ... (method destroy, update, dll. tetap sama)
     
     /**
-     * Hapus pemasukan BOP
-     *
+     * Hapus data BOP
+     * 
      * @OA\Delete(
      * path="/api/bop/delete/{id}",
      * summary="Hapus pemasukan BOP",
@@ -194,13 +193,13 @@ class BopApiController extends Controller
     }
 
     /**
-     * Edit pemasukan BOP
-     *
+     * Update data BOP
+     * 
      * @OA\Post(
-     *     path="/api/bop/update/{id}",
-     *     summary="Edit pemasukan BOP",
-     *     tags={"BOP"},
-     *     security={{"bearerAuth":{}}},
+     * path="/api/bop/update/{id}",
+     * summary="Perbarui pemasukan BOP",
+     * tags={"BOP"},
+     * security={{"bearerAuth":{}}},
      *
      * @OA\Parameter(
      * name="id",
@@ -270,7 +269,7 @@ class BopApiController extends Controller
             'nominal'   => 'nullable|numeric|min:0',
             'ket'       => 'nullable|string',
             // File bkt_nota saat update tetap nullable (opsional)
-            'bkt_nota'  => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'bkt_nota'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         if ($request->hasFile('bkt_nota')) {

@@ -53,7 +53,7 @@ class KegiatanApiController extends Controller
             'tgl_selesai' => 'nullable|date|after_or_equal:tgl_mulai',
             'pj_keg'      => 'nullable|string|max:255',
             'panitia'     => 'nullable|string|max:255',
-            'dok_keg'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'dok_keg'     => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         if ($request->hasFile('dok_keg')) {
@@ -92,7 +92,7 @@ class KegiatanApiController extends Controller
             'tgl_selesai' => 'nullable|date|after_or_equal:tgl_mulai',
             'pj_keg'      => 'nullable|string|max:255',
             'panitia'     => 'nullable|string|max:255',
-            'dok_keg'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'dok_keg'     => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         $kegiatan->update($data);
