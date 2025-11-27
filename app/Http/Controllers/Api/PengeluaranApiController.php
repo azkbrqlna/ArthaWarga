@@ -9,6 +9,9 @@ use Illuminate\Http\Request;
 class PengeluaranApiController extends Controller
 {
     // GET: List all pengeluaran
+    /**
+     * Lihat daftar pengeluaran
+     */
     public function index()
     {
         $data = Pengeluaran::with('kegiatan')->latest()->get();
@@ -19,6 +22,9 @@ class PengeluaranApiController extends Controller
     }
 
     // GET: Detail pengeluaran by ID
+    /**
+     * Lihat detail pengeluaran by ID
+     */
     public function show($id)
     {
         $data = Pengeluaran::with('kegiatan')->find($id);
@@ -37,6 +43,9 @@ class PengeluaranApiController extends Controller
     }
 
     // POST: Create pengeluaran
+    /**
+     * Menambah pengeluaran
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -45,7 +54,7 @@ class PengeluaranApiController extends Controller
             'nominal' => 'required|numeric|min:0',
             'ket' => 'required|string',
             'tipe' => 'required|in:bop,iuran',
-            'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'bkt_nota' => 'required|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($request->hasFile('bkt_nota')) {
@@ -66,6 +75,9 @@ class PengeluaranApiController extends Controller
     }
 
     // PUT/PATCH: Update pengeluaran
+    /**
+     * Update pengeluaran
+     */
     public function update(Request $request, $id)
     {
         $data = Pengeluaran::find($id);
@@ -83,7 +95,7 @@ class PengeluaranApiController extends Controller
             'nominal' => 'sometimes|numeric|min:0',
             'ket' => 'sometimes|string',
             'tipe' => 'sometimes|in:bop,iuran',
-            'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
+            'bkt_nota' => 'required|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($request->hasFile('bkt_nota')) {
@@ -104,6 +116,9 @@ class PengeluaranApiController extends Controller
     }
 
     // DELETE: Delete pengeluaran
+    /**
+     * Menghapus pengeluaran
+     */
     public function destroy($id)
     {
         $data = Pengeluaran::find($id);

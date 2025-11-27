@@ -12,7 +12,7 @@ use Illuminate\Http\Request;
 class PengumumanApiController extends Controller
 {
     /**
-     * GET - List semua pengumuman
+     * Lihat daftar pengumuman
      */
     public function index()
     {
@@ -25,7 +25,7 @@ class PengumumanApiController extends Controller
     }
 
     /**
-     * GET - Detail pengumuman
+     * Lihat detail pengumuman
      */
     public function show($id)
     {
@@ -45,7 +45,7 @@ class PengumumanApiController extends Controller
     }
 
     /**
-     * POST - Buat pengumuman baru + buat tagihan otomatis
+     * Membuat pengumuman dan tagihan otomatis
      */
     public function store(Request $request)
     {
@@ -83,7 +83,7 @@ class PengumumanApiController extends Controller
     }
 
     /**
-     * PUT/PATCH - Update pengumuman
+     * Update pengumuman
      */
     public function update(Request $request, $id)
     {
@@ -112,7 +112,7 @@ class PengumumanApiController extends Controller
     }
 
     /**
-     * DELETE - Hapus pengumuman + hapus tagihan terkait
+     * Hapus pengumuman dan tagihan terkait
      */
     public function destroy($id)
     {
