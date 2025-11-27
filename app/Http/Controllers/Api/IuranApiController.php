@@ -10,6 +10,9 @@ use Illuminate\Support\Facades\Auth;
 
 class IuranApiController extends Controller
 {
+    /**
+     * Lihat daftar data iuran
+     */
     public function index()
     {
         $data = PemasukanIuran::with('kategori_iuran')
@@ -24,7 +27,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * GET kategori iuran (kecuali id 1 & 2)
+     * Lihat daftar kategori iuran (kecuali id 1 & 2)
      */
     public function kategori()
     {
@@ -37,7 +40,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * POST buat kategori iuran
+     * Tambah kategori iuran baru
      */
     public function kat_iuran_create(Request $request)
     {
@@ -55,7 +58,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * DELETE kategori iuran
+     * Hapus kategori iuran
      */
     public function kat_iuran_delete($id)
     {
@@ -86,7 +89,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * POST buat iuran
+     * Tambah data iuran
      */
     public function iuran_create(Request $request)
     {
@@ -114,7 +117,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * PATCH / PUT untuk update iuran
+     * Update data iuran
      */
     public function iuran_update(Request $request, $id)
     {
@@ -144,7 +147,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * DELETE iuran
+     * Hapus data iuran
      */
     public function iuran_delete($id)
     {

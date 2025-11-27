@@ -17,9 +17,11 @@ class BopApiController extends Controller
 {
 
     /**
+     * Lihat daftar pemasukan BOP
+     *
      * @OA\Get(
      *     path="/api/bop",
-     *     summary="Ambil semua data pemasukan BOP",
+     *     summary="Lihat daftar pemasukan BOP",
      *     tags={"BOP"},
      *     security={{"bearerAuth":{}}},
      *
@@ -43,6 +45,8 @@ class BopApiController extends Controller
     }
 
     /**
+     * Tambah pemasukan BOP
+     *
      * @OA\Post(
      *     path="/api/bop/create",
      *     summary="Tambah pemasukan BOP",
@@ -118,6 +122,8 @@ class BopApiController extends Controller
     }
 
     /**
+     * Hapus pemasukan BOP
+     *
      * @OA\Delete(
      *     path="/api/bop/delete/{id}",
      *     summary="Hapus pemasukan BOP",
@@ -166,9 +172,11 @@ class BopApiController extends Controller
     }
 
     /**
+     * Edit pemasukan BOP
+     *
      * @OA\Post(
      *     path="/api/bop/update/{id}",
-     *     summary="Perbarui pemasukan BOP",
+     *     summary="Edit pemasukan BOP",
      *     tags={"BOP"},
      *     security={{"bearerAuth":{}}},
      *

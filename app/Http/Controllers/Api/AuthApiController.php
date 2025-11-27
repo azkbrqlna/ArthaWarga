@@ -8,20 +8,20 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthApiController extends Controller
 {
-     /**
+    /**
      * Login pengguna
      * @unauthenticated
-    */
+     */
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email' => 'required|email',
+            'email'    => 'required|email',
             'password' => 'required|string',
         ]);
 
         if (!Auth::attempt($credentials)) {
             return response()->json([
-                'status' => false,
+                'status'  => false,
                 'message' => 'Email atau password salah.',
             ], 401);
         }
@@ -31,19 +31,23 @@ class AuthApiController extends Controller
         $token = $user->createToken(name: 'api_token')->plainTextToken;
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Login berhasil.',
-            'token' => $token,
-            'user' => $user,
+            'token'   => $token,
+            'user'    => $user,
         ]);
     }
 
+    /**
+     * Logout pengguna
+     * @authenticated
+     */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([
-            'status' => true,
+            'status'  => true,
             'message' => 'Logout berhasil.',
         ]);
     }

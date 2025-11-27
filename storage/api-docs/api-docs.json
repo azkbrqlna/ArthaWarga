@@ -1,0 +1,1492 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "ArthaWarga API Documentation",
+        "description": "Dokumentasi resmi API ArthaWarga",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Login pengguna",
+                "description": "Mengembalikan token akses dan data user.",
+                "operationId": "1257f11ade1e6ee3a26cfe338badfb8e",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "example": "user@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Login berhasil."
+                                        },
+                                        "token": {
+                                            "type": "string",
+                                            "example": "1|xyz123token"
+                                        },
+                                        "user": {
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Email atau password salah",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": false
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Email atau password salah."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": []
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Logout pengguna",
+                "description": "Menghapus token akses pengguna saat ini.",
+                "operationId": "d0090497298d35d96a9fcde3666ff010",
+                "responses": {
+                    "200": {
+                        "description": "Logout berhasil",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "status": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Logout berhasil."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bop": {
+            "get": {
+                "tags": [
+                    "BOP"
+                ],
+                "summary": "Ambil semua data pemasukan BOP",
+                "operationId": "3f9550b5ef21c0ea0896b30407c01bd5",
+                "responses": {
+                    "200": {
+                        "description": "Data berhasil diambil"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bop/create": {
+            "post": {
+                "tags": [
+                    "BOP"
+                ],
+                "summary": "Tambah pemasukan BOP",
+                "operationId": "1fd8ceb57ed621c1d020bf0f46fd0fa8",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "tgl",
+                                    "nominal",
+                                    "ket"
+                                ],
+                                "properties": {
+                                    "tgl": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-01-25"
+                                    },
+                                    "nominal": {
+                                        "type": "number",
+                                        "example": 250000
+                                    },
+                                    "ket": {
+                                        "type": "string",
+                                        "example": "Pembelian ATK"
+                                    },
+                                    "bkt_nota": {
+                                        "description": "Upload file nota (jpg, jpeg, png, pdf)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Data berhasil disimpan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bop/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "BOP"
+                ],
+                "summary": "Hapus pemasukan BOP",
+                "operationId": "6d2ea6f88af494898feb1deb43a6c425",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID data BOP",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/bop/update/{id}": {
+            "post": {
+                "tags": [
+                    "BOP"
+                ],
+                "summary": "Perbarui pemasukan BOP",
+                "operationId": "372cf6797ddbf0e6d7be10f767594a06",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID data BOP",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "tgl": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-01"
+                                    },
+                                    "nominal": {
+                                        "type": "number",
+                                        "example": 300000
+                                    },
+                                    "ket": {
+                                        "type": "string",
+                                        "example": "Perbaikan printer"
+                                    },
+                                    "bkt_nota": {
+                                        "description": "Upload nota baru (opsional)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Data berhasil diperbarui"
+                    },
+                    "404": {
+                        "description": "Data tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/iuran": {
+            "get": {
+                "tags": [
+                    "Iuran"
+                ],
+                "summary": "Ambil semua data iuran",
+                "operationId": "3ed21e9d1c2af9f4b631c603a5768d67",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil data iuran"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/iuran/kategori": {
+            "get": {
+                "tags": [
+                    "Iuran"
+                ],
+                "summary": "Ambil semua kategori iuran (kecuali id 1 & 2)",
+                "operationId": "bcb4f90c2debbbbb4c7c49b6a4b3dbaf",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil kategori iuran"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/iuran/kategori/create": {
+            "post": {
+                "tags": [
+                    "Iuran"
+                ],
+                "summary": "Buat kategori iuran baru",
+                "operationId": "92f3adee11d4063dac286ab3143948d9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nm_kat"
+                                ],
+                                "properties": {
+                                    "nm_kat": {
+                                        "type": "string",
+                                        "example": "Iuran Kebersihan"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Kategori berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/iuran/kategori/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Iuran"
+                ],
+                "summary": "Hapus kategori iuran",
+                "operationId": "0f4a1356506100c8bfcee06ef9009c73",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID kategori iuran",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Kategori berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Kategori tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/iuran/create": {
+            "post": {
+                "tags": [
+                    "Iuran"
+                ],
+                "summary": "Buat iuran baru",
+                "operationId": "36a7509b9b044ae863e33993660a669b",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "kat_iuran_id",
+                                    "tgl",
+                                    "nominal"
+                                ],
+                                "properties": {
+                                    "kat_iuran_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "tgl": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-01"
+                                    },
+                                    "nominal": {
+                                        "type": "number",
+                                        "example": 20000
+                                    },
+                                    "ket": {
+                                        "type": "string",
+                                        "example": "Bayar iuran sampah"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Iuran berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/iuran/update/{id}": {
+            "patch": {
+                "tags": [
+                    "Iuran"
+                ],
+                "summary": "Perbarui data iuran",
+                "operationId": "19f9475e5b6db59afa11ffb469e68268",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID iuran yang akan diperbarui",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "kat_iuran_id": {
+                                        "type": "integer",
+                                        "example": 4
+                                    },
+                                    "tgl": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-10"
+                                    },
+                                    "nominal": {
+                                        "type": "number",
+                                        "example": 25000
+                                    },
+                                    "ket": {
+                                        "type": "string",
+                                        "example": "Iuran revisi"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Iuran berhasil diperbarui"
+                    },
+                    "404": {
+                        "description": "Data iuran tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/iuran/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Iuran"
+                ],
+                "summary": "Hapus iuran",
+                "operationId": "ecf0106c63c5681af06780bcbefce984",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID iuran yang akan dihapus",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Iuran berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Data iuran tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan": {
+            "get": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Ambil semua kegiatan",
+                "operationId": "99e6938a61b7467f0da849ee7299536c",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mendapatkan data kegiatan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/{id}": {
+            "get": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Ambil detail kegiatan",
+                "operationId": "064acbb848aafdac20079c49e924530c",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID kegiatan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Data kegiatan ditemukan"
+                    },
+                    "404": {
+                        "description": "Kegiatan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/create": {
+            "post": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Tambah kegiatan baru",
+                "operationId": "214dd3a85acfd0a0cc77510c3db571d6",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "nm_keg"
+                                ],
+                                "properties": {
+                                    "nm_keg": {
+                                        "type": "string",
+                                        "example": "Kerja Bakti"
+                                    },
+                                    "tgl_mulai": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-01"
+                                    },
+                                    "tgl_selesai": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-02"
+                                    },
+                                    "pj_keg": {
+                                        "type": "string",
+                                        "example": "Pak RT"
+                                    },
+                                    "panitia": {
+                                        "type": "string",
+                                        "example": "Panitia Kebersihan"
+                                    },
+                                    "dok_keg": {
+                                        "description": "Upload dokumen kegiatan (jpg, jpeg, png, pdf)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Kegiatan berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/update/{id}": {
+            "post": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Update data kegiatan",
+                "operationId": "dfe81fcb9336225cfd96dc79e6da4da6",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID kegiatan yang akan diperbarui",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "nm_keg": {
+                                        "type": "string",
+                                        "example": "Acara Revisi"
+                                    },
+                                    "tgl_mulai": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-10"
+                                    },
+                                    "tgl_selesai": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-11"
+                                    },
+                                    "pj_keg": {
+                                        "type": "string",
+                                        "example": "Bu RW"
+                                    },
+                                    "panitia": {
+                                        "type": "string",
+                                        "example": "Panitia Baru"
+                                    },
+                                    "dok_keg": {
+                                        "description": "Upload dokumen baru (opsional)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Kegiatan berhasil diperbarui"
+                    },
+                    "404": {
+                        "description": "Kegiatan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/kegiatan/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Kegiatan"
+                ],
+                "summary": "Hapus kegiatan",
+                "operationId": "962dad1c0d6b65f538d1f4c0cd75a675",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID kegiatan",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Kegiatan berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Kegiatan tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengeluaran": {
+            "get": {
+                "tags": [
+                    "Pengeluaran"
+                ],
+                "summary": "Ambil semua data pengeluaran",
+                "operationId": "346c6e050ce324e32a492d40f1c684e9",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil data pengeluaran"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengeluaran/{id}": {
+            "get": {
+                "tags": [
+                    "Pengeluaran"
+                ],
+                "summary": "Ambil detail pengeluaran",
+                "operationId": "ecbe6f49d9c1b4474d39a556e1f7070b",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Pengeluaran",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail pengeluaran ditemukan"
+                    },
+                    "404": {
+                        "description": "Pengeluaran tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengeluaran/create": {
+            "post": {
+                "tags": [
+                    "Pengeluaran"
+                ],
+                "summary": "Tambah data pengeluaran",
+                "operationId": "48aa93e7b828509ecce6c9634f1219e0",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "required": [
+                                    "tgl",
+                                    "keg_id",
+                                    "nominal",
+                                    "ket",
+                                    "tipe"
+                                ],
+                                "properties": {
+                                    "tgl": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-02"
+                                    },
+                                    "keg_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "nominal": {
+                                        "type": "number",
+                                        "example": 50000
+                                    },
+                                    "ket": {
+                                        "type": "string",
+                                        "example": "Beli konsumsi rapat"
+                                    },
+                                    "tipe": {
+                                        "type": "string",
+                                        "enum": [
+                                            "bop",
+                                            "iuran"
+                                        ],
+                                        "example": "bop"
+                                    },
+                                    "bkt_nota": {
+                                        "description": "Upload nota (jpg,jpeg,png)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pengeluaran berhasil dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengeluaran/update/{id}": {
+            "post": {
+                "tags": [
+                    "Pengeluaran"
+                ],
+                "summary": "Update data pengeluaran",
+                "operationId": "40e9cc884db9c3b738f04c7bc0d32449",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID pengeluaran yang akan diperbarui",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "properties": {
+                                    "tgl": {
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2025-02-10"
+                                    },
+                                    "keg_id": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "nominal": {
+                                        "type": "number",
+                                        "example": 75000
+                                    },
+                                    "ket": {
+                                        "type": "string",
+                                        "example": "Revisi konsumsi"
+                                    },
+                                    "tipe": {
+                                        "type": "string",
+                                        "enum": [
+                                            "bop",
+                                            "iuran"
+                                        ]
+                                    },
+                                    "bkt_nota": {
+                                        "description": "Upload nota baru (opsional)",
+                                        "type": "string",
+                                        "format": "binary"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Pengeluaran berhasil diperbarui"
+                    },
+                    "404": {
+                        "description": "Pengeluaran tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengeluaran/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Pengeluaran"
+                ],
+                "summary": "Hapus pengeluaran",
+                "operationId": "6033be7978b08335638e07dcd18dd569",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID pengeluaran",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pengeluaran berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Pengeluaran tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengumuman": {
+            "get": {
+                "tags": [
+                    "Pengumuman"
+                ],
+                "summary": "Ambil semua pengumuman",
+                "operationId": "83ef8d40335c30c4bfe760f0437c9bb7",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar pengumuman"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengumuman/{id}": {
+            "get": {
+                "tags": [
+                    "Pengumuman"
+                ],
+                "summary": "Ambil detail pengumuman",
+                "operationId": "e37e9f005f8750cbbdffa04f625a4f87",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID Pengumuman",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detail pengumuman ditemukan"
+                    },
+                    "404": {
+                        "description": "Pengumuman tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengumuman/create": {
+            "post": {
+                "tags": [
+                    "Pengumuman"
+                ],
+                "summary": "Buat pengumuman baru dan generate tagihan otomatis",
+                "operationId": "9f20ebc1d2ca60760b30a7f3e4fa0e6d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "judul",
+                                    "ket",
+                                    "kat_iuran_id"
+                                ],
+                                "properties": {
+                                    "judul": {
+                                        "type": "string",
+                                        "example": "Iuran Bulan Februari"
+                                    },
+                                    "ket": {
+                                        "type": "string",
+                                        "example": "Pembayaran iuran wajib bulan Februari"
+                                    },
+                                    "kat_iuran_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Pengumuman berhasil dibuat dan tagihan otomatis dibuat"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengumuman/update/{id}": {
+            "post": {
+                "tags": [
+                    "Pengumuman"
+                ],
+                "summary": "Update pengumuman",
+                "operationId": "040ce50510dfcd464610fe7df7f5fe2e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID pengumuman",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": false,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "judul": {
+                                        "type": "string",
+                                        "example": "Update Informasi Iuran"
+                                    },
+                                    "ket": {
+                                        "type": "string",
+                                        "example": "Perubahan ketentuan iuran bulan ini"
+                                    },
+                                    "kat_iuran_id": {
+                                        "type": "integer",
+                                        "example": 4
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Pengumuman berhasil diperbarui"
+                    },
+                    "404": {
+                        "description": "Pengumuman tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/pengumuman/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Pengumuman"
+                ],
+                "summary": "Hapus pengumuman & semua tagihan terkait",
+                "operationId": "b95d1edbbbdfd1a5a7893e1d789ef31d",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Pengumuman dan tagihan berhasil dihapus"
+                    },
+                    "404": {
+                        "description": "Pengumuman tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/superadmin/users": {
+            "get": {
+                "tags": [
+                    "Superadmin"
+                ],
+                "summary": "Ambil semua user beserta role (paginate)",
+                "operationId": "074bee716c94cc700d938ffe05a1bea0",
+                "responses": {
+                    "200": {
+                        "description": "Berhasil mengambil daftar user"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/superadmin/users/{id}": {
+            "get": {
+                "tags": [
+                    "Superadmin"
+                ],
+                "summary": "Ambil detail user",
+                "operationId": "1ba9146c817c1d70a686f8c8dd7c406e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User ditemukan"
+                    },
+                    "404": {
+                        "description": "User tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/superadmin/users/create": {
+            "post": {
+                "tags": [
+                    "Superadmin"
+                ],
+                "summary": "Tambah user baru",
+                "operationId": "515eb169c0cc0a5203036e7d299dc5fa",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nm_lengkap",
+                                    "no_kk",
+                                    "email",
+                                    "password",
+                                    "role_id",
+                                    "status",
+                                    "alamat",
+                                    "rt"
+                                ],
+                                "properties": {
+                                    "nm_lengkap": {
+                                        "type": "string",
+                                        "example": "Budi Santoso"
+                                    },
+                                    "no_kk": {
+                                        "type": "string",
+                                        "example": "3374123456789123"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "budi@example.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "password123"
+                                    },
+                                    "no_hp": {
+                                        "type": "string",
+                                        "example": "081234567890"
+                                    },
+                                    "role_id": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "aktif"
+                                    },
+                                    "alamat": {
+                                        "type": "string",
+                                        "example": "Jl. Merpati No.12"
+                                    },
+                                    "rt": {
+                                        "type": "integer",
+                                        "example": 2
+                                    },
+                                    "rw": {
+                                        "type": "integer",
+                                        "example": 5
+                                    },
+                                    "kode_pos": {
+                                        "type": "string",
+                                        "example": "50212"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "User berhasil ditambahkan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/superadmin/users/update/{id}": {
+            "post": {
+                "tags": [
+                    "Superadmin"
+                ],
+                "summary": "Update user",
+                "operationId": "6cd7ccf42feb4645de852175568d7e78",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nm_lengkap": {
+                                        "type": "string",
+                                        "example": "Update Nama"
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "example": "update@example.com"
+                                    },
+                                    "no_kk": {
+                                        "type": "string",
+                                        "example": "3374987654321234"
+                                    },
+                                    "no_hp": {
+                                        "type": "string",
+                                        "example": "089912341234"
+                                    },
+                                    "role_id": {
+                                        "type": "integer",
+                                        "example": 4
+                                    },
+                                    "status": {
+                                        "type": "string",
+                                        "example": "aktif"
+                                    },
+                                    "alamat": {
+                                        "type": "string",
+                                        "example": "Alamat baru"
+                                    },
+                                    "rt": {
+                                        "type": "integer",
+                                        "example": 3
+                                    },
+                                    "rw": {
+                                        "type": "integer",
+                                        "example": 7
+                                    },
+                                    "kode_pos": {
+                                        "type": "string",
+                                        "example": "50119"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "passwordBaru123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "User berhasil diperbarui"
+                    },
+                    "404": {
+                        "description": "User tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/superadmin/users/delete/{id}": {
+            "delete": {
+                "tags": [
+                    "Superadmin"
+                ],
+                "summary": "Hapus user",
+                "operationId": "6c9ee6460825f510275b55beb3ce6865",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID user",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "User berhasil dihapus"
+                    },
+                    "403": {
+                        "description": "Tidak boleh menghapus Superadmin"
+                    },
+                    "404": {
+                        "description": "User tidak ditemukan"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "BOP",
+            "description": "BOP"
+        },
+        {
+            "name": "Auth",
+            "description": "Auth"
+        },
+        {
+            "name": "Iuran",
+            "description": "Iuran"
+        },
+        {
+            "name": "Kegiatan",
+            "description": "Kegiatan"
+        },
+        {
+            "name": "Pengeluaran",
+            "description": "Pengeluaran"
+        },
+        {
+            "name": "Pengumuman",
+            "description": "Pengumuman"
+        },
+        {
+            "name": "Superadmin",
+            "description": "Superadmin"
+        }
+    ]
+}

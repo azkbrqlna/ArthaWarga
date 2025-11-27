@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Storage;
 class KegiatanApiController extends Controller
 {
     /**
-     * GET semua kegiatan
+     * Lihat semua kegiatan
      */
     public function index()
     {
@@ -23,7 +23,7 @@ class KegiatanApiController extends Controller
     }
 
     /**
-     * GET detail kegiatan
+     * Lihat detail kegiatan
      */
     public function show($id)
     {
@@ -43,7 +43,7 @@ class KegiatanApiController extends Controller
     }
 
     /**
-     * POST tambah kegiatan
+     * Tambah kegiatan
      */
     public function store(Request $request)
     {
@@ -57,8 +57,8 @@ class KegiatanApiController extends Controller
         ]);
 
         if ($request->hasFile('dok_keg')) {
-            $filename = now()->format('Ymd_His') . '_keg.' 
-                      . $request->file('dok_keg')->getClientOriginalExtension();
+            $filename = now()->format('Ymd_His') . '_keg.'
+                . $request->file('dok_keg')->getClientOriginalExtension();
 
             $data['dok_keg'] = $request->file('dok_keg')
                 ->storeAs('keg', $filename, 'public');
@@ -74,7 +74,7 @@ class KegiatanApiController extends Controller
     }
 
     /**
-     * UPDATE kegiatan
+     * Update kegiatan
      */
     public function update(Request $request, $id)
     {
@@ -104,7 +104,7 @@ class KegiatanApiController extends Controller
     }
 
     /**
-     * DELETE kegiatan
+     * Hapus kegiatan
      */
     public function destroy($id)
     {
