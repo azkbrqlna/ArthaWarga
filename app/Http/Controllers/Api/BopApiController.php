@@ -18,11 +18,13 @@ class BopApiController extends Controller
 {
 
     /**
+     * Lihat daftar pemasukan BOP
+     *
      * @OA\Get(
-     * path="/api/bop",
-     * summary="Ambil semua data pemasukan BOP",
-     * tags={"BOP"},
-     * security={{"bearerAuth":{}}},
+     *     path="/api/bop",
+     *     summary="Lihat daftar pemasukan BOP",
+     *     tags={"BOP"},
+     *     security={{"bearerAuth":{}}},
      *
      * @OA\Response(
      * response=200,
@@ -44,6 +46,8 @@ class BopApiController extends Controller
     }
 
     /**
+     * Tambah pemasukan BOP
+     *
      * @OA\Post(
      * path="/api/bop/create",
      * summary="Tambah pemasukan BOP",
@@ -140,6 +144,8 @@ class BopApiController extends Controller
     // ... (method destroy, update, dll. tetap sama)
     
     /**
+     * Hapus pemasukan BOP
+     *
      * @OA\Delete(
      * path="/api/bop/delete/{id}",
      * summary="Hapus pemasukan BOP",
@@ -188,11 +194,13 @@ class BopApiController extends Controller
     }
 
     /**
+     * Edit pemasukan BOP
+     *
      * @OA\Post(
-     * path="/api/bop/update/{id}",
-     * summary="Perbarui pemasukan BOP",
-     * tags={"BOP"},
-     * security={{"bearerAuth":{}}},
+     *     path="/api/bop/update/{id}",
+     *     summary="Edit pemasukan BOP",
+     *     tags={"BOP"},
+     *     security={{"bearerAuth":{}}},
      *
      * @OA\Parameter(
      * name="id",
