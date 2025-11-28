@@ -98,7 +98,6 @@ class BopApiController extends Controller
             'tgl'       => 'required|date',
             'nominal'   => 'required|numeric|min:0',
             'ket'       => 'required|string',
-            // PERUBAHAN UTAMA DI SINI
             'bkt_nota'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048', 
         ]);
 
