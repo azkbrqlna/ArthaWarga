@@ -40,7 +40,9 @@ export default function Dashboard() {
     const [sortField, setSortField] = useState("tgl");
     const [sortOrder, setSortOrder] = useState("desc");
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedMonth, setSelectedMonth] = useState("");
+    const [selectedYear, setSelectedYear] = useState("");
+
     const itemsPerPage = 8;
 
     const toggleSort = (field) => {
@@ -52,8 +54,41 @@ export default function Dashboard() {
         }
     };
 
+    const formatRupiah = (val) =>
+        "Rp " + parseInt(val || 0).toLocaleString("id-ID");
+
+    const handleFilterChange = (month, year) => {
+        setSelectedMonth(month);
+        setSelectedYear(year);
+
+        // Opsional: Jika ingin filter via backend juga, biarkan ini.
+        // Jika hanya client-side filter (seperti yang diminta), bagian router.get ini bisa dihapus/dikomentari
+        // agar tidak reload halaman. Namun saya biarkan sesuai kode asli Anda.
+        router.get(
+            route("dashboard"),
+            { month, year },
+            { preserveScroll: true, preserveState: true }
+        );
+    };
+
+    // --- PERBAIKAN UTAMA DI SINI ---
+    // 1. Buat Filter Global (Digunakan untuk Chart & Tabel)
+    const filteredData = useMemo(() => {
+        return transaksi.filter((t) => {
+            const d = new Date(t.tgl);
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const year = String(d.getFullYear());
+
+            let monthMatch = selectedMonth ? month === selectedMonth : true;
+            let yearMatch = selectedYear ? year === selectedYear : true;
+
+            return monthMatch && yearMatch;
+        });
+    }, [transaksi, selectedMonth, selectedYear]);
+
+    // 2. Logic Data Table (Sekarang mengambil dari filteredData, bukan transaksi mentah)
     const sortedData = useMemo(() => {
-        return [...transaksi].sort((a, b) => {
+        return [...filteredData].sort((a, b) => {
             const valA = a[sortField];
             const valB = b[sortField];
             if (!valA || !valB) return 0;
@@ -64,7 +99,7 @@ export default function Dashboard() {
             }
             return sortOrder === "asc" ? valA - valB : valB - a[sortField];
         });
-    }, [transaksi, sortField, sortOrder]);
+    }, [filteredData, sortField, sortOrder]);
 
     const totalPages = Math.ceil(sortedData.length / itemsPerPage);
     const paginatedData = sortedData.slice(
@@ -72,79 +107,51 @@ export default function Dashboard() {
         currentPage * itemsPerPage
     );
 
-    const formatRupiah = (val) =>
-        "Rp " + parseInt(val || 0).toLocaleString("id-ID");
-
-    const handleDateChange = (e) => {
-        const value = e.target.value;
-        setSelectedDate(value);
-        router.get(
-            route("dashboard"),
-            { date: value },
-            { preserveScroll: true, preserveState: true }
-        );
-    };
-
-    // LOGIKA DATA CHART (Sesuaikan dengan kebutuhan data riil Anda)
-    // LOGIKA DATA CHART (Diperbarui untuk Sorting yang Benar)
+    // 3. Logic Data Chart (Sekarang juga mengambil dari filteredData agar lebih rapi)
     const chartData = useMemo(() => {
         const monthlyData = {};
-        
-        // 1. Grouping data
-        transaksi.forEach(t => {
+
+        filteredData.forEach((t) => {
             const date = new Date(t.tgl);
-            // Format key YYYY-MM agar mudah disortir secara string
-            // Tambahkan +1 pada getMonth karena Januari dimulai dari 0
-            const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`; 
+            const key = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, "0")}`;
 
-            if (!monthlyData[monthKey]) {
-                monthlyData[monthKey] = {
-                    pemasukan: 0,
-                    pengeluaran: 0,
-                    dateObj: date, // Simpan objek date asli untuk sorting nanti
-                };
+            if (!monthlyData[key]) {
+                monthlyData[key] = { pemasukan: 0, pengeluaran: 0, dateObj: date };
             }
 
-            // Hitung nominal riil
-            const nominal = t.status === "Pemasukan" 
-                ? (t.jumlah_sisa - t.jumlah_awal) 
-                : t.jumlah_digunakan;
-            
+            const nominal =
+                t.status === "Pemasukan"
+                    ? t.jumlah_sisa - t.jumlah_awal
+                    : t.jumlah_digunakan;
+
             if (t.status === "Pemasukan") {
-                monthlyData[monthKey].pemasukan += nominal;
-            } else if (t.status === "Pengeluaran") {
-                monthlyData[monthKey].pengeluaran += nominal;
+                monthlyData[key].pemasukan += nominal;
+            } else {
+                monthlyData[key].pengeluaran += nominal;
             }
         });
 
-        // 2. Sorting & Calculating Cumulative Saldo
-        // Kita ambil data saldo awal global sebagai titik start (opsional, bisa mulai dari 0)
-        let currentSaldo = 0; 
+        let saldo = 0;
 
-        // Sort keys (YYYY-MM) secara Ascending (A-Z) agar grafik bergerak dari kiri (lama) ke kanan (baru)
-        const sortedKeys = Object.keys(monthlyData).sort();
+        return Object.keys(monthlyData)
+            .sort()
+            .map((key) => {
+                const d = monthlyData[key];
+                saldo += d.pemasukan - d.pengeluaran;
 
-        const finalChartData = sortedKeys.map(key => {
-            const data = monthlyData[key];
-            
-            // Update saldo berjalan
-            currentSaldo = currentSaldo + data.pemasukan - data.pengeluaran;
-            
-            // Buat label bulan yang cantik (Contoh: "Okt 2025")
-            const monthLabel = data.dateObj.toLocaleString('id-ID', { month: 'short', year: 'numeric' });
-            
-            return {
-                month: monthLabel,
-                pemasukan: data.pemasukan,
-                pengeluaran: data.pengeluaran,
-                saldo: currentSaldo,
-            };
-        });
-
-        return finalChartData;
-    }, [transaksi]);
-    // AKHIR LOGIKA DATA CHART
-
+                return {
+                    month: d.dateObj.toLocaleString("id-ID", {
+                        month: "short",
+                        year: "numeric",
+                    }),
+                    pemasukan: d.pemasukan,
+                    pengeluaran: d.pengeluaran,
+                    saldo,
+                };
+            });
+    }, [filteredData]); // Dependency sekarang hanya filteredData
 
     return (
         <AppLayout>
@@ -215,18 +222,52 @@ export default function Dashboard() {
                         </h2>
 
                         <div className="flex items-center gap-2">
-                            <input
-                                type="date"
-                                value={selectedDate}
-                                onChange={handleDateChange}
-                                className="border rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none"
-                            />
+                            {/* Dropdown Bulan */}
+                            <select
+                                value={selectedMonth}
+                                onChange={(e) =>
+                                    handleFilterChange(e.target.value, selectedYear)
+                                }
+                                className="border rounded-lg px-3 py-2 text-sm text-gray-700"
+                            >
+                                <option value="">Bulan</option>
+                                {[
+                                    "01", "02", "03", "04", "05", "06",
+                                    "07", "08", "09", "10", "11", "12",
+                                ].map((m, i) => (
+                                    <option key={m} value={m}>
+                                        {new Date(0, i).toLocaleString("id-ID", {
+                                            month: "long",
+                                        })}
+                                    </option>
+                                ))}
+                            </select>
 
-                            {selectedDate && (
+                            {/* Dropdown Tahun */}
+                            <select
+                                value={selectedYear}
+                                onChange={(e) =>
+                                    handleFilterChange(selectedMonth, e.target.value)
+                                }
+                                className="border rounded-lg px-3 py-2 text-sm text-gray-700"
+                            >
+                                <option value="">Tahun</option>
+                                {Array.from({ length: 6 }).map((_, i) => {
+                                    const year = new Date().getFullYear() - i;
+                                    return (
+                                        <option key={year} value={year}>
+                                            {year}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+
+                            {(selectedMonth || selectedYear) && (
                                 <Button
                                     variant="outline"
                                     onClick={() => {
-                                        setSelectedDate("");
+                                        setSelectedMonth("");
+                                        setSelectedYear("");
                                         router.get(
                                             route("dashboard"),
                                             {},
@@ -356,7 +397,7 @@ export default function Dashboard() {
                         </div>
                     </div>
                 </div>
-                
+
                 {/* CHART KEJUTAN */}
                 <div className="mt-8 mb-8">
                     {/* Mengirim data yang sudah diproses ke komponen chart */}
