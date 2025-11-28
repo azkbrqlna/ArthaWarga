@@ -1,22 +1,33 @@
+<?php
+
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::table('keg', function (Blueprint $table) {
-            // Mengubah kolom tgl_selesai agar menerima NULL
-            $table->date('tgl_selesai')->nullable()->change();
+        Schema::create('keg', function (Blueprint $table) {
+            $table->id();
+            $table->string('nm_keg');
+            $table->date('tgl_mulai');
+            $table->date('tgl_selesai');
+            $table->string('pj_keg');
+            $table->string('panitia');
+            $table->string('dok_keg');
+            $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('keg', function (Blueprint $table) {
-            // Mengembalikan kolom tgl_selesai menjadi NOT NULL
-            $table->date('tgl_selesai')->nullable(false)->change();
-        });
+        Schema::dropIfExists('keg');
     }
 };
