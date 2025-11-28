@@ -10,8 +10,19 @@ use App\Http\Controllers\MasukIuranController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\ProfileWargaController;
+use App\Http\Controllers\ApiDocsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+// --- Rute untuk API Documentation Password Protection ---
+
+// Rute untuk menampilkan form password
+Route::get('/docs/password', [ApiDocsController::class, 'showPasswordForm'])->name('docs.password.form');
+
+// Rute untuk memproses input password
+Route::post('/docs/password', [ApiDocsController::class, 'processPassword'])->name('docs.password.process');
+
+// --- End API Documentation Routes ---
 
 Route::get('/', fn() => Inertia::render('Welcome'));
 
@@ -20,6 +31,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['role.access'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
 
     Route::get('/dashboard/pemasukan', [IuranController::class, 'pemasukan'])->name('pemasukan.index');
     Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])->name('kat_iuran.create');
