@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AuthController;
+// Controller
 use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloaderController;
@@ -10,8 +11,20 @@ use App\Http\Controllers\MasukIuranController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\ProfileWargaController;
+use App\Http\Controllers\SuperadminController;
+use App\Http\Controllers\ApiDocsController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+
+// --- Rute untuk API Documentation Password Protection ---
+
+// Rute untuk menampilkan form password
+Route::get('/docs/password', [ApiDocsController::class, 'showPasswordForm'])->name('docs.password.form');
+
+// Rute untuk memproses input password
+Route::post('/docs/password', [ApiDocsController::class, 'processPassword'])->name('docs.password.process');
+
+// --- End API Documentation Routes ---
 
 Route::get('/', fn() => Inertia::render('Welcome'));
 
@@ -20,6 +33,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 
 Route::middleware(['role.access'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    
 
     Route::get('/dashboard/pemasukan', [IuranController::class, 'pemasukan'])->name('pemasukan.index');
     Route::post('/kategori-iuran/create', [IuranController::class, 'kat_iuran_create'])->name('kat_iuran.create');
@@ -53,9 +67,13 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/approval', [PengumumanController::class, 'approval'])->name('approval');
     Route::patch('/approval/{id}', [PengumumanController::class, 'approval_patch'])->name('approval.patch');
 
+
+    Route::get('/manajemen-data', [SuperadminController::class, 'users'])->name('superadmin.users');
+    Route::get('/tambah-data', [SuperadminController::class, 'createUser'])->name('superadmin.createUser');
+    Route::post('/manajemen-data', [SuperadminController::class, 'storeUser'])->name('superadmin.storeUser');
+    Route::get('/manajemen-data/{id}/edit', [SuperadminController::class, 'editUser'])->name('superadmin.editUser');
+    Route::put('/manajemen-data/{id}', [SuperadminController::class, 'update'])->name('superadmin.updateUser');
+    Route::delete('/manajemen-data/{id}', [SuperadminController::class, 'deleteUser'])->name('superadmin.deleteUser');
     //DOWNLOADER
     Route::get('/download/pdf', [DownloaderController::class, 'download'])->name('download.pdf');
 });
-
-
-

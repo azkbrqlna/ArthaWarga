@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Auth;
 
 class AuthApiController extends Controller
 {
+     /**
+     * Login 
+     * @unauthenticated
+    */
     public function login(Request $request)
     {
         $credentials = $request->validate([
@@ -34,6 +38,10 @@ class AuthApiController extends Controller
         ]);
     }
 
+    /**
+     * Logout 
+     * @authenticated
+    */
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();

@@ -6,20 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Kegiatan extends Model
 {
-    protected $table = 'keg';
-
+    protected $table = 'keg'; 
+    
     protected $fillable = [
-        'nm_keg',
-        'tgl_mulai',
-        'tgl_selesai',
-        'pj_keg',
-        'panitia',
-        'dok_keg',
+        'nm_keg', 
+        'tgl_mulai', 
+        'tgl_selesai', 
+        'pj_keg', 
+        'panitia', 
+        'dok_keg' 
     ];
 
-    protected $dates = [
-        'tgl_mulai',
-        'tgl_selesai'
+    protected $casts = [
+        'dok_keg' => 'array',
+        'tgl_mulai' => 'date', 
+        'tgl_selesai' => 'date', 
     ];
 
     public function pengeluaran()

@@ -22,7 +22,6 @@ class Pengumuman extends Model
 
     public function kat_iuran()
     {
-        return $this->belongsTo(KategoriIuran::class);
+        return $this->belongsTo(KategoriIuran::class, 'kat_iuran_id');
     }
-
 }

@@ -140,7 +140,7 @@ export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
 
                                             {/* Nama */}
                                             <td className="p-3">
-                                                {item.user?.name}
+                                                {item.user?.nm_lengkap}
                                             </td>
 
                                             {/* Jenis */}
