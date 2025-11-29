@@ -117,7 +117,7 @@
             <tr>
                 <td style="border: none; padding: 2px 0;">PERIODE BULAN/TAHUN</td>
                 <td style="border: none; padding: 2px 0;">
-                    : {{ $selectedDate ? \Carbon\Carbon::parse($selectedDate)->format('m / Y') : '-' }}
+                    : {{ $periodeLabel ?? '-' }}
                 </td>
             </tr>
             <tr>
