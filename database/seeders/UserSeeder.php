@@ -39,6 +39,8 @@ class UserSeeder extends Seeder
             'rt' => '01',
             'rw' => '02',
             'kode_pos' => '12120',
+            'kecamatan' => 'Ngesrep',
+            'kelurahan' => 'Banyumanik',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
@@ -57,6 +59,8 @@ class UserSeeder extends Seeder
                 'rt' => $faker->numberBetween(1, 10),
                 'rw' => $faker->numberBetween(1, 5),
                 'kode_pos' => $faker->postcode(),
+                'kecamatan' => 'Ngesrep',
+                'kelurahan' => 'Banyumanik',
                 'created_at' => now(),
                 'updated_at' => now(),
             ];

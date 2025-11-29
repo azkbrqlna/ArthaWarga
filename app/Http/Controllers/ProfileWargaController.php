@@ -36,6 +36,8 @@ class ProfileWargaController extends Controller
                 'rt'             => $user->rt,
                 'rw'             => $user->rw,
                 'kode_pos'       => $user->kode_pos,
+                'kecamatan'      => $user->kecamatan,
+                'kelurahan'      => $user->kelurahan,
                 'alamat'         => $user->alamat
             ]
         ]);
@@ -89,6 +91,8 @@ class ProfileWargaController extends Controller
             'rt' => 'nullable|string',
             'rw' => 'nullable|string',
             'kode_pos' => 'nullable|string',
+            'kecamatan' => 'nullable|string',
+            'kelurahan' => 'nullable|string',
             'alamat' => 'nullable|string',
         ]);
 

@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('rt');
             $table->string('rw');
             $table->string('kode_pos');
+            $table->string('kecamatan');
+            $table->string('kelurahan');
             $table->timestamps();
         });
     }

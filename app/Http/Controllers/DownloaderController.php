@@ -7,7 +7,8 @@ use App\Models\Pengeluaran;
 use App\Models\PemasukanIuran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf; // pastikan package terpasang
+use Illuminate\Support\Facades\Auth; // Tambahkan ini
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Support\Str;
 
 class DownloaderController extends Controller
@@ -16,10 +17,13 @@ class DownloaderController extends Controller
      * Download dashboard transactions as PDF.
      *
      * Request params:
-     *  - date (optional) : filter by date (YYYY-MM-DD)
+     * - date (optional) : filter by date (YYYY-MM-DD)
      */
     public function download(Request $request)
     {
+        // --- PERBAIKAN: Definisikan $user di sini ---
+        $user = Auth::user(); 
+        
         $selectedDate = $request->input('date');
 
         // fallback lokal contoh (dari session/hisotry kamu)
@@ -239,6 +243,7 @@ class DownloaderController extends Controller
         $pdf = Pdf::loadView('dashboard.pdf', [
             'transaksi' => $final,
             'selectedDate' => $selectedDate,
+            'user' => $user, // Variable $user sekarang sudah ada isinya
         ]);
 
         $filename = 'dashboard_' . now()->format('Ymd_His') . '.pdf';
