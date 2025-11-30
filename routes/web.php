@@ -41,7 +41,7 @@ Route::middleware(['role.access'])->group(function () {
     
     Route::get('/profil', [ProfileWargaController::class, 'index'])->name('profil.index');
     Route::put('/profil/update/{id}', [ProfileWargaController::class, 'update'])->name('profil.update');
-
+    Route::post('/profil/photo/{id}', [ProfileWargaController::class, 'updatePhoto'])->name('profil.updatePhoto');
 });
 
 
