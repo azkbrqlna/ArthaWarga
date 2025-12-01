@@ -55,8 +55,11 @@ export default function AppLayoutSuperadmin({ children }) {
                                 </SidebarGroupLabel>
 
                                 {/* Say Welcome */}
-                                <WelcomeCard name="Superadmin" lastUpdate="11/12/2025" />
-                                
+                                <WelcomeCard
+                                    name="Superadmin"
+                                    lastUpdate="11/12/2025"
+                                />
+
                                 {/* Menu Navigasi */}
                                 <SidebarGroupContent>
                                     <SidebarMenu className="mt-6 flex flex-col gap-3 px-4">

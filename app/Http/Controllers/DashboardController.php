@@ -58,6 +58,7 @@ class DashboardController extends Controller
 
         // 🔹 ambil data IURAN masuk
         $iuranMasuk = PemasukanIuran::where('status', 'approved')
+            ->whereNull('pengumuman_id')
             ->when($selectedDate, function ($query, $selectedDate) {
                 return $query->whereDate('tgl', $selectedDate);
             })
@@ -177,20 +178,23 @@ class DashboardController extends Controller
                 }
             }
 
-            $final = collect($final)->sortByDesc('tgl')->values();
+           $final = collect($final)->sortByDesc('tgl')->values();
 
-            // 🔹 ringkasan saldo
             $totalBop = PemasukanBOP::sum('nominal');
-            $totalIuran = PemasukanIuran::where('status', 'approved')->sum('nominal');
+
+            $totalIuran = PemasukanIuran::where('status', 'approved')
+                ->sum('nominal');
+
             $totalPengeluaran = Pengeluaran::sum('nominal');
 
             $saldoAwal = $totalBop + $totalIuran;
             $sisaSaldo = $saldoAwal - $totalPengeluaran;
+
             $userTotal = User::count();
+
             $totalPengeluaranBop = Pengeluaran::where('tipe', 'bop')->sum('nominal');
             $totalPengeluaranIuran = Pengeluaran::where('tipe', 'iuran')->sum('nominal');
 
-            // 🔹 Hitung saldo masing-masing
             $sisaBop = $totalBop - $totalPengeluaranBop;
             $sisaIuran = $totalIuran - $totalPengeluaranIuran;
 

@@ -19,57 +19,57 @@ class UserSeeder extends Seeder
             $this->call(RoleSeeder::class);
         }
 
-        // Ambil ID role (fallback ke angka default jika belum ada)
+        // Ambil ID role (fallback ke nilai default jika belum ada)
         $superadminRole = Role::where('nm_role', 'Superadmin')->first()->id ?? 1;
-        $ketuaRtRole = Role::where('nm_role', 'Ketua RT')->first()->id ?? 2;
+        $ketuaRtRole    = Role::where('nm_role', 'Ketua RT')->first()->id ?? 2;
         $sekretarisRole = Role::where('nm_role', 'Sekretaris')->first()->id ?? 3;
-        $bendaharaRole = Role::where('nm_role', 'Bendahara')->first()->id ?? 4;
-        $wargaRole = Role::where('nm_role', 'Warga')->first()->id ?? 5;
+        $bendaharaRole  = Role::where('nm_role', 'Bendahara')->first()->id ?? 4;
+        $wargaRole      = Role::where('nm_role', 'Warga')->first()->id ?? 5;
 
-        // ==== Superadmin ====
+        // === Superadmin utama ===
         DB::table('usr')->insert([
-            'role_id' => $superadminRole,
-            'email' => 'superadmin@desa.go.id',
-            'no_kk' => '3174091005000001',
-            'password' => Hash::make('password123'),
             'nm_lengkap' => 'Super Admin Desa',
-            'foto_profil' => null,
-            'no_hp' => '081234567890',
-            'alamat' => 'Jl. Merdeka No. 1, Jakarta Selatan',
-            'rt' => '01',
-            'rw' => '02',
-            'kode_pos' => '12120',
+            'no_kk'      => '3174091005000001',
+            'email'      => 'superadmin@desa.go.id',
+            'password'         => Hash::make('password123'),
+            'no_hp'      => '081234567890',
+            'role_id'    => $superadminRole,
+            'status'     => 'tetap', 
+            'alamat'     => 'Jl. Merdeka No. 1, Desa Maju',
+            'rt'         => '01',
+            'rw'         => '02',
+            'kode_pos'   => '12120',
             'created_at' => now(),
             'updated_at' => now(),
         ]);
 
-        // ==== Helper function untuk user random ====
-        $buatUser = function ($roleId, $emailPrefix) use ($faker) {
+        // === Fungsi pembuat user acak ===
+        $buatUser = function ($roleId, $namaRole) use ($faker) {
             return [
-                'role_id' => $roleId,
-                'email' => strtolower($emailPrefix) . '@example.com',
-                'no_kk' => $faker->unique()->numerify('317409##########'),
-                'password' => Hash::make('password123'),
                 'nm_lengkap' => $faker->name(),
-                'foto_profil' => null,
-                'no_hp' => '08' . $faker->numerify('##########'),
-                'alamat' => $faker->address(),
-                'rt' => $faker->numberBetween(1, 10),
-                'rw' => $faker->numberBetween(1, 5),
-                'kode_pos' => $faker->postcode(),
+                'no_kk'      => $faker->unique()->numerify('317409##########'),
+                'email'      => strtolower(str_replace(' ', '', $namaRole)) . '@example.com',
+                'password'   => Hash::make('password123'),
+                'no_hp'      => '08' . $faker->numerify('##########'),
+                'role_id'    => $roleId,
+                'status'     => $faker->randomElement(['tetap', 'kontrak']), 
+                'alamat'     => $faker->address(),
+                'rt'         => str_pad($faker->numberBetween(1, 9), 2, '0', STR_PAD_LEFT),
+                'rw'         => str_pad($faker->numberBetween(1, 5), 2, '0', STR_PAD_LEFT),
+                'kode_pos'   => '12120',
                 'created_at' => now(),
                 'updated_at' => now(),
             ];
         };
 
-        // ==== Insert data tiap role ====
-        DB::table('usr')->insert($buatUser($ketuaRtRole, 'ketua_rt'));
-        DB::table('usr')->insert($buatUser($sekretarisRole, 'sekretaris'));
-        DB::table('usr')->insert($buatUser($bendaharaRole, 'bendahara'));
+        // Tambahkan masing-masing role utama
+        DB::table('usr')->insert($buatUser($ketuaRtRole, 'KetuaRT'));
+        DB::table('usr')->insert($buatUser($sekretarisRole, 'Sekretaris'));
+        DB::table('usr')->insert($buatUser($bendaharaRole, 'Bendahara'));
 
-        // ==== Tambahkan beberapa warga ====
-        for ($i = 1; $i <= 5; $i++) {
-            DB::table('usr')->insert($buatUser($wargaRole, 'warga' . $i));
+        // Tambahkan beberapa warga acak
+        for ($i = 1; $i <= 3; $i++) {
+            DB::table('usr')->insert($buatUser($wargaRole, 'Warga' . $i));
         }
     }
 }
