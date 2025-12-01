@@ -32,7 +32,7 @@ class SpjController extends Controller
         // 4. SIAPKAN DATA UTAMA
         $data = [
             // PEMBERI: Bisa dinamis kalau ada di DB, atau statis
-            'pemberi'   => 'PEJABAT PEMBUAT KOMITMEN LPPM UNDIP',
+            'pemberi'   => $transaksi->toko ?? '-',
             
             // TERBILANG: Pakai fungsi helper private di bawah
             'terbilang' => strtoupper($this->terbilang($transaksi->nominal) . ' RUPIAH'),

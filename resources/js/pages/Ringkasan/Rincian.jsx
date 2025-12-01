@@ -144,6 +144,11 @@ export default function Rincian() {
                         </div>
 
                         <div className="md:col-span-2">
+                            <p className="text-gray-500">Toko</p>
+                            <p className="font-medium">{rincian.toko || "-"}</p>
+                        </div>
+
+                        <div className="md:col-span-2">
                             <p className="text-gray-500">Keterangan</p>
                             <p className="font-medium">{rincian.ket || "-"}</p>
                         </div>

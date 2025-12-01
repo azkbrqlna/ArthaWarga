@@ -59,6 +59,7 @@ class PengeluaranController extends Controller
             'nominal' => 'required|numeric|min:0',
             'ket' => 'required|string',
             'tipe' => 'required|in:bop,iuran',
+            'toko'  => 'nullable|string|max:255',
             'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
