@@ -51,6 +51,8 @@ Route::middleware(['role.access'])->group(function () {
 
     Route::get('/approval', [PengumumanController::class, 'approval'])->name('approval');
     Route::patch('/approval/{id}', [PengumumanController::class, 'approval_patch'])->name('approval.patch');
+
+    Route::get('/approval/semua-iuran', [PengumumanController::class, 'semua_iuran'])->name('semua-iuran.get');
 });
 
 

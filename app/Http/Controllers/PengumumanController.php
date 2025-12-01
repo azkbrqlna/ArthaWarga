@@ -19,7 +19,7 @@ class PengumumanController extends Controller
             'kategori_iuran' => $kategori_iuran
         ]);
     }
-    
+
     public function pengumuman_create(Request $request)
     {
         $validated = $request->validate([
@@ -36,7 +36,6 @@ class PengumumanController extends Controller
             'kat_iuran_id' => $validated['kat_iuran_id'],
         ]);
 
-        // $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
         $users = User::all();
 
         foreach ($users as $user) {
@@ -54,27 +53,22 @@ class PengumumanController extends Controller
 
     public function approval()
     {
-        $iurans = PemasukanIuran::with(['pengumuman.kat_iuran'])
-            ->whereIn('status', ['pending', 'approved'])
+        $iurans = PemasukanIuran::with(['user', 'pengumuman.kat_iuran'])
+            ->whereIn('status', ['pending', 'approved', 'tagihan'])
             ->whereIn('kat_iuran_id', [1, 2])
             ->orderByDesc('tgl')
             ->paginate(10);
 
-        $jumlahTagihan = PemasukanIuran::whereIn('masuk_iuran.status', ['pending', 'tagihan'])
-            ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
-            ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+        // FIX nama tabel dari "masuk_iuran" → "pemasukan_iurans"
+        $jumlahTagihan = PemasukanIuran::whereIn('pemasukan_iurans.status', ['pending', 'tagihan'])
+            ->whereIn('pemasukan_iurans.kat_iuran_id', [1, 2])
+            ->join('pengumuman', 'pemasukan_iurans.pengumuman_id', '=', 'pengumuman.id')
             ->sum('pengumuman.jumlah');
 
-
-       $jumlahApproved = PemasukanIuran::where('masuk_iuran.status', 'approved')
-            ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
-            ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+        $jumlahApproved = PemasukanIuran::where('pemasukan_iurans.status', 'approved')
+            ->whereIn('pemasukan_iurans.kat_iuran_id', [1, 2])
+            ->join('pengumuman', 'pemasukan_iurans.pengumuman_id', '=', 'pengumuman.id')
             ->sum('pengumuman.jumlah');
-
-
-        // dd($iurans);
-        // dd($jumlahTagihan, $jumlahApproved);
-
 
         return Inertia::render('Ringkasan/Approval', [
             'iurans' => $iurans,
@@ -83,8 +77,35 @@ class PengumumanController extends Controller
         ]);
     }
 
+    public function semua_iuran(Request $request)
+    {
+        $filter = $request->query('filter', 'all');
 
+        $query = PemasukanIuran::with(['user', 'pengumuman.kat_iuran']);
 
+        if ($filter !== 'all') {
+            $query->where('status', $filter);
+        }
+
+        $query->whereIn('kat_iuran_id', [1, 2])
+              ->orderBy('tgl', 'DESC');
+
+        $iurans = $query->paginate(10);
+
+        $totalWarga = User::count();
+        $jumlahSudahBayar = PemasukanIuran::where('status', 'approved')->count();
+        $jumlahBelumBayar = PemasukanIuran::where('status', 'tagihan')->count();
+
+        return Inertia::render('Ringkasan/SemuaIuran', [
+            'iurans' => $iurans,
+            'filter' => $filter,
+            'summary' => [
+                'totalWarga' => $totalWarga,
+                'jumlahSudahBayar' => $jumlahSudahBayar,
+                'jumlahBelumBayar' => $jumlahBelumBayar,
+            ]
+        ]);
+    }
 
     public function approval_patch(Request $request, $id)
     {
@@ -93,16 +114,9 @@ class PengumumanController extends Controller
         ]);
 
         $iuran = PemasukanIuran::findOrFail($id);
-
-        if ($request->status === 'approved') {
-            $iuran->status = 'approved';
-        } else {
-            $iuran->status = 'tagihan';
-        }
-
+        $iuran->status = $request->status;
         $iuran->save();
 
         return back()->with('success', 'Status berhasil diperbarui.');
     }
-
 }
