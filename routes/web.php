@@ -10,8 +10,7 @@ use App\Http\Controllers\MasukIuranController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\ProfileWargaController;
-use App\Http\Controllers\SuperadminController;
-use App\Http\Controllers\ApiDocsController;
+use App\Http\Controllers\SpjController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -66,11 +65,8 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/approval', [PengumumanController::class, 'approval'])->name('approval');
     Route::patch('/approval/{id}', [PengumumanController::class, 'approval_patch'])->name('approval.patch');
 
-    Route::get('/manajemen_data', [SuperadminController::class, 'users'])->name('superadmin.users');
-    Route::get('/tambah_data', [SuperadminController::class, 'createUser'])->name('superadmin.createUser');
-    Route::post('/manajemen_data', [SuperadminController::class, 'storeUser'])->name('superadmin.storeUser');
-    Route::get('/manajemen_data/{id}/edit', [SuperadminController::class, 'editUser'])->name('superadmin.editUser');
-    Route::put('/manajemen_data/{id}', [SuperadminController::class, 'update'])->name('superadmin.updateUser');
-    Route::delete('/manajemen_data/{id}', [SuperadminController::class, 'deleteUser'])->name('superadmin.deleteUser');
+    Route::get('/spj/download/{id}', [SpjController::class, 'download'])->name('spj.download');
 });
+
+
 

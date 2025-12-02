@@ -14,6 +14,7 @@ class Pengeluaran extends Model
         'tipe',
         'nominal',
         'ket',
+        'toko',
         'bkt_nota',
     ];
 

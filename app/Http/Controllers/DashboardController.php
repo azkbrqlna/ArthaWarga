@@ -41,7 +41,7 @@ class DashboardController extends Controller
             ->when($selectedDate, function ($query, $selectedDate) {
                 return $query->whereDate('tgl', $selectedDate);
             })
-            ->select('id', 'tgl', 'nominal', 'ket', 'created_at')
+            ->select('id', 'tgl', 'nominal', 'ket', 'created_at', 'toko')
             ->get()
             ->map(function ($row) {
                 return [
@@ -53,6 +53,7 @@ class DashboardController extends Controller
                     'arah' => 'keluar',
                     'nominal' => $row->nominal,
                     'ket' => $row->ket,
+                    'toko' => $row->toko,
                 ];
             });
 
@@ -82,7 +83,7 @@ class DashboardController extends Controller
             ->when($selectedDate, function ($query, $selectedDate) {
                 return $query->whereDate('tgl', $selectedDate);
             })
-            ->select('id', 'tgl', 'nominal', 'ket', 'created_at')
+            ->select('id', 'tgl', 'nominal', 'ket', 'created_at', 'toko')
             ->get()
             ->map(function ($row) {
                 return [
@@ -94,6 +95,7 @@ class DashboardController extends Controller
                     'arah' => 'keluar',
                     'nominal' => $row->nominal,
                     'ket' => $row->ket,
+                    'toko' => $row->toko,
                 ];
             });
 
@@ -182,21 +184,31 @@ class DashboardController extends Controller
 
             $totalBop = PemasukanBOP::sum('nominal');
 
-            $totalIuran = PemasukanIuran::where('status', 'approved')
+            $jumlahApproved = PemasukanIuran::where('masuk_iuran.status', 'approved')
+                ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
+                ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+                ->sum('pengumuman.jumlah');
+
+            $totalIuranManual = PemasukanIuran::where('status', 'approved')
+                ->whereNull('pengumuman_id')
                 ->sum('nominal');
 
+            $totalIuran = $totalIuranManual + $jumlahApproved;
+
             $totalPengeluaran = Pengeluaran::sum('nominal');
+            $totalPengeluaranBop = Pengeluaran::where('tipe', 'bop')->sum('nominal');
+            $totalPengeluaranIuran = Pengeluaran::where('tipe', 'iuran')->sum('nominal');
 
             $saldoAwal = $totalBop + $totalIuran;
             $sisaSaldo = $saldoAwal - $totalPengeluaran;
 
-            $userTotal = User::count();
-
-            $totalPengeluaranBop = Pengeluaran::where('tipe', 'bop')->sum('nominal');
-            $totalPengeluaranIuran = Pengeluaran::where('tipe', 'iuran')->sum('nominal');
-
             $sisaBop = $totalBop - $totalPengeluaranBop;
             $sisaIuran = $totalIuran - $totalPengeluaranIuran;
+
+            $userTotal = User::count();
+
+
+            
 
             return Inertia::render('Dashboard', [
                 'transaksi' => $final,
@@ -228,7 +240,7 @@ class DashboardController extends Controller
             ]);
 
         $bopKeluar = Pengeluaran::where('tipe', 'bop')
-            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
+            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at', 'toko')
             ->get()
             ->map(fn($row) => [
                 'id' => 'bop-out-'.$row->id,
@@ -240,6 +252,7 @@ class DashboardController extends Controller
                 'nominal' => $row->nominal,
                 'ket' => $row->ket,
                 'bkt_nota' => $row->bkt_nota,
+                'toko' => $row->toko,
             ]);
 
         $iuranMasuk = PemasukanIuran::where('status', 'approved')
@@ -258,7 +271,7 @@ class DashboardController extends Controller
             ]);
 
         $iuranKeluar = Pengeluaran::where('tipe', 'iuran')
-            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
+            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at', 'toko')
             ->get()
             ->map(fn($row) => [
                 'id' => 'iuran-out-'.$row->id,
@@ -270,6 +283,7 @@ class DashboardController extends Controller
                 'nominal' => $row->nominal,
                 'ket' => $row->ket,
                 'bkt_nota' => $row->bkt_nota,
+                'toko' => $row->toko,
             ]);
 
         $timeline = collect()
@@ -310,8 +324,10 @@ class DashboardController extends Controller
                     'jumlah_sisa' => $jumlah_sisa,
                     'status' => $status,
                     'ket' => $row['ket'],
-                    'bkt_nota' => $row['bkt_nota'] ? url('storage/' . ltrim($row['bkt_nota'], '/')) : null,
-                    'bkt_nota' => $row['bkt_nota'] ? url('storage/' . ltrim($row['bkt_nota'], '/')) : null,
+                    'bkt_nota' => $row['bkt_nota'] 
+                        ? url('storage/' . ltrim($row['bkt_nota'], '/'))
+                        : null,
+                    'toko' => $row['toko'] ?? '-',
                 ];
             } else {
                 $jumlah_awal = $saldoIuran;
@@ -338,8 +354,10 @@ class DashboardController extends Controller
                     'jumlah_sisa' => $jumlah_sisa,
                     'status' => $status,
                     'ket' => $row['ket'],
-                    'bkt_nota' => !empty($row['bkt_nota']) ? url('storage/' . ltrim($row['bkt_nota'], '/')) : null,
-                    'bkt_nota' => !empty($row['bkt_nota']) ? url('storage/' . ltrim($row['bkt_nota'], '/')) : null,
+                    'bkt_nota' => !empty($row['bkt_nota'])
+                        ? url('storage/' . ltrim($row['bkt_nota'], '/'))
+                        : null,
+                    'toko' => $row['toko'] ?? '-',
                 ];
             }
         }
@@ -355,6 +373,10 @@ class DashboardController extends Controller
         $rincian['created_at'] = $rincian['created_at']
             ? \Carbon\Carbon::parse($rincian['created_at'])->format('Y-m-d H:i:s')
             : null;
+        
+        if (!isset($rincian['toko'])) {
+            $rincian['toko'] = '-';
+        }
 
         $pemasukanBop = 0;
         $pemasukanIuran = 0;
@@ -378,8 +400,6 @@ class DashboardController extends Controller
 
         return Inertia::render('Ringkasan/Rincian', [
             'rincian' => $rincian,
-            'pemasukanBOP' => $pemasukanBop,
-            'pemasukanIuran' => $pemasukanIuran,
             'pemasukanBOP' => $pemasukanBop,
             'pemasukanIuran' => $pemasukanIuran,
         ]);

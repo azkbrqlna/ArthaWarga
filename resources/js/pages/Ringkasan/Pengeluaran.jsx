@@ -27,6 +27,7 @@ export default function Pengeluaran() {
         tgl: "",
         keg_id: "",
         nominal: "",
+        toko: "",
         ket: "",
         bkt_nota: null,
     });
@@ -115,6 +116,7 @@ export default function Pengeluaran() {
         formData.append("tgl", data.tgl);
         formData.append("keg_id", data.keg_id);
         formData.append("nominal", cleanNominal);
+        formData.append("toko", data.toko);
         formData.append("ket", data.ket);
         if (data.bkt_nota) formData.append("bkt_nota", data.bkt_nota);
 
@@ -267,6 +269,18 @@ export default function Pengeluaran() {
                                 {errorNominal}
                             </p>
                         )}
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>
+                            Nama Toko (opsional){" "}
+                        </Label>
+                        <Input
+                            type="text"
+                            value={data.toko}
+                            onChange={(e) => setData("toko", e.target.value)}
+                            className="w-full transition-colors"
+                        />
                     </div>
 
                     {/* Keterangan */}
