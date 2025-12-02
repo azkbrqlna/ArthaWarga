@@ -10,6 +10,7 @@ use App\Http\Controllers\MasukIuranController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\ProfileWargaController;
+use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\SpjController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
