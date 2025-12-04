@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('rt');
             $table->string('rw');
             $table->string('kode_pos');
+            $table->enum('status', ['Tetap', 'Kontrak'])->default('Tetap');
             $table->timestamps();
         });
     }

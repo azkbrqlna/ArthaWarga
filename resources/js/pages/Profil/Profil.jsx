@@ -3,11 +3,16 @@ import AppLayout from "@/layouts/AppLayout";
 import { usePage, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import Cropper from "react-easy-crop";
+// IMPORT HOOK TOAST DI SINI (Sesuaikan path-nya)
+import { useNotify } from "@/components/ToastNotification";
 
 export default function Profil() {
     const { props } = usePage();
     const { user } = props;
     const fileInputRef = useRef(null);
+
+    // === INISIALISASI TOAST ===
+    const { notifySuccess, notifyError } = useNotify();
 
     // === STATE CROPPER ===
     const [imageSrc, setImageSrc] = useState(null);
@@ -64,7 +69,11 @@ export default function Profil() {
         setIsProcessing(true);
 
         if (!selectedFile || !croppedAreaPixels) {
-            alert("Data gambar belum siap. Silakan geser gambar sedikit.");
+            // GANTI ALERT DENGAN NOTIFY ERROR
+            notifyError(
+                "Gagal Memproses",
+                "Data gambar belum siap. Silakan geser gambar sedikit."
+            );
             setIsProcessing(false);
             return;
         }
@@ -79,10 +88,18 @@ export default function Profil() {
         router.post(route("profil.updatePhoto", user.id), form, {
             forceFormData: true,
             onFinish: () => setIsProcessing(false),
-            onSuccess: () => handleCloseCropper(),
+            onSuccess: () => {
+                handleCloseCropper();
+                // TAMBAHKAN NOTIFIKASI SUKSES
+                notifySuccess("Berhasil", "Foto profil berhasil diperbarui!");
+            },
             onError: (e) => {
                 console.error("Error upload:", e);
-                alert("Gagal upload foto. Pastikan ukuran file tidak terlalu besar.");
+                // GANTI ALERT DENGAN NOTIFY ERROR
+                notifyError(
+                    "Gagal Upload",
+                    "Terjadi kesalahan saat mengupload foto."
+                );
             },
         });
     };
@@ -95,11 +112,43 @@ export default function Profil() {
     const handleEditToggle = () => {
         if (isEditing) {
             router.put(route("profil.update", user.id), formData, {
-                onSuccess: () => setIsEditing(false),
+                onSuccess: () => {
+                    setIsEditing(false);
+                    // TAMBAHKAN NOTIFIKASI SUKSES UPDATE DATA
+                    notifySuccess(
+                        "Disimpan",
+                        "Data profil berhasil diperbarui."
+                    );
+                },
+                onError: (errors) => {
+                    // TAMBAHKAN NOTIFIKASI ERROR UPDATE DATA
+                    notifyError(
+                        "Gagal Menyimpan",
+                        "Periksa kembali inputan Anda."
+                    );
+                },
             });
         } else {
             setIsEditing(true);
         }
+    };
+
+    const handleCancelEdit = () => {
+        setIsEditing(false);
+        // Reset form data kembali ke data user asli (batalkan ketikan)
+        setFormData({
+            nm_lengkap: user.nm_lengkap || "",
+            email: user.email || "",
+            password: "", // Password dikosongkan kembali
+            no_hp: user.no_hp || "",
+            no_kk: user.no_kk || "",
+            alamat: user.alamat || "",
+            status: user.status || "",
+            rt: user.rt || "",
+            rw: user.rw || "",
+            kode_pos: user.kode_pos || "",
+            role_id: user.role_id || "",
+        });
     };
 
     const handleCloseCropper = () => {
@@ -121,10 +170,6 @@ export default function Profil() {
                 {/* ====== MODAL CROPPER ====== */}
                 {isCropping && (
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/30 p-4 backdrop-blur-sm">
-                        {/* PERBAIKAN DI SINI:
-                            Hapus 'zoom-in' dari className.
-                            Ganti jadi 'fade-in' atau 'slide-in-from-bottom-5' agar dimensi stabil saat init.
-                        */}
                         <div className="bg-white rounded-2xl overflow-hidden w-full max-w-md shadow-2xl animate-in fade-in slide-in-from-bottom-5 duration-200">
                             <div className="px-6 py-4 border-b flex justify-between items-center bg-gray-50">
                                 <h3 className="font-bold text-gray-700">
@@ -177,7 +222,9 @@ export default function Profil() {
                                             min={0.5}
                                             max={3}
                                             step={0.05}
-                                            onChange={(e) => setZoom(Number(e.target.value))}
+                                            onChange={(e) =>
+                                                setZoom(Number(e.target.value))
+                                            }
                                             className="w-full h-2 bg-blue-100 rounded-lg appearance-none cursor-pointer accent-blue-600"
                                         />
                                     </div>
@@ -195,7 +242,11 @@ export default function Profil() {
                                             min={150}
                                             max={300}
                                             step={10}
-                                            onChange={(e) => setMaskSize(Number(e.target.value))}
+                                            onChange={(e) =>
+                                                setMaskSize(
+                                                    Number(e.target.value)
+                                                )
+                                            }
                                             className="w-full h-2 bg-green-100 rounded-lg appearance-none cursor-pointer accent-green-600"
                                         />
                                     </div>
@@ -231,7 +282,9 @@ export default function Profil() {
                         <img
                             src={
                                 user.foto_profil
-                                    ? `/storage/foto_profil/${user.foto_profil}?t=${new Date().getTime()}`
+                                    ? `/storage/foto_profil/${
+                                          user.foto_profil
+                                      }?t=${new Date().getTime()}`
                                     : "https://www.gravatar.com/avatar/00000000000000000000000000000000?d=mp&f=y"
                             }
                             alt="Foto Profil"
@@ -301,11 +354,15 @@ export default function Profil() {
                             <InputField
                                 label="Role"
                                 value={
-                                    formData.role_id === 1 ? "Superadmin" :
-                                    formData.role_id === 2 ? "Ketua RT" :
-                                    formData.role_id === 3 ? "Bendahara" :
-                                    formData.role_id === 4 ? "Sekretaris" :
-                                    "Warga"
+                                    formData.role_id === 1
+                                        ? "Superadmin"
+                                        : formData.role_id === 2
+                                        ? "Ketua RT"
+                                        : formData.role_id === 3
+                                        ? "Bendahara"
+                                        : formData.role_id === 4
+                                        ? "Sekretaris"
+                                        : "Warga"
                                 }
                                 disabled
                             />
@@ -330,7 +387,7 @@ export default function Profil() {
                                 name="status"
                                 value={formData.status}
                                 onChange={handleChange}
-                                disabled={!isEditing}
+                                disabled={true}
                             />
                             <InputField
                                 label="Nomor KK"
@@ -356,17 +413,36 @@ export default function Profil() {
                         </div>
                     </div>
 
-                    <div className="mt-8 flex justify-end">
-                        <Button
-                            onClick={handleEditToggle}
-                            className={`px-6 py-2 rounded-lg text-white transition-colors ${
-                                isEditing
-                                    ? "bg-green-600 hover:bg-green-700"
-                                    : "bg-blue-600 hover:bg-blue-700"
-                            }`}
-                        >
-                            {isEditing ? "Simpan Data" : "Edit Data"}
-                        </Button>
+                    {/* === PERUBAHAN BARU: TOMBOL AKSI === */}
+                    <div className="mt-8 flex justify-end gap-3">
+                        {isEditing ? (
+                            <>
+                                {/* Tombol Batal (Warna Abu-abu) */}
+                                <Button
+                                    onClick={handleCancelEdit}
+                                    variant="secondary"
+                                    className="px-6 py-2 rounded-lg bg-gray-500 hover:bg-gray-600 text-white transition-colors border-none"
+                                >
+                                    Batal
+                                </Button>
+
+                                {/* Tombol Simpan (Warna Hijau) */}
+                                <Button
+                                    onClick={handleEditToggle}
+                                    className="px-6 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white transition-colors"
+                                >
+                                    Simpan Data
+                                </Button>
+                            </>
+                        ) : (
+                            /* Tombol Edit Default (Warna Biru) */
+                            <Button
+                                onClick={handleEditToggle}
+                                className="px-6 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition-colors"
+                            >
+                                Edit Data
+                            </Button>
+                        )}
                     </div>
                 </div>
             </div>
@@ -381,7 +457,7 @@ function InputField({ label, name, value, onChange, disabled, type = "text" }) {
                 {label}
             </label>
             <input
-                type={type}
+                type="type"
                 name={name}
                 value={value || ""}
                 onChange={onChange}
