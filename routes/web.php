@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AuthController;
 // Controller
+use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\BopController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\IuranController;
