@@ -59,6 +59,7 @@ Route::middleware(['role.access'])->group(function () {
     Route::put('/profil/update/{id}', [ProfileWargaController::class, 'update'])->name('profil.update');
 
     Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index');
+    Route::get('/kegiatan/{id}', [KegiatanController::class, 'show'])->name('kegiatan.show');
     
     Route::get('/masuk-iuran', [MasukIuranController::class, 'index'])->name('masuk-iuran.index');
     Route::get('/masuk-iuran/{id}', [MasukIuranController::class, 'show'])->name('masuk-iuran.show');

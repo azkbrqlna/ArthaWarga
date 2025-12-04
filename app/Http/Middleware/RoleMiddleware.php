@@ -32,6 +32,7 @@ class RoleMiddleware
             'kegiatan.create',
             'kegiatan.store',
             'kegiatan.index',
+            'kegiatan.show',
             'bop.create',
             'iuran.create',
             'pengumuman',
