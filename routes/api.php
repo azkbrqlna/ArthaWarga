@@ -57,14 +57,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/pengeluaran', [PengeluaranApiController::class, 'index']);
     Route::post('/pengeluaran', [PengeluaranApiController::class, 'store']);
     Route::get('/pengeluaran/{id}', [PengeluaranApiController::class, 'show']);
-    Route::patch('/pengeluaran/update/{id}', [PengeluaranApiController::class, 'update']);
+    Route::post('/pengeluaran/update/{id}', [PengeluaranApiController::class, 'update']);
     Route::delete('/pengeluaran/{id}', [PengeluaranApiController::class, 'destroy']);
 
     // 7. Pengumuman
     Route::get('/pengumuman', [PengumumanApiController::class, 'index']);
     Route::post('/pengumuman', [PengumumanApiController::class, 'store']);
     Route::get('/pengumuman/{id}', [PengumumanApiController::class, 'show']);
-    Route::patch('/pengumuman/update/{id}', [PengumumanApiController::class, 'update']);
+    Route::post('/pengumuman/update/{id}', [PengumumanApiController::class, 'update']);
     Route::delete('/pengumuman/{id}', [PengumumanApiController::class, 'destroy']);
 
     // 8. Superadmin (User Management)
@@ -72,7 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::get('/users', [SuperadminApiController::class, 'index']);
         Route::post('/users', [SuperadminApiController::class, 'store']);
         Route::get('/users/{id}', [SuperadminApiController::class, 'show']);
-        Route::patch('/users/update/{id}', [SuperadminApiController::class, 'update']);
+        Route::post('/users/update/{id}', [SuperadminApiController::class, 'update']);
         Route::delete('/users/{id}', [SuperadminApiController::class, 'destroy']);
     });
 

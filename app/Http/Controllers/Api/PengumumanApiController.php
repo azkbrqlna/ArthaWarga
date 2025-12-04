@@ -16,7 +16,7 @@ class PengumumanApiController extends Controller
      */
     public function index()
     {
-        $pengumumans = Pengumuman::with('kategori')->latest()->get();
+        $pengumumans = Pengumuman::with('kat_iuran')->latest()->get();
 
         return response()->json([
             'success' => true,
@@ -53,6 +53,7 @@ class PengumumanApiController extends Controller
             'judul' => 'required|string',
             'ket' => 'required|string',
             'kat_iuran_id' => 'required|exists:kat_iuran,id',
+            'jumlah' => 'required|numeric|min:0',
         ]);
 
         // Simpan pengumuman
@@ -60,6 +61,7 @@ class PengumumanApiController extends Controller
             'judul' => $validated['judul'],
             'ket' => $validated['ket'],
             'kat_iuran_id' => $validated['kat_iuran_id'],
+            'jumlah' => $validated['jumlah'],
         ]);
 
         // Buat tagihan ke semua user
@@ -71,6 +73,7 @@ class PengumumanApiController extends Controller
                 'kat_iuran_id' => $validated['kat_iuran_id'],
                 'pengumuman_id' => $pengumuman->id,
                 'tgl' => now(),
+                'nominal' => $validated['jumlah'],
                 'status' => 'tagihan',
             ]);
         }
@@ -100,9 +103,14 @@ class PengumumanApiController extends Controller
             'judul' => 'required|string',
             'ket' => 'required|string',
             'kat_iuran_id' => 'required|exists:kat_iuran,id',
+            'jumlah' => 'required|numeric|min:0',
         ]);
 
         $pengumuman->update($validated);
+
+        PemasukanIuran::where('pengumuman_id', $id)
+            ->update(['nominal' => $validated['jumlah']]);
+
 
         return response()->json([
             'success' => true,

@@ -95,7 +95,7 @@ class PengeluaranApiController extends Controller
             'nominal' => 'sometimes|numeric|min:0',
             'ket' => 'sometimes|string',
             'tipe' => 'sometimes|in:bop,iuran',
-            'bkt_nota' => 'required|file|mimes:jpg,jpeg,png|max:2048',
+            'bkt_nota' => 'sometimes|required|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
         if ($request->hasFile('bkt_nota')) {
