@@ -21,10 +21,8 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
-// Import komponen chart
 import FinancialLineChart from "@/components/FinancialLineChart";
 
-// Import komponen tombol download PDF
 import DownloadPdfBtn from "@/components/DownloadPdfBtn";
 
 export default function Dashboard() {
