@@ -64,4 +64,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo(Kelurahan::class);
     }
+
+    public function tagihan_bulanan()
+    {
+        return $this->hasMany(TagihanBulanan::class);
+    }
 }

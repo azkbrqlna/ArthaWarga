@@ -23,4 +23,14 @@ class TagihanBulanan extends Model
         'tgl_approved',
         'nominal',
     ];
+
+      public function users()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function kategori_iuran()
+    {
+        return $this->belongsTo(KategoriIuran::class);
+    }
 }
