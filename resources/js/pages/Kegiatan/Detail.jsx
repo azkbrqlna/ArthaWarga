@@ -1,49 +1,42 @@
 import React, { useState } from 'react';
+// Import 'route' (dari Inertia/Ziggy) diasumsikan tersedia secara global
 import { Download, Calendar, User, Users, FileText, ArrowDownCircle, Wallet, AlertCircle, PlusCircle, PiggyBank, Coins } from "lucide-react";
 
 // =========================================================
-// MOCKS UNTUK LINGKUNGAN INERTIA/TAILWIND
+// MOCKS SEDERHANA UNTUK COMPONENT (ASUMSI DARI UI/SHADCN)
+// CATATAN: Fungsi 'route' yang sebenarnya DIASUMSIKAN GLOBAL (Disediakan oleh Ziggy/Inertia)
 // =========================================================
 
-// ✅ KOREKSI FUNGSI ROUTE MOCK FINAL
+// FUNGSI ROUTE MOCK DIBUAT MINIMALIS ATAU DIHAPUS JIKA MENGGUNAKAN ZIGGY
+// Jika Anda benar-benar menggunakan Ziggy/Inertia, Anda tidak memerlukan mock ini, 
+// tetapi saya pertahankan versi minimal yang akan bekerja untuk kebutuhan testing.
 const route = (name, params = {}) => {
-    // 1. Tangani rute SPJ PDF yang baru (download.laporan.spj)
+    // Simulasi route Inertia/Ziggy yang seharusnya sudah Anda miliki
     if (name === "download.laporan.spj" && params.id) {
-        // Ini menghasilkan URL: /laporan/spj/{id}?date=... (Sinkron dengan web.php)
-        let url = `/laporan/spj/${params.id}`; 
+        let url = `/laporan/spj/${params.id}`;
         if (params.date) {
             url += `?date=${params.date}`;
         }
         return url;
     }
     
-    // 2. Tangani rute teman Anda (download.pdf - Ringkasan Keuangan)
-    if (name === "download.pdf") {
-        let url = `/download/pdf`;
-        if (params.date) {
-             url += `?date=${params.date}`;
-        }
-        return url;
-    }
-
-    // 3. Default mock untuk rute Inertia lainnya
-    let url = `/app/${name}`;
+    // Fallback untuk route lain
+    let url = `/${name}`;
     if (params.id) url = url.replace('kegiatan', `kegiatan/${params.id}`);
     if (params.date) url += `?date=${params.date}`;
     return url;
 };
 
-// Mock AppLayout Component
+
+// Mock AppLayout, Link, Button, Card, Breadcrumbs... (tetap sama)
 const AppLayout = ({ children }) => (
     <div className="min-h-screen bg-gray-100 pt-12">{children}</div>
 );
 
-// Mock Link Component
 const Link = ({ href, children, className }) => (
     <a href="#" onClick={(e) => { e.preventDefault(); console.log(`Navigasi ke: ${href}`); }} className={className}>{children}</a>
 );
 
-// Mock Button Component
 const Button = ({ onClick, className, children }) => (
     <button
         onClick={onClick}
@@ -53,7 +46,6 @@ const Button = ({ onClick, className, children }) => (
     </button>
 );
 
-// Mock Card Components
 const Card = ({ children, className }) => <div className={`border rounded-xl ${className}`}>{children}</div>;
 const CardContent = ({ children, className }) => <div className={`p-4 ${className}`}>{children}</div>;
 const Breadcrumbs = ({ items }) => (
@@ -71,6 +63,7 @@ const Breadcrumbs = ({ items }) => (
     </div>
 );
 
+
 // =========================================================
 // KOMPONEN DOWNLOAD PDF (DIINTEGRASIKAN)
 // =========================================================
@@ -80,12 +73,13 @@ const Breadcrumbs = ({ items }) => (
  */
 function DownloadPdfBtn({ kegiatanId, date }) {
     const handleDownload = () => {
-        // PANGGIL NAMA ROUTE YANG BARU & UNIK
+        // ✅ PANGGILAN ROUTE FINAL: Menggunakan nama unik yang sudah disepakati
         const url = route("download.laporan.spj", { id: kegiatanId, date: date || "" });
 
         console.log(`[DOWNLOAD] Mempersiapkan unduhan PDF untuk ID: ${kegiatanId}. URL yang Digunakan: ${url}`);
         
-        // Menggunakan window.open dengan _blank. Ini bekerja karena Controller harus memaksa download.
+        // Metode ini yang bekerja paling baik untuk file download di SPA:
+        // Membuka tab baru (yang kemudian akan ditutup setelah download selesai).
         window.open(url, "_blank");
     };
 

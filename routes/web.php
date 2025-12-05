@@ -78,8 +78,13 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/manajemen-data/{id}/edit', [SuperadminController::class, 'editUser'])->name('superadmin.editUser');
     Route::put('/manajemen-data/{id}', [SuperadminController::class, 'update'])->name('superadmin.updateUser');
     Route::delete('/manajemen-data/{id}', [SuperadminController::class, 'deleteUser'])->name('superadmin.deleteUser');
-    //DOWNLOADER
+        
+});
+
+Route::middleware(['web'])->group(function () {
+    // Rute Teman 1 (Download Laporan Keseluruhan/Dashboard)
     Route::get('/download/pdf', [DownloaderController::class, 'download'])->name('download.pdf');
     
+    // ✅ RUTE ANDA (LAPORAN SPJ KONSOLIDASI) - Sekarang di luar role.access
     Route::get('/laporan/spj/{id}', [SpjPdfController::class, 'generateSpjPdf'])->name('download.laporan.spj');
 });

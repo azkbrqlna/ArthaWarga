@@ -13,7 +13,7 @@
             line-height: 1.5;
             color: #333;
         }
-        h1, h2, h3 {
+        h1, h2 {
             margin-top: 20px;
             margin-bottom: 10px;
         }
@@ -37,7 +37,31 @@
             border: none;
         }
         .page-break {
-            page-break-after: always; /* WAJIB: Memastikan setiap kuitansi dimulai di halaman baru */
+            page-break-after: always;
+        }
+        /* Style untuk penempatan gambar yang stabil (inline-block) */
+        .img-container {
+            width: 100%; 
+            margin: 20px 0;
+            text-align: center;
+            height: 350px; /* Tinggi kontainer untuk stabilitas tata letak */
+        }
+        .img-box {
+            width: 48%;
+            height: 300px; /* Tinggi tetap untuk stabilitas */
+            border: 1px solid #ccc;
+            padding: 5px;
+            box-sizing: border-box;
+            display: inline-block; 
+            margin: 5px;
+            vertical-align: top;
+            overflow: hidden;
+        }
+        /* Style untuk gambar di dalam box */
+        .img-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Memastikan gambar mengisi box tanpa distorsi */
         }
     </style>
 </head>
@@ -59,12 +83,12 @@
     <h2>1. INFORMASI UMUM KEGIATAN</h2>
     <table class="no-border">
         <tr><td style="width: 30%;">Nama Kegiatan</td><td style="width: 5%;">:</td><td>{{ $kegiatan->nm_keg }}</td></tr>
-        <tr><td>Kategori Kegiatan</td><td>:</td><td>{{ $kegiatan->kategori }}</td></tr>
-        <tr><td>Waktu Pelaksanaan</td><td>:</td><td>{{ $tgl_mulai }} s/d {{ $tgl_selesai }}</td></tr>
-        <tr><td>Lokasi/Tempat</td><td>:</td><td>{{ $kegiatan->lokasi }}</td></tr>
-        <tr><td>Penanggung Jawab (PJ)</td><td>:</td><td>{{ $kegiatan->pj_keg }}</td></tr>
-        <tr><td>Sumber Dana</td><td>:</td><td>{{ $sumber_dana }}</td></tr>
-        <tr><td>Tujuan Kegiatan</td><td>:</td><td>{{ $kegiatan->rincian_kegiatan }}</td></tr>
+        <tr><td>Kategori Kegiatan</td><td style="width: 5%;">:</td><td>{{ $kegiatan->kategori }}</td></tr>
+        <tr><td>Waktu Pelaksanaan</td><td style="width: 5%;">:</td><td>{{ $tgl_mulai }} s/d {{ $tgl_selesai }}</td></tr>
+        <tr><td>Lokasi/Tempat</td><td style="width: 5%;">:</td><td>{{ $kegiatan->lokasi ?? 'T/A' }}</td></tr> 
+        <tr><td>Penanggung Jawab (PJ)</td><td style="width: 5%;">:</td><td>{{ $kegiatan->pj_keg }}</td></tr>
+        <tr><td>Sumber Dana</td><td style="width: 5%;">:</td><td>{{ $sumber_dana }}</td></tr>
+        <tr><td>Tujuan Kegiatan</td><td style="width: 5%;">:</td><td>{{ $kegiatan->rincian_kegiatan }}</td></tr>
     </table>
 
     <!-- ======================================================= -->
@@ -102,10 +126,10 @@
             @foreach ($pengeluaran as $item)
                 <tr>
                     <td class="text-center">{{ $loop->iteration }}</td>
-                    <td>{{ \Carbon\Carbon::parse($item->tgl)->format('d/m/Y') }}</td>
+                    <td>{{ $item->tgl_formatted }}</td> <!-- Menggunakan tgl_formatted dari Controller -->
                     <td>{{ $item->ket }}</td>
-                    <td>{{ $item->toko }}</td>
-                    <td class="text-right">{{ number_format($item->amount, 0, ',', '.') }},-</td>
+                    <td>{{ $item->toko ?? '-' }}</td> 
+                    <td class="text-right">{{ number_format($item->nominal, 0, ',', '.') }},-</td>
                     <td class="text-center">{{ $item->bukti_id }}</td>
                 </tr>
             @endforeach
@@ -126,12 +150,26 @@
     <h2>4. DOKUMENTASI KEGIATAN</h2>
     <p>Lampiran visual ini membuktikan kegiatan telah dilaksanakan sesuai rencana:</p>
     
-    <div style="width: 100%; margin: 20px 0;">
-        <img src="{{ $kegiatan->dokumentasi_url }}" style="width: 48%; height: auto; float: left; margin-right: 4%; border: 1px solid #ccc; padding: 5px;">
-        <img src="https://placehold.co/400x300/e0e0e0/555555?text=Foto+B:+Peserta" style="width: 48%; height: auto; border: 1px solid #ccc; padding: 5px;">
-        <div style="clear: both;"></div>
+    <!-- ✅ KOREKSI GAMBAR: IMPLEMENTASI BASE64 -->
+    <div class="img-container">
+        <!-- GAMBAR 1 (Gambar Dinamis dari Database) -->
+        <div class="img-box" style="margin-right: 4%;">
+            @if ($dokumentasiBase64)
+                <img src="{{ $dokumentasiBase64 }}" alt="Dokumentasi Kegiatan">
+            @else
+                <p style="padding-top: 100px; color: #999;">Gambar Dokumentasi Gagal Dimuat</p>
+            @endif
+        </div>
+        <!-- GAMBAR 2 (Placeholder Statis) -->
+        <div class="img-box">
+            @if ($placeholderBase64)
+                <img src="{{ $placeholderBase64 }}" alt="Placeholder Peserta">
+            @else
+                 <p style="padding-top: 100px; color: #999;">Placeholder Gagal Dimuat</p>
+            @endif
+        </div>
     </div>
-    <p style="margin-top: 10px;">Gambar 1. Suasana Pelaksanaan Utama dan Kehadiran Peserta.</p>
+    <p style="margin-top: 10px; text-align: center;">Gambar 1. Suasana Pelaksanaan Utama dan Kehadiran Peserta.</p>
 
     <!-- ======================================================= -->
     <!-- 5. LEMBAR PENGESAHAN -->
@@ -192,11 +230,11 @@
         {{-- MEMANGGIL TEMPLATE KUITANSI TUNGGAL (File views/spj/spj.blade.php Anda) --}}
         @include('spj.spj', [
             'pemberi' => $item->pemberi ?? 'Sdr. BENDUM (Bendahara Umum)', 
-            'terbilang' => $item->terbilang ?? 'Tujuh Juta Lima Ratus Ribu Rupiah', 
+            'terbilang' => $item->terbilang ?? 'Nilai Terbilang Tidak Disediakan', 
             'deskripsi' => $item->ket,
-            'total' => $item->amount,
+            'total' => $item->nominal, // Menggunakan kolom nominal
             'kota' => $kegiatan->kota,
-            'tanggal' => \Carbon\Carbon::parse($item->tgl)->format('d F Y'),
+            'tanggal' => $item->tgl_formatted, // Menggunakan tanggal yang sudah diformat
         ])
     @endforeach
 
