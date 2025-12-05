@@ -54,7 +54,7 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/pengumuman/create', [PengumumanController::class, 'pengumuman_create'])->name('pengumuman.create');
 
     Route::get('/dashboard/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
-    Route::post('/pengeluaran', [PengeluaranController::class, 'pengeluaran'])->name('pengeluaran.store');
+    Route::post('/pengeluaran', [PengeluaranController::class, 'store'])->name('pengeluaran.store');
     Route::get('/rincian/{id}', [DashboardController::class, 'rincian'])->name('rincian.show');
     
     Route::get('/profil', [ProfileWargaController::class, 'index'])->name('profil.index');

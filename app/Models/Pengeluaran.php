@@ -16,6 +16,8 @@ class Pengeluaran extends Model
         'ket',
         'toko',
         'bkt_nota',
+        'masuk_bop_id',
+        'masuk_iuran_id',
     ];
 
 
