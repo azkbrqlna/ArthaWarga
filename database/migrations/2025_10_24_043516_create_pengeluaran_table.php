@@ -19,6 +19,7 @@ return new class extends Migration
             $table->integer('nominal');
             $table->string('ket');
             $table->string('bkt_nota')->nullable();
+            $table->string('toko')->nullable();
             $table->timestamps();
         });
     }

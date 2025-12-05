@@ -1,5 +1,5 @@
-import React from "react";
-import AppLayoutSuperadmin from "@/layouts/AppLayoutSuperadmin";
+import React, { useState } from "react";
+import AppLayout from "@/layouts/AppLayout";
 import { Link, useForm } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -10,256 +10,212 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useNotify } from "@/components/ToastNotification";
+import { useNotify } from "@/components/ToastNotification"; // Pastikan path sesuai
 
-export default function TambahData({ roles }) {
+export default function TambahData({ roles, wilayah = [] }) {
    const { notifySuccess, notifyError } = useNotify();
-  // Form state
-  const { data, setData, post, processing, errors } = useForm({
+
+   // State untuk list dropdown dinamis (Hanya Kecamatan & Kelurahan)
+   const [listKecamatan, setListKecamatan] = useState([]);
+   const [listKelurahan, setListKelurahan] = useState([]);
+
+   const { data, setData, post, processing, errors, reset } = useForm({
     nm_lengkap: "",
     no_kk: "",
     email: "",
     password: "",
     no_hp: "",
-    alamat: "",
-    rt: "",
-    rw: "",
-    kode_pos: "",
     role_id: "",
     status: "",
+    // Field Wilayah (ID Database)
+    kota_id: "",
+    kecamatan_id: "",
+    kelurahan_id: "",
+    // Field Wilayah (String Manual)
+    rw: "",
+    rt: "",
+    alamat: "",
+    kode_pos: "",
   });
 
-  // Handle submit
+  // --- LOGIKA DROPDOWN ---
+  const handleKotaChange = (val) => {
+    setData(d => ({ ...d, kota_id: val, kecamatan_id: "", kelurahan_id: "" }));
+    const k = wilayah.find(item => item.id.toString() === val);
+    setListKecamatan(k ? k.kecamatans : []);
+    setListKelurahan([]);
+  };
+
+  const handleKecamatanChange = (val) => {
+    setData(d => ({ ...d, kecamatan_id: val, kelurahan_id: "" }));
+    const k = listKecamatan.find(item => item.id.toString() === val);
+    setListKelurahan(k ? k.kelurahans : []);
+  };
+
+  const handleKelurahanChange = (val) => {
+    setData("kelurahan_id", val);
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    post(route("superadmin.storeUser"), {
+    post(route("superadmin.storeUser"), { 
       preserveScroll: true,
       onSuccess: () => {
-       notifySuccess("Berhasil", "Data iuran berhasil disimpan!");
-            reset();
+        notifySuccess("Berhasil", "Data berhasil disimpan!");
+        reset();
       },
       onError: () => {
-        notifyError("Terjadi kesalahan, silakan cek kembali form.");
+        notifyError("Gagal", "Terjadi kesalahan, cek form.");
       },
     });
   };
 
   return (
-    <AppLayoutSuperadmin>
+    <AppLayout>
       <div className="px-6 py-6">
         {/* Breadcrumb */}
         <div className="flex items-center text-gray-400 text-2xl md:text-3xl font-semibold border-b-2 border-gray-200 py-3 md:py-5">
-          <Link
-            href="/manajemen_data"
-            className="hover:text-blue-600 transition-colors duration-200"
-          >
+          <Link href="/manajemen-data" className="hover:text-blue-600 transition-colors duration-200">
             Manajemen Data
           </Link>
           <span className="mx-2 text-gray-400">›</span>
           <span className="text-black font-bold">Tambah Data</span>
         </div>
 
-        {/* Form Input */}
         <form onSubmit={handleSubmit} className="space-y-6 py-5 max-w-5xl">
-          {/* Nama Lengkap */}
-          <div>
-            <label className="block text-sm font-medium mb-1">
-              Nama Lengkap
-            </label>
-            <Input
-              value={data.nm_lengkap}
-              onChange={(e) => setData("nm_lengkap", e.target.value)}
-              placeholder="Masukkan nama lengkap anda"
-            />
-            {errors.nm_lengkap && (
-              <div className="text-red-500 text-sm">{errors.nm_lengkap}</div>
-            )}
-          </div>
-
-          {/* No. KK */}
-          <div>
-            <label className="block text-sm font-medium mb-1">No. KK</label>
-            <Input
-              value={data.no_kk}
-              onChange={(e) => setData("no_kk", e.target.value)}
-              placeholder="Masukkan Nomor Kartu Keluarga anda"
-            />
-            {errors.no_kk && (
-              <div className="text-red-500 text-sm">{errors.no_kk}</div>
-            )}
-          </div>
-
-          {/* Email */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
-            <Input
-              type="email"
-              value={data.email}
-              onChange={(e) => setData("email", e.target.value)}
-              placeholder="Masukkan alamat Email anda"
-            />
-            {errors.email && (
-              <div className="text-red-500 text-sm">{errors.email}</div>
-            )}
-          </div>
-
-          {/* Password */}
-          <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
-            <Input
-              type="password"
-              value={data.password}
-              onChange={(e) => setData("password", e.target.value)}
-              placeholder="Masukkan password akun anda"
-            />
-            {errors.password && (
-              <div className="text-red-500 text-sm">{errors.password}</div>
-            )}
-          </div>
-
-          {/* No. HP */}
-          <div>
-            <label className="block text-sm font-medium mb-1">No. HP</label>
-            <Input
-              value={data.no_hp}
-              onChange={(e) => setData("no_hp", e.target.value)}
-              placeholder="Masukkan nomor telepon anda"
-            />
-          </div>
-
-          {/* Alamat, RT, RW, Kode Pos */}
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
-            <div className="md:col-span-6">
-              <label className="block text-sm font-medium mb-1">Alamat</label>
-              <Input
-                value={data.alamat}
-                onChange={(e) => setData("alamat", e.target.value)}
-                placeholder="Masukkan alamat lengkap anda"
-              />
-            </div>
-
+          {/* Identitas Diri */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">RT</label>
-              <Select
-                onValueChange={(value) => setData("rt", value)}
-                value={data.rt}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih RT" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <SelectItem key={i + 1} value={String(i + 1)}>
-                      RT 0{i + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+                <label className="block text-sm font-medium mb-1">Nama Lengkap</label>
+                <Input value={data.nm_lengkap} onChange={(e) => setData("nm_lengkap", e.target.value)} placeholder="Nama Lengkap"/>
+                {errors.nm_lengkap && <div className="text-red-500 text-sm">{errors.nm_lengkap}</div>}
             </div>
+            <div>
+                <label className="block text-sm font-medium mb-1">No. KK</label>
+                <Input value={data.no_kk} onChange={(e) => setData("no_kk", e.target.value)} maxLength={16} placeholder="16 Digit KK"/>
+                {errors.no_kk && <div className="text-red-500 text-sm">{errors.no_kk}</div>}
+            </div>
+            <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <Input type="email" value={data.email} onChange={(e) => setData("email", e.target.value)} placeholder="email@contoh.com"/>
+                {errors.email && <div className="text-red-500 text-sm">{errors.email}</div>}
+            </div>
+            <div>
+                <label className="block text-sm font-medium mb-1">Password</label>
+                <Input type="password" value={data.password} onChange={(e) => setData("password", e.target.value)} />
+                {errors.password && <div className="text-red-500 text-sm">{errors.password}</div>}
+            </div>
+            <div>
+                <label className="block text-sm font-medium mb-1">No. HP</label>
+                <Input value={data.no_hp} onChange={(e) => setData("no_hp", e.target.value)} />
+            </div>
+          </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">RW</label>
-              <Select
-                onValueChange={(value) => setData("rw", value)}
-                value={data.rw}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih RW" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 10 }, (_, i) => (
-                    <SelectItem key={i + 1} value={String(i + 1)}>
-                      RW 0{i + 1}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+          {/* Domisili (Dropdown Area) */}
+          <div className="bg-gray-50 p-4 rounded-lg border space-y-4">
+             <h3 className="font-semibold text-gray-700">Domisili</h3>
+             <div>
+                <label className="block text-sm font-medium mb-1">Alamat Jalan</label>
+                <Input value={data.alamat} onChange={(e) => setData("alamat", e.target.value)} placeholder="Jl. Mawar No. 10"/>
+                {errors.alamat && <div className="text-red-500 text-sm">{errors.alamat}</div>}
+             </div>
+             
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                   <label className="block text-sm font-medium mb-1">Kota</label>
+                   <Select onValueChange={handleKotaChange} value={data.kota_id}>
+                     <SelectTrigger><SelectValue placeholder="Pilih Kota" /></SelectTrigger>
+                     <SelectContent>
+                        {wilayah.map(k => <SelectItem key={k.id} value={k.id.toString()}>{k.nama_kota}</SelectItem>)}
+                     </SelectContent>
+                   </Select>
+                   {errors.kota_id && <div className="text-red-500 text-sm">Kota wajib dipilih</div>}
+                </div>
+                <div>
+                   <label className="block text-sm font-medium mb-1">Kecamatan</label>
+                   <Select onValueChange={handleKecamatanChange} value={data.kecamatan_id} disabled={!data.kota_id}>
+                     <SelectTrigger><SelectValue placeholder="Pilih Kecamatan" /></SelectTrigger>
+                     <SelectContent>
+                        {listKecamatan.map(k => <SelectItem key={k.id} value={k.id.toString()}>{k.nama_kecamatan}</SelectItem>)}
+                     </SelectContent>
+                   </Select>
+                </div>
+                <div>
+                   <label className="block text-sm font-medium mb-1">Kelurahan</label>
+                   <Select onValueChange={handleKelurahanChange} value={data.kelurahan_id} disabled={!data.kecamatan_id}>
+                     <SelectTrigger><SelectValue placeholder="Pilih Kelurahan" /></SelectTrigger>
+                     <SelectContent>
+                        {listKelurahan.map(k => <SelectItem key={k.id} value={k.id.toString()}>{k.nama_kelurahan}</SelectItem>)}
+                     </SelectContent>
+                   </Select>
+                </div>
+                
+                {/* RW (Manual Input) */}
+                <div>
+                   <label className="block text-sm font-medium mb-1">RW</label>
+                   <Input 
+                      value={data.rw} 
+                      onChange={(e) => setData("rw", e.target.value)} 
+                      placeholder="005"
+                   />
+                   {errors.rw && <div className="text-red-500 text-sm">Wajib diisi</div>}
+                </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium mb-1">
-                Kode Pos
-              </label>
-              <Select
-                onValueChange={(value) => setData("kode_pos", value)}
-                value={data.kode_pos}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih Kode Pos" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="50144">50144</SelectItem>
-                  <SelectItem value="50145">50145</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+                {/* RT (Manual Input) */}
+                <div>
+                   <label className="block text-sm font-medium mb-1">RT</label>
+                   <Input 
+                      value={data.rt} 
+                      onChange={(e) => setData("rt", e.target.value)} 
+                      placeholder="001"
+                   />
+                   {errors.rt && <div className="text-red-500 text-sm">Wajib diisi</div>}
+                </div>
+
+                {/* Kode Pos (Manual Input) */}
+                <div>
+                    <label className="block text-sm font-medium mb-1">Kode Pos</label>
+                    <Input value={data.kode_pos} onChange={(e) => setData("kode_pos", e.target.value)} placeholder="50xxx"/>
+                </div>
+             </div>
           </div>
 
           {/* Role & Status */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label className="block text-sm font-medium mb-1">Role</label>
-              <Select
-                onValueChange={(value) => setData("role_id", value)}
-                value={data.role_id}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih Role" />
-                </SelectTrigger>
+              <Select value={data.role_id} onValueChange={(val) => setData("role_id", val)}>
+                <SelectTrigger><SelectValue placeholder="Pilih Role" /></SelectTrigger>
                 <SelectContent>
-                  {roles && roles.length > 0 ? (
-                    roles.map((role) => (
-                      <SelectItem key={role.id} value={role.id.toString()}>
-                        {role.nm_role || role.nama_role || role.name}
-                      </SelectItem>
-                    ))
-                  ) : (
-                    <SelectItem disabled>Tidak ada role tersedia</SelectItem>
-                  )}
+                  {roles.map((r) => <SelectItem key={r.id} value={r.id.toString()}>{r.nm_role}</SelectItem>)}
                 </SelectContent>
               </Select>
-              {errors.role_id && (
-                <div className="text-red-500 text-sm">{errors.role_id}</div>
-              )}
+              {errors.role_id && <div className="text-red-500 text-sm">{errors.role_id}</div>}
             </div>
-
             <div>
               <label className="block text-sm font-medium mb-1">Status</label>
-              <Select
-                onValueChange={(value) => setData("status", value)}
-                value={data.status}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Pilih Status" />
-                </SelectTrigger>
+              <Select value={data.status} onValueChange={(val) => setData("status", val)}>
+                <SelectTrigger><SelectValue placeholder="Pilih Status" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="tetap">Tetap</SelectItem>
                   <SelectItem value="kontrak">Kontrak</SelectItem>
                 </SelectContent>
               </Select>
-              {errors.status && (
-                <div className="text-red-500 text-sm">{errors.status}</div>
-              )}
+              {errors.status && <div className="text-red-500 text-sm">{errors.status}</div>}
             </div>
           </div>
 
-          {/* Tombol Aksi */}
+          {/* Action Buttons */}
           <div className="flex justify-end gap-3 pt-4">
-            <Link href="/manajemen_data">
-              <Button className="bg-red-500 hover:bg-red-600 text-white">
-                Batal
-              </Button>
+            <Link href="/manajemen-data">
+              <Button className="bg-red-500 hover:bg-red-600 text-white">Batal</Button>
             </Link>
-            <Button
-              type="submit"
-              disabled={processing}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              {processing ? "Menyimpan..." : "Simpan"}
+            <Button type="submit" disabled={processing} className="bg-blue-600 hover:bg-blue-700 text-white">
+              {processing ? "Simpan" : "Simpan"}
             </Button>
           </div>
         </form>
       </div>
-    </AppLayoutSuperadmin>
+    </AppLayout>
   );
 }

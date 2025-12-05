@@ -57,6 +57,7 @@ class MasukIuranController extends Controller
         ]);
     }
 
+
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -64,26 +65,38 @@ class MasukIuranController extends Controller
             'bkt_byr'  => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
-        $iuran = PemasukanIuran::findOrFail($validated['id']);
+        $userId = Auth::id();
 
-        if ($iuran->usr_id !== Auth::id()) {
+        $targetIuran = PemasukanIuran::findOrFail($validated['id']);
+        if ($targetIuran->usr_id !== $userId) {
             abort(403, 'Akses ditolak.');
         }
 
-        // Upload bukti bayar
+        // cari tagihan tertua milik user yang status 'tagihan' dengan urutan berdasarkan pengumuman.created_at
+        $oldestTagihan = PemasukanIuran::join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+            ->where('masuk_iuran.usr_id', $userId)
+            ->where('masuk_iuran.status', 'tagihan')
+            ->orderBy('pengumuman.created_at')   // periode berdasarkan waktu bikin pengumuman
+            ->orderBy('masuk_iuran.tgl')
+            ->select('masuk_iuran.*')
+            ->first();
+
+        // kalau tidak ada tagihan lama, target = iuran yang di-klik user
+        $applyTo = $oldestTagihan ?? $targetIuran;
+
+        // upload file
         if ($request->hasFile('bkt_byr')) {
             $file = $request->file('bkt_byr');
             $filename = now()->format('Ymd_His') . '_bktbyr.' . $file->getClientOriginalExtension();
-            $iuran->bkt_byr = $file->storeAs('masuk_iuran', $filename, 'public');
+            $applyTo->bkt_byr = $file->storeAs('masuk_iuran', $filename, 'public');
         }
 
-        // Update status
-        $iuran->update([
-            'tgl_byr' => now(),
-            'status' => 'pending',
-        ]);
+        $applyTo->tgl_byr = now();
+        $applyTo->status = 'pending';
+        $applyTo->save();
 
         return redirect()->route('masuk-iuran.index')
             ->with('success', 'Bukti pembayaran berhasil diupload. Menunggu persetujuan admin.');
     }
+
 }

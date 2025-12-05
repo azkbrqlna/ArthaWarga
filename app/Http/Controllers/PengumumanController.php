@@ -20,60 +20,69 @@ class PengumumanController extends Controller
         ]);
     }
     
-    public function pengumuman_create(Request $request)
-    {
-        $validated = $request->validate([
-            'judul' => 'required|string',
-            'ket' => 'required|string',
-            'jumlah' => 'required|integer',
-            'kat_iuran_id' => 'required|exists:kat_iuran,id',
-        ]);
+   public function pengumuman_create(Request $request)
+{
+    $validated = $request->validate([
+        'judul' => 'required|string',
+        'ket' => 'required|string',
+        'jumlah' => 'required|integer',
+        'kat_iuran_id' => 'required|exists:kat_iuran,id',
+    ]);
 
-        $pengumuman = Pengumuman::create([
-            'judul' => $validated['judul'],
-            'ket' => $validated['ket'],
-            'jumlah' => $validated['jumlah'],
-            'kat_iuran_id' => $validated['kat_iuran_id'],
-        ]);
+    // 1. Simpan pengumuman
+    $pengumuman = Pengumuman::create([
+        'judul' => $validated['judul'],
+        'ket' => $validated['ket'],
+        'jumlah' => $validated['jumlah'],
+        'kat_iuran_id' => $validated['kat_iuran_id'],
+    ]);
 
-        // $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
-        $users = User::all();
+   
+    $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
 
         foreach ($users as $user) {
             PemasukanIuran::create([
                 'usr_id' => $user->id,
                 'kat_iuran_id' => $validated['kat_iuran_id'],
                 'pengumuman_id' => $pengumuman->id,
-                'tgl' => now(),
+                'tgl' => now(), 
+                'nominal' => $validated['jumlah'],
                 'status' => 'tagihan',
             ]);
         }
 
-        return back()->with('success', 'Pengumuman berhasil dibuat dan tagihan dikirim ke semua warga.');
-    }
+    return back()->with('success', 'Pengumuman berhasil dibuat dan tagihan dikirim ke semua warga (kecuali Admin/Sekretaris/Bendahara/SuperAdmin).');
+}
+
 
     public function approval()
     {
+        // ambil semua iuran untuk admin review (tidak dibatasi bulan)
         $iurans = PemasukanIuran::with(['pengumuman.kat_iuran', 'user'])
             ->whereIn('status', ['pending', 'approved'])
             ->whereIn('kat_iuran_id', [1, 2])
             ->orderByDesc('tgl')
             ->paginate(10);
 
+        // filter berdasarkan bulan saat ini (hanya untuk ringkasan angka)
+        $year  = now()->year;
+        $month = now()->month;
+
+        // jumlah tagihan: hanya pengumuman yang dibuat pada bulan ini
         $jumlahTagihan = PemasukanIuran::whereIn('masuk_iuran.status', ['pending', 'tagihan'])
             ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
             ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+            ->whereYear('pengumuman.created_at', $year)
+            ->whereMonth('pengumuman.created_at', $month)
             ->sum('pengumuman.jumlah');
 
-
-       $jumlahApproved = PemasukanIuran::where('masuk_iuran.status', 'approved')
+        // jumlah approved: yang dibayar (approved) di bulan ini
+        $jumlahApproved = PemasukanIuran::where('masuk_iuran.status', 'approved')
             ->whereIn('masuk_iuran.kat_iuran_id', [1, 2])
             ->join('pengumuman', 'masuk_iuran.pengumuman_id', '=', 'pengumuman.id')
+            ->whereYear('pengumuman.created_at', $year)
+            ->whereMonth('pengumuman.created_at', $month)
             ->sum('pengumuman.jumlah');
-
-
-        // dd($iurans->first()->toArray());
-        // dd($jumlahTagihan, $jumlahApproved);
 
 
         return Inertia::render('Ringkasan/Approval', [
@@ -82,8 +91,6 @@ class PengumumanController extends Controller
             'jumlahApproved' => $jumlahApproved,
         ]);
     }
-
-
 
 
     public function approval_patch(Request $request, $id)

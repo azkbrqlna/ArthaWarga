@@ -6,6 +6,8 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use App\Models\Role;
+use App\Models\Kota;
+use App\Models\Kelurahan; // Kita berhenti di Kelurahan, tidak pakai RT/RW Model lagi
 use Faker\Factory as Faker;
 
 class UserSeeder extends Seeder
@@ -14,62 +16,110 @@ class UserSeeder extends Seeder
     {
         $faker = Faker::create('id_ID');
 
-        // Pastikan role sudah ada
+        // 1. === CEK & BUAT ROLE ===
         if (Role::count() === 0) {
             $this->call(RoleSeeder::class);
         }
 
-        // Ambil ID role (fallback ke nilai default jika belum ada)
         $superadminRole = Role::where('nm_role', 'Superadmin')->first()->id ?? 1;
         $ketuaRtRole    = Role::where('nm_role', 'Ketua RT')->first()->id ?? 2;
         $sekretarisRole = Role::where('nm_role', 'Sekretaris')->first()->id ?? 3;
         $bendaharaRole  = Role::where('nm_role', 'Bendahara')->first()->id ?? 4;
         $wargaRole      = Role::where('nm_role', 'Warga')->first()->id ?? 5;
 
-        // === Superadmin utama ===
+        // 2. === AMBIL DATA KOTA SEMARANG ===
+        $kota = Kota::where('nama_kota', 'Kota Semarang')->first();
+
+        // Safety Check: Kalau WilayahSemarangSeeder belum dijalankan
+        if (!$kota) {
+            $this->call(WilayahSemarangSeeder::class);
+            $kota = Kota::where('nama_kota', 'Kota Semarang')->first();
+        }
+
+        // 3. === AMBIL SATU KELURAHAN ACAK UNTUK ADMIN ===
+        // Kita cari kelurahan yang ada di Kota Semarang
+        $kelurahanAdmin = Kelurahan::with('kecamatan.kota')
+                            ->whereHas('kecamatan', function($q) use ($kota) {
+                                $q->where('kota_id', $kota->id);
+                            })
+                            ->inRandomOrder()
+                            ->first();
+
+        // 4. === INSERT SUPERADMIN ===
         DB::table('usr')->insert([
-            'nm_lengkap' => 'Super Admin Desa',
-            'no_kk'      => '3174091005000001',
-            'email'      => 'superadmin@desa.go.id',
-            'password'         => Hash::make('password123'),
-            'no_hp'      => '081234567890',
-            'role_id'    => $superadminRole,
-            'status'     => 'tetap', 
-            'alamat'     => 'Jl. Merdeka No. 1, Desa Maju',
-            'rt'         => '01',
-            'rw'         => '02',
-            'kode_pos'   => '12120',
-            'created_at' => now(),
-            'updated_at' => now(),
+            'role_id'      => $superadminRole,
+            'email'        => 'superadmin@semarang.go.id',
+            'no_kk'        => '3374100000000001',
+            'password'     => Hash::make('password123'),
+            'nm_lengkap'   => 'Super Admin Semarang',
+            'foto_profil'  => null,
+            'no_hp'        => '081234567890',
+            'status'       => 'tetap',
+            'alamat'       => 'Jl. Pemuda No. 1', 
+            'kode_pos'     => '50132',
+
+            // ID Wilayah (Dari Database)
+            'kota_id'      => $kota->id,
+            'kecamatan_id' => $kelurahanAdmin->kecamatan->id,
+            'kelurahan_id' => $kelurahanAdmin->id,
+
+            // String Wilayah (Manual Angka)
+            'rw'           => '001', 
+            'rt'           => '001',
+
+            'created_at'   => now(),
+            'updated_at'   => now(),
         ]);
 
-        // === Fungsi pembuat user acak ===
-        $buatUser = function ($roleId, $namaRole) use ($faker) {
+        // 5. === HELPER FUNCTION USER RANDOM ===
+        $buatUser = function ($roleId, $emailPrefix) use ($faker, $kota) {
+            
+            // Ambil Kelurahan acak di Semarang
+            $kelRandom = Kelurahan::with('kecamatan')
+                        ->whereHas('kecamatan', function($q) use ($kota) {
+                            $q->where('kota_id', $kota->id);
+                        })
+                        ->inRandomOrder()
+                        ->first();
+
+            // Generate Angka RT/RW String (001 - 020)
+            $rwRandom = str_pad($faker->numberBetween(1, 20), 3, '0', STR_PAD_LEFT);
+            $rtRandom = str_pad($faker->numberBetween(1, 20), 3, '0', STR_PAD_LEFT);
+
             return [
-                'nm_lengkap' => $faker->name(),
-                'no_kk'      => $faker->unique()->numerify('317409##########'),
-                'email'      => strtolower(str_replace(' ', '', $namaRole)) . '@example.com',
-                'password'   => Hash::make('password123'),
-                'no_hp'      => '08' . $faker->numerify('##########'),
-                'role_id'    => $roleId,
-                'status'     => $faker->randomElement(['tetap', 'kontrak']), 
-                'alamat'     => $faker->address(),
-                'rt'         => str_pad($faker->numberBetween(1, 9), 2, '0', STR_PAD_LEFT),
-                'rw'         => str_pad($faker->numberBetween(1, 5), 2, '0', STR_PAD_LEFT),
-                'kode_pos'   => '12120',
-                'created_at' => now(),
-                'updated_at' => now(),
+                'role_id'      => $roleId,
+                'email'        => strtolower($emailPrefix) . '@example.com',
+                'no_kk'        => $faker->unique()->numerify('3374##########'),
+                'password'     => Hash::make('password123'),
+                'nm_lengkap'   => $faker->name(),
+                'foto_profil'  => null,
+                'no_hp'        => '08' . $faker->numerify('##########'),
+                'status'       => $faker->randomElement(['tetap', 'kontrak']),
+                'alamat'       => $faker->streetAddress(),
+                'kode_pos'     => $faker->postcode(),
+
+                // Isi ID Wilayah Database
+                'kota_id'      => $kota->id,
+                'kecamatan_id' => $kelRandom->kecamatan->id,
+                'kelurahan_id' => $kelRandom->id,
+
+                // Isi String Wilayah Manual
+                'rw'           => $rwRandom,
+                'rt'           => $rtRandom,
+
+                'created_at'   => now(),
+                'updated_at'   => now(),
             ];
         };
 
-        // Tambahkan masing-masing role utama
-        DB::table('usr')->insert($buatUser($ketuaRtRole, 'KetuaRT'));
-        DB::table('usr')->insert($buatUser($sekretarisRole, 'Sekretaris'));
-        DB::table('usr')->insert($buatUser($bendaharaRole, 'Bendahara'));
+        // 6. === INSERT DATA PENGURUS ===
+        DB::table('usr')->insert($buatUser($ketuaRtRole, 'ketua_rt'));
+        DB::table('usr')->insert($buatUser($sekretarisRole, 'sekretaris'));
+        DB::table('usr')->insert($buatUser($bendaharaRole, 'bendahara'));
 
-        // Tambahkan beberapa warga acak
-        for ($i = 1; $i <= 3; $i++) {
-            DB::table('usr')->insert($buatUser($wargaRole, 'Warga' . $i));
+        // 7. === INSERT 10 WARGA RANDOM ===
+        for ($i = 1; $i <= 10; $i++) {
+            DB::table('usr')->insert($buatUser($wargaRole, 'warga' . $i));
         }
     }
 }

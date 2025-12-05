@@ -21,6 +21,9 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+// <-- tambahkan import tombol download PDF
+import DownloadPdfBtn from "@/components/DownloadPdfBtn";
+
 export default function Dashboard() {
     const {
         transaksi = [],
@@ -158,6 +161,7 @@ export default function Dashboard() {
                                 className="border rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none"
                             />
 
+                            {/* tombol Reset (tidak diubah) */}
                             {selectedDate && (
                                 <Button
                                     variant="outline"
@@ -177,6 +181,9 @@ export default function Dashboard() {
                                     Reset
                                 </Button>
                             )}
+
+                            {/* <-- Tombol Download PDF (ditambahkan tanpa mengubah UI lainnya) */}
+                            <DownloadPdfBtn date={selectedDate} />
                         </div>
                     </div>
 

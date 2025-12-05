@@ -5,6 +5,7 @@ import AppLayout from "@/layouts/AppLayout";
 import { Card, CardContent } from "@/components/ui/card";
 import { Wallet, Coins, PiggyBank, ArrowDownCircle } from "lucide-react";
 import Breadcrumbs from "@/components/Breadcrumbs";
+import DownloadPdfSpj from "@/components/ui/DownloadPdfSpj";
 
 export default function Rincian() {
     const { rincian = {}, pemasukanBOP, pemasukanIuran } = usePage().props;
@@ -79,7 +80,13 @@ export default function Rincian() {
     return (
         <AppLayout>
             <div className="pl-0 pr-8 pb-10 md:pr-12 md:pb-12 space-y-10">
-                <h1 className="text-3xl font-bold mb-8">RINCIAN</h1>
+                <div className="flex justify-between items-center mb-8">
+                    <h1 className="text-3xl font-bold">RINCIAN</h1>
+                    {/* Tampilkan tombol hanya jika Pengeluaran */}
+                    {rincian.status === "Pengeluaran" && (
+                        <DownloadPdfSpj id={rincian.id} />
+                    )}
+                </div>
 
                 <Breadcrumbs
                     items={[
@@ -134,6 +141,11 @@ export default function Rincian() {
                         <div>
                             <p className="text-gray-500">Kategori</p>
                             <p className="font-medium">{rincian.kategori}</p>
+                        </div>
+
+                        <div className="md:col-span-2">
+                            <p className="text-gray-500">Toko</p>
+                            <p className="font-medium">{rincian.toko || "-"}</p>
                         </div>
 
                         <div className="md:col-span-2">

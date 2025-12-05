@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\User;
 use App\Models\Role;
+use App\Models\Kota;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Inertia\Inertia;
@@ -12,7 +13,12 @@ class SuperadminController extends Controller
 {
     public function users()
     {
-        $users = User::with('role')->where('role_id', '!=', 1)->paginate(10);
+        // LOAD: Cukup sampai Kelurahan saja (RW & RT sudah jadi string di tabel user)
+        $users = User::with(['role', 'kota', 'kecamatan', 'kelurahan'])
+                ->where('role_id', '!=', 1)
+                ->latest()
+                ->paginate(10);
+        
         $roles = Role::all();
 
         return Inertia::render('ManajemenData', [
@@ -28,12 +34,14 @@ class SuperadminController extends Controller
     public function createUser()
     {
         $roles = Role::where('id', '!=', 1)->get();
+        // LOAD: Wilayah juga cukup sampai Kelurahan
+        $kotas = Kota::with('kecamatans.kelurahans')->get();
 
         return Inertia::render('TambahData', [
-            'roles' => $roles
+            'roles' => $roles,
+            'wilayah' => $kotas
         ]);
     }
-
 
     public function storeUser(Request $request)
     {
@@ -46,9 +54,16 @@ class SuperadminController extends Controller
             'role_id' => 'required',
             'status' => 'required',
             'alamat' => 'required|string',
+            
+            // Validasi String Manual
+            'kode_pos' => 'required',
+            'rw' => 'required',
             'rt' => 'required',
-            'rw' => 'nullable',
-            'kode_pos' => 'nullable'
+
+            // Validasi ID Wilayah Database
+            'kota_id' => 'required',
+            'kecamatan_id' => 'required',
+            'kelurahan_id' => 'required',
         ]);
 
         User::create([
@@ -60,9 +75,16 @@ class SuperadminController extends Controller
             'role_id' => $request->role_id,
             'status' => $request->status,
             'alamat' => $request->alamat,
-            'rt' => $request->rt,
+            
+            // Simpan String Manual
+            'kode_pos' => $request->kode_pos,
             'rw' => $request->rw,
-            'kode_pos' => $request->kode_pos
+            'rt' => $request->rt,
+
+            // Simpan ID Wilayah
+            'kota_id' => $request->kota_id,
+            'kecamatan_id' => $request->kecamatan_id,
+            'kelurahan_id' => $request->kelurahan_id,
         ]);
 
         return redirect()->route('superadmin.users')->with('success', 'User berhasil ditambahkan');
@@ -70,12 +92,16 @@ class SuperadminController extends Controller
 
     public function editUser($id)
     {
-        $user = User::with('role')->findOrFail($id);
+        // LOAD: Cukup sampai Kelurahan
+        $user = User::with(['role', 'kota', 'kecamatan', 'kelurahan'])->findOrFail($id);
+        
         $roles = Role::where('id', '!=', 1)->get();
+        $kotas = Kota::with('kecamatans.kelurahans')->get();
 
         return Inertia::render('EditData', [
             'user' => $user,
             'roles' => $roles,
+            'wilayah' => $kotas 
         ]);
     }
 
@@ -91,9 +117,13 @@ class SuperadminController extends Controller
             'role_id' => 'required',
             'status' => 'required',
             'alamat' => 'required|string',
-            'rt' => 'required',
+            
+            'kode_pos' => 'required',
             'rw' => 'required',
-            'kode_pos' => 'required'
+            'rt' => 'required',
+            'kota_id' => 'required',
+            'kecamatan_id' => 'required',
+            'kelurahan_id' => 'required',
         ]);
 
         $data = [
@@ -104,9 +134,16 @@ class SuperadminController extends Controller
             'role_id' => $request->role_id,
             'status' => $request->status,
             'alamat' => $request->alamat,
-            'rt' => $request->rt,
+            
+            // Update String Manual
+            'kode_pos' => $request->kode_pos,
             'rw' => $request->rw,
-            'kode_pos' => $request->kode_pos
+            'rt' => $request->rt,
+
+            // Update ID Wilayah
+            'kota_id' => $request->kota_id,
+            'kecamatan_id' => $request->kecamatan_id,
+            'kelurahan_id' => $request->kelurahan_id,
         ];
 
         if ($request->filled('password')) {
@@ -115,9 +152,8 @@ class SuperadminController extends Controller
 
         $user->update($data);
 
-        return redirect()->route('superadmin.users')->with('success', 'Data user berhasil diperbarui');
+        return back()->with('success', 'Data user berhasil diperbarui');
     }
-
 
     public function deleteUser($id)
     {
@@ -131,5 +167,4 @@ class SuperadminController extends Controller
 
         return back()->with('success', 'User berhasil dihapus');
     }
-
 }

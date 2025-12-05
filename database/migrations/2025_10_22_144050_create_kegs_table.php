@@ -6,19 +6,28 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     */
     public function up(): void
     {
-        Schema::table('keg', function (Blueprint $table) {
-            // Mengubah kolom tgl_selesai agar menerima NULL
-            $table->date('tgl_selesai')->nullable()->change();
+        Schema::create('keg', function (Blueprint $table) {
+            $table->id();
+            $table->string('nm_keg');
+            $table->date('tgl_mulai')->nullable();
+            $table->date('tgl_selesai')->nullable();
+            $table->string('pj_keg')->nullable();
+            $table->string('panitia')->nullable();
+            $table->string('dok_keg')->nullable();
+            $table->timestamps();
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
-        Schema::table('keg', function (Blueprint $table) {
-            // Mengembalikan kolom tgl_selesai menjadi NOT NULL
-            $table->date('tgl_selesai')->nullable(false)->change();
-        });
+        Schema::dropIfExists('keg');
     }
 };

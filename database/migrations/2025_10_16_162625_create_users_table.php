@@ -9,19 +9,25 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('usr', function (Blueprint $table) {
-            $table->id();
+            $table->id(); 
             $table->foreignId('role_id')->constrained('role')->cascadeOnDelete();
+
             $table->string('email')->unique();
             $table->string('no_kk', 16)->unique();
             $table->string('password');
             $table->string('nm_lengkap');
             $table->string('foto_profil')->nullable();
             $table->string('no_hp');
+            $table->text('alamat'); 
+            $table->string('kode_pos')->nullable(); 
+            $table->string('rw')->nullable();
+            $table->string('rt')->nullable();
 
-            $table->string('alamat');
-            $table->string('rt');
-            $table->string('rw');
-            $table->string('kode_pos');
+            $table->foreignId('kota_id')->nullable()->constrained('kota')->nullOnDelete();
+            $table->foreignId('kecamatan_id')->nullable()->constrained('kecamatan')->nullOnDelete();
+            $table->foreignId('kelurahan_id')->nullable()->constrained('kelurahan')->nullOnDelete();
+
+            
             $table->enum('status', ['tetap', 'kontrak'])->default('tetap');
             $table->timestamps();
         });

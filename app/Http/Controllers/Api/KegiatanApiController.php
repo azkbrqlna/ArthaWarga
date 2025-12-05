@@ -141,15 +141,15 @@ class KegiatanApiController extends Controller
 
         // 1. Validasi
         $validator = Validator::make($request->all(), [
-            'nm_keg'           => 'required|string|max:255',
-            'tgl_mulai'        => 'nullable|date',
-            'tgl_selesai'      => 'nullable|date|after_or_equal:tgl_mulai',
-            'pj_keg'           => 'nullable|string|max:255',
-            'panitia'          => 'nullable|string|max:255',
+            'nm_keg'           => 'sometimes|required|string|max:255',
+            'tgl_mulai'        => 'sometimes|nullable|date',
+            'tgl_selesai'      => 'sometimes|nullable|date|after_or_equal:tgl_mulai',
+            'pj_keg'           => 'sometimes|nullable|string|max:255',
+            'panitia'          => 'sometimes|nullable|string|max:255',
             // Field ini dikirim dari frontend untuk file yang tidak ingin dihapus
-            'existing_dok_keg' => 'nullable|array', 
+            'existing_dok_keg' => 'sometimes|nullable|array', 
             // File upload baru
-            'dok_keg'          => 'nullable|array', 
+            'dok_keg'          => 'sometimes|nullable|array', 
             'dok_keg.*'        => 'file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
         
@@ -165,7 +165,10 @@ class KegiatanApiController extends Controller
         $newlyUploadedPaths = [];
 
         // 2. Ambil path file lama yang dipertahankan
-        $existingPaths = $request->input('existing_dok_keg', []);
+        $existingPaths = $request->input('existing_dok_keg');
+        if (!is_array($existingPaths)) {
+            $existingPaths = [];
+        }
         
         // 3. Proses upload file baru
         if ($request->hasFile('dok_keg')) {

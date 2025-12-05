@@ -8,11 +8,24 @@ use Laravel\Sanctum\HasApiTokens;
 class User extends Authenticatable
 {
     use HasApiTokens;
-    
-    protected $table = 'usr';
+        protected $table = 'usr';
     protected $fillable = [
-        'nm_lengkap', 'no_kk', 'email', 'password', 'no_hp' , 'role_id', 'status', 'alamat', 'foto_profil',
-        'rt', 'rw','kode_pos'
+        'nm_lengkap', 
+        'no_kk', 
+        'email', 
+        'password', 
+        'no_hp', 
+        'role_id', 
+        'status', 
+        'alamat', 
+        'foto_profil',
+        'kode_pos',
+        'rw',
+        'rt',
+
+        'kota_id',
+        'kecamatan_id',
+        'kelurahan_id',
     ];
 
     protected $hidden = [
@@ -21,17 +34,34 @@ class User extends Authenticatable
     ];
 
     protected $casts = [
-        'password' => 'hashed', 
+        'password' => 'hashed',
         'email_verified_at' => 'datetime',
     ];
+
     
     public function role()
     {
-        return $this->belongsTo(Role::class, 'role_id', 'id');
+        return $this->belongsTo(Role::class, 'role_id');
     }
 
     public function masuk_iuran()
     {
         return $this->hasMany(PemasukanIuran::class);
+    }
+
+
+    public function kota()
+    {
+        return $this->belongsTo(Kota::class);
+    }
+
+    public function kecamatan()
+    {
+        return $this->belongsTo(Kecamatan::class);
+    }
+
+    public function kelurahan()
+    {
+        return $this->belongsTo(Kelurahan::class);
     }
 }

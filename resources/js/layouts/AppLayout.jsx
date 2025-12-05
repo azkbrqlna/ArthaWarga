@@ -6,6 +6,10 @@ import {
     Database,
     Inbox,
     Grid2x2Plus,
+    ClipboardCheck,
+    Wallet,
+    CalendarDays,
+    PieChart,
 } from "lucide-react";
 import {
     Sidebar,
@@ -49,8 +53,21 @@ export default function AppLayout({ children }) {
             url: "/dashboard",
             icon: LayoutTemplate,
         },
-        { title: "Kegiatan", url: "/kegiatan", icon: Database },
-        { title: "Approval", url: "/approval", icon: SquareCheckBig },
+        {
+            title: "Kegiatan",
+            url: "/kegiatan",
+            icon: CalendarDays,
+        },
+        {
+            title: "Approval",
+            url: "/approval",
+            icon: ClipboardCheck,
+        },
+        {
+            title: "Bayar Iuran",
+            url: "/masuk-iuran",
+            icon: Wallet,
+        },
     ];
 
     const adminItems = [

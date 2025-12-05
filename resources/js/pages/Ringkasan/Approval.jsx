@@ -6,11 +6,20 @@ import AppLayout from "@/layouts/AppLayout";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent } from "@/components/ui/dialog";
-import { Banknote, ChevronsUpDown, Check, X } from "lucide-react";
+import {
+    Banknote,
+    ChevronsUpDown,
+    Check,
+    X,
+    ChevronLeft,
+    ChevronRight,
+} from "lucide-react";
 
 export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
     const [rows, setRows] = useState(iurans.data || []);
     const [modalImage, setModalImage] = useState(null);
+    const currentPage = iurans.current_page;
+    const totalPages = iurans.last_page;
 
     const formatRupiah = (val) =>
         "Rp " + parseInt(val || 0).toLocaleString("id-ID");
@@ -21,6 +30,14 @@ export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
         );
 
         router.patch(route("approval.patch", id), { status });
+    };
+
+    const goToPage = (page) => {
+        router.get(
+            route("approval"),
+            { page },
+            { preserveScroll: true, preserveState: true }
+        );
     };
 
     return (
@@ -77,52 +94,32 @@ export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
                 {/* TABEL */}
                 <div className="pb-10">
                     <div className="rounded-xl border overflow-hidden bg-white">
-                        {/* HEADER TABEL */}
                         <table className="w-full text-sm">
                             <thead className="bg-white border-b">
                                 <tr>
-                                    <th className="p-3 font-semibold text-gray-700">
-                                        <div className="flex items-center gap-2">
-                                            No
-                                        </div>
-                                    </th>
-                                    <th className="p-3 font-semibold text-gray-700">
-                                        <div className="flex items-center gap-2">
-                                            Nama
-                                            <ChevronsUpDown className="h-4 w-4 text-gray-400" />
-                                        </div>
-                                    </th>
-                                    <th className="p-3 font-semibold text-gray-700">
-                                        <div className="flex items-center gap-2">
-                                            Jenis Iuran
-                                            <ChevronsUpDown className="h-4 w-4 text-gray-400" />
-                                        </div>
-                                    </th>
-
-                                    <th className="p-3 font-semibold text-gray-700">
-                                        <div className="flex items-center gap-2">
-                                            Tanggal
-                                            <ChevronsUpDown className="h-4 w-4 text-gray-400" />
-                                        </div>
-                                    </th>
-
-                                    <th className="p-3 font-semibold text-gray-700">
-                                        <div className="flex items-center gap-2">
-                                            Bukti
-                                            <ChevronsUpDown className="h-4 w-4 text-gray-400" />
-                                        </div>
-                                    </th>
-
-                                    <th className="p-3 font-semibold text-gray-700">
-                                        <div className="flex items-center gap-2">
-                                            Status
-                                            <ChevronsUpDown className="h-4 w-4 text-gray-400" />
-                                        </div>
-                                    </th>
+                                    {[
+                                        "No",
+                                        "Nama",
+                                        "Jenis Iuran",
+                                        "Tanggal",
+                                        "Bukti",
+                                        "Status",
+                                    ].map((label, idx) => (
+                                        <th
+                                            key={idx}
+                                            className="p-3 font-semibold text-gray-700"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                {label}
+                                                {label !== "No" && (
+                                                    <ChevronsUpDown className="h-4 w-4 text-gray-400" />
+                                                )}
+                                            </div>
+                                        </th>
+                                    ))}
                                 </tr>
                             </thead>
 
-                            {/* BODY */}
                             <tbody>
                                 {rows.map((item, index) => {
                                     const approved = item.status === "approved";
@@ -133,17 +130,14 @@ export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
                                             key={item.id}
                                             className="hover:bg-gray-100 transition border-b"
                                         >
-                                            {/* No */}
                                             <td className="p-3">
                                                 {iurans.from + index}
                                             </td>
 
-                                            {/* Nama */}
                                             <td className="p-3">
                                                 {item.user?.nm_lengkap}
                                             </td>
 
-                                            {/* Jenis */}
                                             <td className="p-3">
                                                 {
                                                     item.pengumuman?.kat_iuran
@@ -151,14 +145,12 @@ export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
                                                 }
                                             </td>
 
-                                            {/* Tanggal */}
                                             <td className="p-3">
                                                 {new Date(
                                                     item.tgl
                                                 ).toLocaleDateString("id-ID")}
                                             </td>
 
-                                            {/* Bukti */}
                                             <td className="p-3">
                                                 <button
                                                     className="text-blue-600 underline"
@@ -174,21 +166,16 @@ export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
                                                 </button>
                                             </td>
 
-                                            {/* STATUS — sesuai gambar */}
                                             <td className="p-3">
-                                                {approved && (
+                                                {approved ? (
                                                     <Badge className="bg-emerald-50 text-emerald-700 px-3 py-1">
                                                         Disetujui
                                                     </Badge>
-                                                )}
-
-                                                {rejected && (
+                                                ) : rejected ? (
                                                     <Badge className="bg-red-50 text-red-700 px-3 py-1">
                                                         Ditolak
                                                     </Badge>
-                                                )}
-
-                                                {!approved && !rejected && (
+                                                ) : (
                                                     <div className="flex gap-2">
                                                         <Button
                                                             size="sm"
@@ -224,26 +211,45 @@ export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
                             </tbody>
                         </table>
 
-                        {/* PAGINATION */}
-                        <div className="flex justify-end items-center gap-2 mt-6 px-4 pb-4">
-                            {iurans.links.map((link, i) => (
-                                <Link
-                                    key={i}
-                                    href={link.url ?? "#"}
-                                    dangerouslySetInnerHTML={{
-                                        __html: link.label,
-                                    }}
-                                    className={`px-3 py-1 rounded text-sm border ${
-                                        link.active
-                                            ? "bg-blue-500 text-white border-blue-500"
-                                            : "bg-white text-blue-600 hover:bg-blue-50"
-                                    } ${
-                                        !link.url &&
-                                        "opacity-40 cursor-not-allowed"
-                                    }`}
-                                />
-                            ))}
-                        </div>
+                        {totalPages > 1 && (
+                            <div className="flex justify-end items-center gap-2 mt-6 px-2 pb-4">
+                                {/* PREV */}
+                                <Button
+                                    variant="outline"
+                                    disabled={currentPage === 1}
+                                    onClick={() => goToPage(currentPage - 1)}
+                                >
+                                    <ChevronLeft className="h-4 w-4" />
+                                </Button>
+
+                                {/* NUMBERS */}
+                                {Array.from(
+                                    { length: totalPages },
+                                    (_, i) => i + 1
+                                ).map((num) => (
+                                    <Button
+                                        key={num}
+                                        onClick={() => goToPage(num)}
+                                        className={`${
+                                            num === currentPage
+                                                ? "bg-blue-500 text-white"
+                                                : "bg-white border text-blue-500"
+                                        } hover:bg-blue-300 transition`}
+                                    >
+                                        {num}
+                                    </Button>
+                                ))}
+
+                                {/* NEXT */}
+                                <Button
+                                    variant="outline"
+                                    disabled={currentPage === totalPages}
+                                    onClick={() => goToPage(currentPage + 1)}
+                                >
+                                    <ChevronRight className="h-4 w-4" />
+                                </Button>
+                            </div>
+                        )}
                     </div>
                 </div>
 
