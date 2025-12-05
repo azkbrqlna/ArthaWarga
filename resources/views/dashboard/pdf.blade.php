@@ -12,13 +12,35 @@
         .header-rtrw { font-size: 14px; font-weight: bold; margin-top: 5px; }
         hr.separator { border: 0; border-bottom: 3px solid #000; margin-top: 10px; margin-bottom: 2px; }
         hr.separator-thin { border: 0; border-bottom: 1px solid #000; margin-bottom: 15px; }
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; table-layout: fixed; }
-        th, td { border: 1px solid #000; padding: 6px 8px; vertical-align: top; word-wrap: break-word; }
-        th { background: #f0f0f0; font-weight: bold; text-align: center; font-size: 11px; }
-        td { font-size: 10px; }
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 10px; 
+            table-layout: fixed; 
+        }
+
+        th, td { 
+            border: 1px solid #000; 
+            vertical-align: middle; /* Ubah ke middle agar lebih rapi vertikalnya */
+            word-wrap: break-word; 
+        }
+
+        /* PENTING: Update di sini */
+        th { 
+            background: #f0f0f0; 
+            font-weight: bold; 
+            text-align: center; 
+            font-size: 10px; /* Perkecil sedikit dari 11px ke 10px */
+            padding: 4px 2px; /* Kurangi padding kiri-kanan agar teks punya ruang */
+        }
+
+        td { 
+            font-size: 10px; 
+            padding: 4px 4px; 
+        }
         .text-right { text-align: right; }
         .text-center { text-align: center; }
-        img.note { width: 80px; height: auto; display: block; margin: 0 auto; border: 1px solid #ccc; }
+        img.note { width: 90%; height: auto; display: block; margin: 0 auto; border: 1px solid #ccc; }
         .meta-info { margin-bottom: 10px; font-size: 11px; }
     </style>
 </head>
@@ -74,7 +96,9 @@
         <table style="width: 100%; border: none;">
             <tr>
                 <td style="width: 160px; border: none; padding: 2px 0;">TANGGAL CETAK</td>
-                <td style="border: none; padding: 2px 0; font-weight: normal;">: {{ \Carbon\Carbon::now()->format('d-m-Y H:i:s') }}</td>
+                <td style="border: none; padding: 2px 0; font-weight: normal;">
+                    : {{ \Carbon\Carbon::now('Asia/Jakarta')->locale('id')->isoFormat('D MMMM Y, H:mm') }}
+                </td>
             </tr>
             <tr>
                 <td style="border: none; padding: 2px 0;">DICETAK OLEH</td>
@@ -106,14 +130,20 @@
     <table style="margin-top: 5px;"> 
         <thead>
             <tr>
-                <th style="width: 12%;">Tanggal</th>
-                <th style="width: 10%;">Kategori</th>
+                <th style="width: 10%;">Tanggal</th>
+                
+                <th style="width: 12%;">Kategori</th>
+                
                 <th style="width: 13%;">Jumlah Awal</th>
+                
                 <th style="width: 12%;">Pemasukan</th>
                 <th style="width: 12%;">Pengeluaran</th>
+                
                 <th style="width: 13%;">Saldo Akhir</th>
-                <th style="width: 15%;">Keterangan</th>
-                <th style="width: 13%;">Bukti Nota</th>
+                
+                <th style="width: 18%;">Keterangan</th>
+                
+                <th style="width: 10%;">Bukti Nota</th>
             </tr>
         </thead>
         <tbody>

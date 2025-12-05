@@ -15,6 +15,7 @@ use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\SpjController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SuperadminController;
 use Inertia\Inertia;
 
 // --- Rute untuk API Documentation Password Protection ---
