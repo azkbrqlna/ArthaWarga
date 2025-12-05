@@ -7,6 +7,10 @@ import {
     WalletIcon,
     Inbox,
     Grid2x2Plus,
+    ClipboardCheck,
+    Wallet,
+    CalendarDays,
+    PieChart,
 } from "lucide-react";
 import {
     Sidebar,
@@ -44,7 +48,8 @@ export default function AppLayout({ children }) {
         displayName
     )}`;
 
-    // 🔹 menu untuk user role 5 (misal: warga)
+    // 🔹 menu untuk user role 5 (Warga)
+    // "Iuran Warga" / "Bayar Iuran" ada di sini
     const wargaItems = [
         {
             title: "Ringkasan Keuangan",
@@ -54,15 +59,29 @@ export default function AppLayout({ children }) {
         { title: "Iuran Warga", url: "/masuk-iuran", icon: WalletIcon },
     ];
 
-    // 🔹 menu normal untuk non-admin
+    // 🔹 menu normal untuk non-admin dan non-warga (misal: Pengurus RT)
+    // HAPUS "Bayar Iuran" dari sini jika Pengurus RT tidak perlu menu ini di sidebar mereka
     const defaultItems = [
         {
             title: "Ringkasan Keuangan",
             url: "/dashboard",
             icon: LayoutTemplate,
         },
-        { title: "Kegiatan", url: "/kegiatan", icon: SquareCheckBig },
-        { title: "Approval", url: "/approval", icon: SquareCheckBig },
+        {
+            title: "Kegiatan",
+            url: "/kegiatan",
+            icon: CalendarDays,
+        },
+        {
+            title: "Approval",
+            url: "/approval",
+            icon: ClipboardCheck,
+        },
+        // {
+        //     title: "Bayar Iuran",  <-- INI DIHAPUS DARI DEFAULT
+        //     url: "/masuk-iuran",
+        //     icon: Wallet,
+        // },
     ];
 
     const adminItems = [
@@ -77,6 +96,7 @@ export default function AppLayout({ children }) {
     } else if (auth?.user?.role_id === 5) {
         items = wargaItems;
     } else {
+        // Ini akan dipakai oleh role 2, 3, 4 (Pengurus RT, dll)
         items = defaultItems;
     }
 
@@ -142,7 +162,6 @@ export default function AppLayout({ children }) {
                             </SidebarGroup>
                         </div>
 
-                        {/* Profil + Logout */}
                         {/* Profil + Logout */}
                         <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
                             {/* 🔗 Klik avatar atau nama = ke halaman profil */}

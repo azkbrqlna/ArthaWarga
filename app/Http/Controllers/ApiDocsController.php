@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 
 class ApiDocsController extends Controller
 {
@@ -25,7 +26,8 @@ class ApiDocsController extends Controller
             $request->session()->put('api_docs_access', true);
 
             // Redirect pengguna kembali ke halaman dokumentasi Scramble
-            return redirect()->route('scramble.docs.index'); // Atau rute dokumentasi Scramble yang benar
+            // DIGANTI: 'scramble.docs.index' -> 'scramble.docs.ui'
+            return redirect()->route('scramble.docs.ui'); 
         }
 
         // Jika salah, kembalikan dengan pesan error

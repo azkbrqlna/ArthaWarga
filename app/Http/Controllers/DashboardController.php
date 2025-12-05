@@ -230,7 +230,7 @@ class DashboardController extends Controller
             ]);
 
         $bopKeluar = Pengeluaran::where('tipe', 'bop')
-            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
+            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at', 'toko')
             ->get()
             ->map(fn($row) => [
                 'id' => 'bop-out-'.$row->id,
@@ -242,6 +242,7 @@ class DashboardController extends Controller
                 'nominal' => $row->nominal,
                 'ket' => $row->ket,
                 'bkt_nota' => $row->bkt_nota,
+                'toko' => $row->toko,
             ]);
 
         $iuranMasuk = PemasukanIuran::where('status', 'approved')
@@ -260,7 +261,7 @@ class DashboardController extends Controller
             ]);
 
         $iuranKeluar = Pengeluaran::where('tipe', 'iuran')
-            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
+            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at', 'toko')
             ->get()
             ->map(fn($row) => [
                 'id' => 'iuran-out-'.$row->id,
@@ -272,6 +273,7 @@ class DashboardController extends Controller
                 'nominal' => $row->nominal,
                 'ket' => $row->ket,
                 'bkt_nota' => $row->bkt_nota,
+                'toko' => $row->toko,
             ]);
 
         $timeline = collect()
@@ -355,6 +357,10 @@ class DashboardController extends Controller
         $rincian['created_at'] = $rincian['created_at']
             ? \Carbon\Carbon::parse($rincian['created_at'])->format('Y-m-d H:i:s')
             : null;
+        
+        if (!isset($rincian['toko'])) {
+            $rincian['toko'] = '-';
+        }
 
         $pemasukanBop = 0;
         $pemasukanIuran = 0;
@@ -378,8 +384,6 @@ class DashboardController extends Controller
 
         return Inertia::render('Ringkasan/Rincian', [
             'rincian' => $rincian,
-            'pemasukanBOP' => $pemasukanBop,
-            'pemasukanIuran' => $pemasukanIuran,
             'pemasukanBOP' => $pemasukanBop,
             'pemasukanIuran' => $pemasukanIuran,
         ]);

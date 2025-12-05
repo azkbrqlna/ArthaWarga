@@ -11,8 +11,8 @@ use App\Http\Controllers\MasukIuranController;
 use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\PengumumanController;
 use App\Http\Controllers\ProfileWargaController;
-use App\Http\Controllers\SuperadminController;
 use App\Http\Controllers\ApiDocsController;
+use App\Http\Controllers\SpjController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
 use Inertia\Inertia;
@@ -68,6 +68,7 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/approval', [PengumumanController::class, 'approval'])->name('approval');
     Route::patch('/approval/{id}', [PengumumanController::class, 'approval_patch'])->name('approval.patch');
 
+    Route::get('/spj/download/{id}', [SpjController::class, 'download'])->name('spj.download');
 
     Route::get('/manajemen-data', [SuperadminController::class, 'users'])->name('superadmin.users');
     Route::get('/tambah-data', [SuperadminController::class, 'createUser'])->name('superadmin.createUser');
@@ -75,6 +76,9 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/manajemen-data/{id}/edit', [SuperadminController::class, 'editUser'])->name('superadmin.editUser');
     Route::put('/manajemen-data/{id}', [SuperadminController::class, 'update'])->name('superadmin.updateUser');
     Route::delete('/manajemen-data/{id}', [SuperadminController::class, 'deleteUser'])->name('superadmin.deleteUser');
-    //DOWNLOADER
+});
+
+// --- TARUH DI SINI (DILUAR GROUP role.access) ---
+Route::middleware(['auth'])->group(function () {
     Route::get('/download/pdf', [DownloaderController::class, 'download'])->name('download.pdf');
 });

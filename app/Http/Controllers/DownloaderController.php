@@ -15,63 +15,48 @@ class DownloaderController extends Controller
 {
     public function download(Request $request)
     {
-        // 1. Ambil User Login
-        $user = Auth::user();
+        // 1. Ambil User Login DENGAN RELASI WILAYAH
+        // Pastikan model User sudah berelasi: User -> Kelurahan -> Kecamatan -> Kota
+        $user = Auth::user()->load(['kelurahan.kecamatan.kota']);
 
         // 2. Ambil Input Filter
         $month = $request->input('month');
         $year = $request->input('year');
 
-        // --- FIX LOGIKA: Jika Bulan dipilih tapi Tahun kosong, paksa pakai Tahun Sekarang ---
-        if ($month && empty($year)) {
+        // Patch: Jika Tahun kosong, pakai tahun sekarang
+        if (empty($year)) {
             $year = Carbon::now()->year;
         }
-        // ----------------------------------------------------------------------------------
 
         // 3. Tentukan Rentang Tanggal & Label Periode
         $startDate = null;
         $endDate = null;
-        $periodeLabel = '-'; 
+        $periodeLabel = '-';
 
-        if ($month && $year) {
-            // KONDISI 1: Filter Bulan & Tahun (Contoh: November 2025)
+        if ($month) {
             $dateObj = Carbon::createFromDate($year, $month, 1);
             $startDate = $dateObj->copy()->startOfMonth()->format('Y-m-d');
             $endDate = $dateObj->copy()->endOfMonth()->format('Y-m-d');
             
-            // Set locale ID agar nama bulan Indonesia
             Carbon::setLocale('id');
             $periodeLabel = $dateObj->translatedFormat('F Y'); 
-
-        } elseif ($year) {
-            // KONDISI 2: Filter Hanya Tahun (Contoh: Tahun 2025)
+        } else {
             $dateObj = Carbon::createFromDate($year, 1, 1);
             $startDate = $dateObj->copy()->startOfYear()->format('Y-m-d');
             $endDate = $dateObj->copy()->endOfYear()->format('Y-m-d');
             
             $periodeLabel = 'Tahun ' . $year;
-
-        } else {
-            // KONDISI 3 (DEFAULT): Tidak ada filter -> Ambil Tahun Sekarang
-            $currentYear = Carbon::now()->year;
-            $dateObj = Carbon::createFromDate($currentYear, 1, 1);
-            
-            $startDate = $dateObj->copy()->startOfYear()->format('Y-m-d');
-            $endDate = $dateObj->copy()->endOfYear()->format('Y-m-d');
-            
-            $periodeLabel = 'Tahun ' . $currentYear; 
         }
 
         // Fallback gambar
-        $localFallbackImage = '/mnt/data/ba72f112-b167-451f-9039-37dcbff58c73.png';
+        $localFallbackImage = null; 
 
         // Helper filter query
         $applyFilter = function($query) use ($startDate, $endDate) {
             return $query->whereBetween('tgl', [$startDate, $endDate]);
         };
 
-        // --- 4. QUERY DATA ---
-
+        // --- QUERY DATA ---
         // A. BOP Masuk
         $queryBopMasuk = PemasukanBOP::select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at');
         $bopMasuk = $applyFilter($queryBopMasuk)->get()->map(function ($row) use ($localFallbackImage) {
@@ -96,7 +81,7 @@ class DownloaderController extends Controller
             return $this->mapData($row, 'iuran', 'keluar', $localFallbackImage);
         });
 
-        // --- 5. HITUNG SALDO AWAL ---
+        // --- HITUNG SALDO AWAL ---
         $saldoBop = 0;
         $saldoIuran = 0;
 
@@ -108,12 +93,10 @@ class DownloaderController extends Controller
                 - Pengeluaran::where('tipe', 'iuran')->where('tgl', '<', $startDate)->sum('nominal');
         }
 
-        // --- 6. GABUNGKAN DATA ---
+        // --- GABUNG DATA ---
         $timeline = collect()
-            ->concat($bopMasuk)
-            ->concat($bopKeluar)
-            ->concat($iuranMasuk)
-            ->concat($iuranKeluar)
+            ->concat($bopMasuk)->concat($bopKeluar)
+            ->concat($iuranMasuk)->concat($iuranKeluar)
             ->sortBy(fn($item) => $item['tgl'] . '-' . ($item['created_at'] ?? ''))
             ->values();
 
@@ -125,11 +108,13 @@ class DownloaderController extends Controller
             
             $jumlah_awal = $currentSaldo;
             $jumlah_digunakan = 0;
+            $jumlah_pemasukan_row = 0;
 
             if ($row['arah'] === 'masuk') {
                 $jumlah_sisa = $jumlah_awal + $row['nominal'];
                 $currentSaldo = $jumlah_sisa; 
                 $status = 'Pemasukan';
+                $jumlah_pemasukan_row = $row['nominal'];
             } else {
                 $jumlah_digunakan = $row['nominal'];
                 $jumlah_sisa = $jumlah_awal - $row['nominal'];
@@ -164,10 +149,11 @@ class DownloaderController extends Controller
             'transaksi' => $final,
             'selectedDate' => $startDate, 
             'periodeLabel' => $periodeLabel,
-            'user' => $user,
+            'user' => $user, // User sudah memuat data kelurahan->kecamatan->kota
         ]);
 
-        $filename = 'Laporan_' . str_replace([' ', '/'], '_', $periodeLabel) . '.pdf';
+        $cleanLabel = str_replace([' ', '/', '\\'], '_', $periodeLabel);
+        $filename = 'Laporan_' . $cleanLabel . '.pdf';
 
         return $pdf->download($filename);
     }
@@ -181,7 +167,7 @@ class DownloaderController extends Controller
             $bktNotaPath = Storage::disk('public')->path($bktNota);
         } elseif (!empty($bktNota) && filter_var($bktNota, FILTER_VALIDATE_URL)) {
             $bktNotaPath = $bktNota;
-        } elseif (file_exists($fallbackImage)) {
+        } elseif ($fallbackImage && file_exists($fallbackImage)) {
             $bktNotaPath = $fallbackImage;
         }
 

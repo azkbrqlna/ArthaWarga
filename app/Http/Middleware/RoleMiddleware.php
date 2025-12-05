@@ -23,18 +23,36 @@ class RoleMiddleware
         $role = $user->role_id; // pastikan kolom ini ada di tabel users
 
         $access = [
-            1 => ['dashboard', 'profil.index', 'profile.update', 'superadmin.users', 'superadmin.createUser', 'superadmin.storeUser', 'superadmin.editUser', 'superadmin.updateUser', 'superadmin.deleteUser'], // superadmin
-            2 => ['*'], // ketua rt
+            1 => ['dashboard', 'profil.index', 'profile.update'], // superadmin
+            2 => [ // ketua rt
+            'dashboard',
+            'pemasukan.index',
+            'kat_iuran.create',
+            'kat_iuran.delete',
+            'kegiatan.create',
+            'kegiatan.store',
+            'kegiatan.index',
+            'bop.create',
+            'iuran.create',
+            'pengumuman',
+            'pengumuman.create',
+            'pengeluaran',
+            'pengeluaran.store',
+            'rincian.show',
+            'profil.index',
+            'profil.update',
+            'approval',
+            'approval.patch'],
             3 => ['dashboard', 'pemasukan.index', 'pengeluaran', 'rincian.show', "pengumuman",'profil.index', 'profile.update', 'bop.create', 'iuran.create', 'kat_iuran.create', 'kat_iuran.delete', 'pengumuman.create', 'pengeluaran.store'],
             4 => ['dashboard', 'kegiatan.create','kegiatan.store','kegiatan.index', 'rincian.show', "pengumuman",'profil.index', 'profile.update'],  
-            5 => ['dashboard','rincian.show', 'profil.index', 'profile.update','masuk-iuran.index', 'masuk-iuran.show', 'masuk-iuran.store'], // warga
+            5 => ['dashboard','rincian.show', 'profil.index', 'profile.update','masuk-iuran.index', 'masuk-iuran.show', 'masuk-iuran.store'], 
         ];
 
         $routeName = $request->route()->getName();
 
-        if (!in_array('*', $access[$role]) && !in_array($routeName, $access[$role])) {
-            return redirect('/dashboard');
-        }
+        if (!in_array($routeName, $access[$role])) {
+        return redirect('/dashboard');
+    }
 
         return $next($request);
     }
