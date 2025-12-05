@@ -4,6 +4,7 @@ import {
     Menu,
     LogOut,
     Database,
+    WalletIcon,
     Inbox,
     Grid2x2Plus,
     ClipboardCheck,
@@ -47,6 +48,19 @@ export default function AppLayout({ children }) {
         displayName
     )}`;
 
+    // 🔹 menu untuk user role 5 (Warga)
+    // "Iuran Warga" / "Bayar Iuran" ada di sini
+    const wargaItems = [
+        {
+            title: "Ringkasan Keuangan",
+            url: "/dashboard",
+            icon: LayoutTemplate,
+        },
+        { title: "Iuran Warga", url: "/masuk-iuran", icon: WalletIcon },
+    ];
+
+    // 🔹 menu normal untuk non-admin dan non-warga (misal: Pengurus RT)
+    // HAPUS "Bayar Iuran" dari sini jika Pengurus RT tidak perlu menu ini di sidebar mereka
     const defaultItems = [
         {
             title: "Ringkasan Keuangan",
@@ -63,11 +77,11 @@ export default function AppLayout({ children }) {
             url: "/approval",
             icon: ClipboardCheck,
         },
-        {
-            title: "Bayar Iuran",
-            url: "/masuk-iuran",
-            icon: Wallet,
-        },
+        // {
+        //     title: "Bayar Iuran",  <-- INI DIHAPUS DARI DEFAULT
+        //     url: "/masuk-iuran",
+        //     icon: Wallet,
+        // },
     ];
 
     const adminItems = [
@@ -76,7 +90,15 @@ export default function AppLayout({ children }) {
     ];
 
     // 🔹 pilih menu berdasarkan role
-    const items = auth?.user?.role_id === 1 ? adminItems : defaultItems;
+    let items;
+    if (auth?.user?.role_id === 1) {
+        items = adminItems;
+    } else if (auth?.user?.role_id === 5) {
+        items = wargaItems;
+    } else {
+        // Ini akan dipakai oleh role 2, 3, 4 (Pengurus RT, dll)
+        items = defaultItems;
+    }
 
     return (
         <SidebarProvider>
@@ -141,7 +163,6 @@ export default function AppLayout({ children }) {
                         </div>
 
                         {/* Profil + Logout */}
-                        {/* Profil + Logout */}
                         <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
                             {/* 🔗 Klik avatar atau nama = ke halaman profil */}
                             <Link
@@ -157,7 +178,7 @@ export default function AppLayout({ children }) {
                                     <p className="text-xs text-gray-600">
                                         Welcome back 👋
                                     </p>
-                                    <p className="font-medium text-sm text-gray-900">
+                                    <p className="font-medium text-sm">
                                         {displayName}
                                     </p>
                                 </div>
