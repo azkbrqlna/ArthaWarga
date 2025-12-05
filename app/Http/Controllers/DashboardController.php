@@ -57,7 +57,6 @@ class DashboardController extends Controller
         });
 
     // 3️⃣ AMBIL DATA IURAN MASUK (APPROVED)
-    // 🔥 PERBAIKAN: Filter tanggal pengumuman dihapus agar SEMUA iuran yang masuk tampil
     $iuranMasuk = PemasukanIuran::where('status', 'approved')
             ->when($selectedDate, function ($query, $selectedDate) {
                 return $query->whereDate('tgl', $selectedDate);
@@ -75,7 +74,7 @@ class DashboardController extends Controller
                     'arah' => 'masuk',
                     'nominal' => $row->nominal,
                     'ket' => $row->ket,
-                    'bkt_nota' => null, // Tambahkan ini agar seragam dengan struktur array lain
+                    'bkt_nota' => null, 
                 ];
             });
     $iuranKeluar = Pengeluaran::where('tipe', 'iuran')
