@@ -7,16 +7,29 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class KategoriIuran extends Model
 {
-    protected $table = 'kat_iuran';
-    protected $fillable = ['nm_kat'];
+    use HasFactory;
 
+    protected $table = 'kat_iuran';
+    
+    protected $fillable = [
+        'nm_kat', 
+        'harga_meteran', 
+        'abonemen',      
+        'jimpitan_air',  
+        'harga_sampah'   
+    ];
+
+    
     public function tagihan_bulanan()
     {
-        return $this->hasMany(TagihanBulanan::class);
+        
+        return $this->hasMany(TagihanBulanan::class, 'kat_iuran_id', 'id');
     }
 
+    
     public function masuk_iuran() 
     {
-        return $this->hasMany(PemasukanIuran::class);
+        
+        return $this->hasMany(PemasukanIuran::class, 'kat_iuran_id', 'id');
     }
 }
