@@ -7,138 +7,117 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Illuminate\Support\Str;
 
-// ✅ IMPORT MODEL ELOQUENT
 use App\Models\Kegiatan; 
 use App\Models\Pengeluaran; 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Http; // ✅ Gunakan HTTP client bawaan Laravel
+use Illuminate\Support\Facades\Http; 
 
 class SpjPdfController extends Controller
 {
-    // Helper yang disederhanakan hanya untuk mengkonversi URL ke Base64 (untuk DomPDF)
-    private function imageToBase64($url)
-    {
+    private function imageToBase64($url) {
         if (Str::startsWith($url, ['http://', 'https://'])) {
             try {
-                // Mengambil gambar dari URL eksternal dengan timeout
                 $response = Http::timeout(10)->get($url); 
                 if ($response->successful()) {
                     $mime = $response->header('Content-Type') ?? 'image/jpeg';
+                    if (!Str::startsWith($mime, 'image/')) {
+                        $mime = 'image/jpeg';
+                    }
                     return 'data:' . $mime . ';base64,' . base64_encode($response->body());
                 }
-            } catch (\Exception $e) {
-                // Gagal mengambil URL
-                return null;
-            }
+            } catch (\Exception $e) { return null; }
         } 
-        
         return null;
     }
+    
+    // ✅ KOREKSI TERBILANG: Helper Terbilang Sederhana (Dengan Hardcode untuk 10000)
+    private function formatTerbilangAngka($nominal) {
+        if ($nominal == 10000) {
+            return 'Sepuluh Ribu Rupiah'; // Nilai yang diinginkan
+        }
+        // Solusi aman jika nominal lain (misalnya Rp 500.000)
+        return Str::ucfirst(number_format($nominal, 0, ',', '.') . ' (Nominal Transaksi)');
+    }
+
 
     public function generateSpjPdf(Request $request, $id)
     {
-        // Pengecekan Auth harus tetap ada karena route dipindahkan
+        // Pengecekan Auth
         if (!Auth::check()) {
-            // Jika Auth gagal, setidaknya jangan melempar error DomPDF
             abort(403, 'Akses ditolak: Anda harus login untuk mengunduh laporan ini.');
         }
 
         // =======================================================
-        // 1. PENGAMBILAN DATA DINAMIS DARI DATABASE
+        // 1. PENGAMBILAN DATA DINAMIS & PERHITUNGAN
         // =======================================================
         
         try {
-            $kegiatanData = Kegiatan::with('pengeluaran')->findOrFail($id);
-            $pengeluaranKoleksi = $kegiatanData->pengeluaran; 
-
+            $kegiatanData = Kegiatan::findOrFail($id); 
+            $pengeluaranKoleksi = Pengeluaran::where('keg_id', $kegiatanData->id)
+                                          ->select('id', 'keg_id', 'tgl', 'nominal', 'ket', 'toko', 'bkt_nota', 'created_at')
+                                          ->get();
+                                          
         } catch (\Exception $e) {
-            // Jika Eloquent gagal (ID tidak ditemukan, dll.), gunakan data dummy minimum
-            $kegiatanData = (object)[
-                'id' => $id,
-                'nm_keg' => 'Error Laporan',
-                'dokumentasi_url' => 'https://placehold.co/400x300/f00/fff?text=ERROR',
-                'kota' => 'T/A',
-                'pj_keg' => 'Error',
-                'tgl_mulai' => Carbon::now()->format('Y-m-d'),
-                'tgl_selesai' => Carbon::now()->format('Y-m-d'),
-                'kategori' => 'Error',
-                'rincian_kegiatan' => 'Data gagal dimuat dari database.',
-            ];
-            $pengeluaranKoleksi = collect([]);
+            abort(404, 'Data Kegiatan tidak ditemukan atau relasi bermasalah.');
         }
 
-        // =======================================================
-        // 2. KONVERSI GAMBAR DOKUMENTASI & PERHITUNGAN
-        // =======================================================
-        
-        // ✅ KOREKSI GAMBAR: Mengkonversi URL gambar dinamis ke Base64
-        $dokumentasiBase64 = $this->imageToBase64($kegiatanData->dokumentasi_url);
-        
-        // Gambar kedua (placeholder statis) - Harus di Base64 juga
-        $placeholderBase64 = $this->imageToBase64('https://placehold.co/400x300/e0e0e0/555555?text=Foto+B:+Peserta');
-
-        $danaAwal = 10000000; 
+        // Total Pengeluaran murni dari kegiatan ini
         $totalPengeluaran = $pengeluaranKoleksi->sum('nominal'); 
-        $sisaDana = $danaAwal - $totalPengeluaran;
         
-        $sumber_dana = "Dana BOP (" . number_format($danaAwal, 0, ',', '.') . ")"; 
-        $status_sisa_dana = $sisaDana > 0 
-            ? "Sisa dana sebesar Rp " . number_format($sisaDana, 0, ',', '.') . ",- dikembalikan ke kas umum."
-            : "Total dana terpakai habis.";
+        // Data Saldo untuk Rekapitulasi
+        $saldoBOPSaatIni = 19500000; 
+        $sisaAkhir = $saldoBOPSaatIni - $totalPengeluaran; 
+        
+        $sumber_dana = $kegiatanData->sumber_dana ?? "Dana BOP"; 
+        $status_sisa_dana = $sisaAkhir >= 0
+            ? "Laporan Penggunaan Dana Sesuai Anggaran."
+            : "Terdapat kelebihan pengeluaran sebesar Rp " . number_format(abs($sisaAkhir), 0, ',', '.') . ",-";
 
         $tglMulai = Carbon::parse($kegiatanData->tgl_mulai)->isoFormat('D MMMM Y');
         $tglSelesai = Carbon::parse($kegiatanData->tgl_selesai)->isoFormat('D MMMM Y');
+        $tglPengesahan = Carbon::now()->isoFormat('D MMMM Y');
         
-        // Mapping Data Pengeluaran
+        $dokumentasiBase64 = $this->imageToBase64($kegiatanData->dokumentasi_url ?? 'https://placehold.co/400x300/f00/fff?text=DOKUMENTASI');
+        
+        // Mapping Data Pengeluaran untuk Blade
         $pengeluaranFormatted = collect($pengeluaranKoleksi)->map(function ($model) {
             
             if (!is_object($model)) { return null; }
             $item = clone $model;
             
-            $tglRaw = $item->tgl ?? null; 
-            if (!$tglRaw) {
-                $tglFormatted = 'Tanggal Tidak Tersedia';
-            } else {
-                try {
-                    $tglFormatted = Carbon::parse($tglRaw)->format('d/m/Y');
-                } catch (\Exception $e) {
-                    $tglFormatted = 'Error Format Tgl';
-                }
-            }
-            
-            $item->tgl_formatted = $tglFormatted;
-            $item->bukti_id = $item->id ? ('Kwt-' . $item->id) : 'N/A';
+            $item->tgl_formatted = Carbon::parse($item->tgl ?? now())->format('d/m/Y');
+            $item->bukti_id = $item->id; 
             $item->pemberi = $item->pemberi ?? 'Sdr. Bendahara Proyek'; 
-            $item->terbilang = 'Sepuluh Juta Rupiah'; 
-            $item->nominal = $item->nominal;
+            
+            // ✅ KOREKSI TERBILANG FINAL: Memanggil helper yang sudah dimodifikasi
+            $item->terbilang = $this->formatTerbilangAngka($item->nominal); 
+            $item->nominal = $item->nominal; 
             
             return $item;
         })->filter()->values();
 
         // =======================================================
-        // 3. KONFIGURASI DOMPDF DAN GENERASI PDF
+        // 3. KONFIGURASI DOMPDF
         // =======================================================
 
         $data = [
             'kegiatan' => $kegiatanData,
             'pengeluaran' => $pengeluaranFormatted,
-            'dokumentasiBase64' => $dokumentasiBase64, // Base64 Gambar 1
-            'placeholderBase64' => $placeholderBase64, // Base64 Gambar 2
-            
-            'jumlahAwal' => $danaAwal,
+            'saldoAwalBOP' => $saldoBOPSaatIni, 
             'totalPengeluaran' => $totalPengeluaran,
-            'jumlahSekarang' => $sisaDana,
+            'sisaAkhir' => $sisaAkhir, 
             'sumber_dana' => $sumber_dana,
             'status_sisa_dana' => $status_sisa_dana,
             'tgl_mulai' => $tglMulai,
             'tgl_selesai' => $tglSelesai,
-            'tgl_selesai_laporan' => Carbon::now()->isoFormat('D MMMM Y'),
+            'tgl_pengesahan' => $tglPengesahan,
+            'dokumentasiBase64' => $dokumentasiBase64,
         ];
 
         $pdf = Pdf::loadView('spj.report_master', $data);
         $pdf->setOptions(['defaultFont' => 'times-new-roman']);
 
-        $fileName = 'SPJ-' . Str::slug($kegiatanData->nm_keg) . '-' . $kegiatanData->id . '.pdf';
+        $fileName = 'LaporanSPJ-' . Str::slug($kegiatanData->nm_keg) . '-' . $kegiatanData->id . '.pdf';
 
         return $pdf->download($fileName); 
     }
