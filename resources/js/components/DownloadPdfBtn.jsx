@@ -2,11 +2,17 @@ import React from "react";
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 
-export default function DownloadPdfBtn({ date }) {
+export default function DownloadPdfBtn({ month, year }) {
     const handleDownload = () => {
-        const url = route("download.pdf", { date: date || "" });
+        // Mengirim parameter month & year ke route Laravel
+        // Ziggy (route helper) akan otomatis mengubahnya menjadi query string:
+        // Contoh: /download-pdf?month=12&year=2025
+        const url = route("download.pdf", {
+            month: month || "",
+            year: year || "",
+        });
 
-        // download manual via browser
+        // Download manual via browser (tab baru)
         window.open(url, "_blank");
     };
 

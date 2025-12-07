@@ -7,242 +7,180 @@ use App\Models\Pengeluaran;
 use App\Models\PemasukanIuran;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
-use Barryvdh\DomPDF\Facade\Pdf; // pastikan package terpasang
-use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 
 class DownloaderController extends Controller
 {
-    /**
-     * Download dashboard transactions as PDF.
-     *
-     * Request params:
-     *  - date (optional) : filter by date (YYYY-MM-DD)
-     */
     public function download(Request $request)
     {
-        $selectedDate = $request->input('date');
+        // 1. Ambil User Login DENGAN RELASI WILAYAH
+        // Pastikan model User sudah berelasi: User -> Kelurahan -> Kecamatan -> Kota
+        $user = Auth::user()->load(['kelurahan.kecamatan.kota']);
 
-        // fallback lokal contoh (dari session/hisotry kamu)
-        $localFallbackImage = '/mnt/data/ba72f112-b167-451f-9039-37dcbff58c73.png';
+        // 2. Ambil Input Filter
+        $month = $request->input('month');
+        $year = $request->input('year');
 
-        // Ambil BOP masuk
-        $bopMasuk = PemasukanBOP::select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
-            ->when($selectedDate, function ($q) use ($selectedDate) {
-                return $q->whereDate('tgl', $selectedDate);
-            })
-            ->get()
-            ->map(function ($row) use ($localFallbackImage) {
-                $bktNota = $row->bkt_nota;
+        // Patch: Jika Tahun kosong, pakai tahun sekarang
+        if (empty($year)) {
+            $year = Carbon::now()->year;
+        }
 
-                // jika disimpan di storage/public
-                if (!empty($bktNota) && Storage::disk('public')->exists($bktNota)) {
-                    // gunakan absolute path supaya dompdf dapat membacanya
-                    $bktNotaPath = Storage::disk('public')->path($bktNota);
-                } elseif (!empty($bktNota) && filter_var($bktNota, FILTER_VALIDATE_URL)) {
-                    // kalau sudah berupa URL
-                    $bktNotaPath = $bktNota;
-                } elseif (file_exists($localFallbackImage)) {
-                    // fallback lokal (contoh /mnt/data/...)
-                    $bktNotaPath = $localFallbackImage;
-                } else {
-                    $bktNotaPath = null;
-                }
+        // 3. Tentukan Rentang Tanggal & Label Periode
+        $startDate = null;
+        $endDate = null;
+        $periodeLabel = '-';
 
-                return [
-                    'id' => 'bop-in-'.$row->id,
-                    'real_id' => $row->id,
-                    'tgl' => $row->tgl,
-                    'created_at' => $row->created_at,
-                    'tipe_dana' => 'bop',
-                    'arah' => 'masuk',
-                    'nominal' => $row->nominal,
-                    'ket' => $row->ket,
-                    'bkt_nota' => $bktNotaPath,
-                ];
-            });
+        if ($month) {
+            $dateObj = Carbon::createFromDate($year, $month, 1);
+            $startDate = $dateObj->copy()->startOfMonth()->format('Y-m-d');
+            $endDate = $dateObj->copy()->endOfMonth()->format('Y-m-d');
+            
+            Carbon::setLocale('id');
+            $periodeLabel = $dateObj->translatedFormat('F Y'); 
+        } else {
+            $dateObj = Carbon::createFromDate($year, 1, 1);
+            $startDate = $dateObj->copy()->startOfYear()->format('Y-m-d');
+            $endDate = $dateObj->copy()->endOfYear()->format('Y-m-d');
+            
+            $periodeLabel = 'Tahun ' . $year;
+        }
 
-        // Ambil BOP keluar
-        $bopKeluar = Pengeluaran::where('tipe', 'bop')
-            ->when($selectedDate, function ($q) use ($selectedDate) {
-                return $q->whereDate('tgl', $selectedDate);
-            })
-            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
-            ->get()
-            ->map(function ($row) use ($localFallbackImage) {
-                $bktNota = $row->bkt_nota;
-                if (!empty($bktNota) && Storage::disk('public')->exists($bktNota)) {
-                    $bktNotaPath = Storage::disk('public')->path($bktNota);
-                } elseif (!empty($bktNota) && filter_var($bktNota, FILTER_VALIDATE_URL)) {
-                    $bktNotaPath = $bktNota;
-                } elseif (file_exists($localFallbackImage)) {
-                    $bktNotaPath = $localFallbackImage;
-                } else {
-                    $bktNotaPath = null;
-                }
+        // Fallback gambar
+        $localFallbackImage = null; 
 
-                return [
-                    'id' => 'bop-out-'.$row->id,
-                    'real_id' => $row->id,
-                    'tgl' => $row->tgl,
-                    'created_at' => $row->created_at,
-                    'tipe_dana' => 'bop',
-                    'arah' => 'keluar',
-                    'nominal' => $row->nominal,
-                    'ket' => $row->ket,
-                    'bkt_nota' => $bktNotaPath,
-                ];
-            });
+        // Helper filter query
+        $applyFilter = function($query) use ($startDate, $endDate) {
+            return $query->whereBetween('tgl', [$startDate, $endDate]);
+        };
 
-        // Ambil Iuran masuk (approved)
-        $iuranMasuk = PemasukanIuran::where('status', 'approved')
-            ->when($selectedDate, function ($q) use ($selectedDate) {
-                return $q->whereDate('tgl', $selectedDate);
-            })
-            ->select('id', 'tgl', 'nominal', 'ket', 'created_at', 'bkt_nota')
-            ->get()
-            ->map(function ($row) use ($localFallbackImage) {
-                $bktNota = $row->bkt_nota;
-                if (!empty($bktNota) && Storage::disk('public')->exists($bktNota)) {
-                    $bktNotaPath = Storage::disk('public')->path($bktNota);
-                } elseif (!empty($bktNota) && filter_var($bktNota, FILTER_VALIDATE_URL)) {
-                    $bktNotaPath = $bktNota;
-                } else {
-                    $bktNotaPath = null; // tidak wajib
-                }
+        // --- QUERY DATA ---
+        // A. BOP Masuk
+        $queryBopMasuk = PemasukanBOP::select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at');
+        $bopMasuk = $applyFilter($queryBopMasuk)->get()->map(function ($row) use ($localFallbackImage) {
+            return $this->mapData($row, 'bop', 'masuk', $localFallbackImage);
+        });
 
-                return [
-                    'id' => 'iuran-in-'.$row->id,
-                    'real_id' => $row->id,
-                    'tgl' => $row->tgl,
-                    'created_at' => $row->created_at,
-                    'tipe_dana' => 'iuran',
-                    'arah' => 'masuk',
-                    'nominal' => $row->nominal,
-                    'ket' => $row->ket,
-                    'bkt_nota' => $bktNotaPath,
-                ];
-            });
+        // B. BOP Keluar
+        $queryBopKeluar = Pengeluaran::where('tipe', 'bop')->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at');
+        $bopKeluar = $applyFilter($queryBopKeluar)->get()->map(function ($row) use ($localFallbackImage) {
+            return $this->mapData($row, 'bop', 'keluar', $localFallbackImage);
+        });
 
-        // Ambil Iuran keluar (pengeluaran tipe iuran)
-        $iuranKeluar = Pengeluaran::where('tipe', 'iuran')
-            ->when($selectedDate, function ($q) use ($selectedDate) {
-                return $q->whereDate('tgl', $selectedDate);
-            })
-            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
-            ->get()
-            ->map(function ($row) {
-                $bktNota = $row->bkt_nota;
-                if (!empty($bktNota) && Storage::disk('public')->exists($bktNota)) {
-                    $bktNotaPath = Storage::disk('public')->path($bktNota);
-                } elseif (!empty($bktNota) && filter_var($bktNota, FILTER_VALIDATE_URL)) {
-                    $bktNotaPath = $bktNota;
-                } else {
-                    $bktNotaPath = null;
-                }
+        // C. Iuran Masuk
+        $queryIuranMasuk = PemasukanIuran::where('status', 'approved')->select('id', 'tgl', 'nominal', 'ket', 'created_at', 'bkt_nota');
+        $iuranMasuk = $applyFilter($queryIuranMasuk)->get()->map(function ($row) use ($localFallbackImage) {
+            return $this->mapData($row, 'iuran', 'masuk', $localFallbackImage);
+        });
 
-                return [
-                    'id' => 'iuran-out-'.$row->id,
-                    'real_id' => $row->id,
-                    'tgl' => $row->tgl,
-                    'created_at' => $row->created_at,
-                    'tipe_dana' => 'iuran',
-                    'arah' => 'keluar',
-                    'nominal' => $row->nominal,
-                    'ket' => $row->ket,
-                    'bkt_nota' => $bktNotaPath,
-                ];
-            });
+        // D. Iuran Keluar
+        $queryIuranKeluar = Pengeluaran::where('tipe', 'iuran')->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at');
+        $iuranKeluar = $applyFilter($queryIuranKeluar)->get()->map(function ($row) use ($localFallbackImage) {
+            return $this->mapData($row, 'iuran', 'keluar', $localFallbackImage);
+        });
 
-        // Gabung semua
+        // --- HITUNG SALDO AWAL ---
+        $saldoBop = 0;
+        $saldoIuran = 0;
+
+        if ($startDate) {
+            $saldoBop = PemasukanBOP::where('tgl', '<', $startDate)->sum('nominal')
+                - Pengeluaran::where('tipe', 'bop')->where('tgl', '<', $startDate)->sum('nominal');
+
+            $saldoIuran = PemasukanIuran::where('status', 'approved')->where('tgl', '<', $startDate)->sum('nominal')
+                - Pengeluaran::where('tipe', 'iuran')->where('tgl', '<', $startDate)->sum('nominal');
+        }
+
+        // --- GABUNG DATA ---
         $timeline = collect()
-            ->concat($bopMasuk)
-            ->concat($bopKeluar)
-            ->concat($iuranMasuk)
-            ->concat($iuranKeluar)
+            ->concat($bopMasuk)->concat($bopKeluar)
+            ->concat($iuranMasuk)->concat($iuranKeluar)
             ->sortBy(fn($item) => $item['tgl'] . '-' . ($item['created_at'] ?? ''))
             ->values();
 
-        // Hitung saldo sebelum selectedDate (untuk konsistensi)
-        if ($selectedDate) {
-            $saldoBop = PemasukanBOP::whereDate('tgl', '<', $selectedDate)->sum('nominal')
-                - Pengeluaran::where('tipe', 'bop')->whereDate('tgl', '<', $selectedDate)->sum('nominal');
-
-            $saldoIuran = PemasukanIuran::where('status', 'approved')
-                ->whereDate('tgl', '<', $selectedDate)->sum('nominal')
-                - Pengeluaran::where('tipe', 'iuran')->whereDate('tgl', '<', $selectedDate)->sum('nominal');
-        } else {
-            $saldoBop = 0;
-            $saldoIuran = 0;
-        }
-
-        // Buat final timeline dengan saldo berjalan
         $final = [];
+        
         foreach ($timeline as $row) {
-            if ($row['tipe_dana'] === 'bop') {
-                $jumlah_awal = $saldoBop;
-                if ($row['arah'] === 'masuk') {
-                    $jumlah_digunakan = 0;
-                    $jumlah_sisa = $jumlah_awal + $row['nominal'];
-                    $saldoBop = $jumlah_sisa;
-                    $status = 'Pemasukan';
-                } else {
-                    $jumlah_digunakan = $row['nominal'];
-                    $jumlah_sisa = $jumlah_awal - $row['nominal'];
-                    $saldoBop = $jumlah_sisa;
-                    $status = 'Pengeluaran';
-                }
+            $kategori = ($row['tipe_dana'] === 'bop') ? 'BOP' : 'Iuran';
+            $currentSaldo = ($row['tipe_dana'] === 'bop') ? $saldoBop : $saldoIuran;
+            
+            $jumlah_awal = $currentSaldo;
+            $jumlah_digunakan = 0;
+            $jumlah_pemasukan_row = 0;
 
-                $final[] = [
-                    'id' => $row['id'],
-                    'real_id' => $row['real_id'] ?? null,
-                    'tgl' => $row['tgl'],
-                    'kategori' => 'BOP',
-                    'jumlah_awal' => $jumlah_awal,
-                    'jumlah_digunakan' => $jumlah_digunakan,
-                    'jumlah_sisa' => $jumlah_sisa,
-                    'status' => $status,
-                    'ket' => $row['ket'] ?? null,
-                    'bkt_nota' => $row['bkt_nota'] ?? null,
-                ];
+            if ($row['arah'] === 'masuk') {
+                $jumlah_sisa = $jumlah_awal + $row['nominal'];
+                $currentSaldo = $jumlah_sisa; 
+                $status = 'Pemasukan';
+                $jumlah_pemasukan_row = $row['nominal'];
             } else {
-                $jumlah_awal = $saldoIuran;
-                if ($row['arah'] === 'masuk') {
-                    $jumlah_digunakan = 0;
-                    $jumlah_sisa = $jumlah_awal + $row['nominal'];
-                    $saldoIuran = $jumlah_sisa;
-                    $status = 'Pemasukan';
-                } else {
-                    $jumlah_digunakan = $row['nominal'];
-                    $jumlah_sisa = $jumlah_awal - $row['nominal'];
-                    $saldoIuran = $jumlah_sisa;
-                    $status = 'Pengeluaran';
-                }
-
-                $final[] = [
-                    'id' => $row['id'],
-                    'real_id' => $row['real_id'] ?? null,
-                    'tgl' => $row['tgl'],
-                    'kategori' => 'Iuran',
-                    'jumlah_awal' => $jumlah_awal,
-                    'jumlah_digunakan' => $jumlah_digunakan,
-                    'jumlah_sisa' => $jumlah_sisa,
-                    'status' => $status,
-                    'ket' => $row['ket'] ?? null,
-                    'bkt_nota' => $row['bkt_nota'] ?? null,
-                ];
+                $jumlah_digunakan = $row['nominal'];
+                $jumlah_sisa = $jumlah_awal - $row['nominal'];
+                $currentSaldo = $jumlah_sisa; 
+                $status = 'Pengeluaran';
             }
+
+            if ($row['tipe_dana'] === 'bop') {
+                $saldoBop = $currentSaldo;
+            } else {
+                $saldoIuran = $currentSaldo;
+            }
+
+            $final[] = [
+                'id' => $row['id'],
+                'real_id' => $row['real_id'] ?? null,
+                'tgl' => $row['tgl'],
+                'kategori' => $kategori,
+                'jumlah_awal' => $jumlah_awal,
+                'jumlah_digunakan' => $jumlah_digunakan,
+                'jumlah_sisa' => $jumlah_sisa,
+                'status' => $status,
+                'ket' => $row['ket'] ?? null,
+                'bkt_nota' => $row['bkt_nota'] ?? null,
+            ];
         }
 
         $final = collect($final)->sortByDesc('tgl')->values()->all();
 
-        // Render view blade menjadi PDF
+        // 7. RENDER PDF
         $pdf = Pdf::loadView('dashboard.pdf', [
             'transaksi' => $final,
-            'selectedDate' => $selectedDate,
+            'selectedDate' => $startDate, 
+            'periodeLabel' => $periodeLabel,
+            'user' => $user, // User sudah memuat data kelurahan->kecamatan->kota
         ]);
 
-        $filename = 'dashboard_' . now()->format('Ymd_His') . '.pdf';
+        $cleanLabel = str_replace([' ', '/', '\\'], '_', $periodeLabel);
+        $filename = 'Laporan_' . $cleanLabel . '.pdf';
 
         return $pdf->download($filename);
+    }
+
+    private function mapData($row, $tipe, $arah, $fallbackImage)
+    {
+        $bktNota = $row->bkt_nota;
+        $bktNotaPath = null;
+
+        if (!empty($bktNota) && Storage::disk('public')->exists($bktNota)) {
+            $bktNotaPath = Storage::disk('public')->path($bktNota);
+        } elseif (!empty($bktNota) && filter_var($bktNota, FILTER_VALIDATE_URL)) {
+            $bktNotaPath = $bktNota;
+        } elseif ($fallbackImage && file_exists($fallbackImage)) {
+            $bktNotaPath = $fallbackImage;
+        }
+
+        return [
+            'id' => $tipe . '-' . $arah . '-' . $row->id,
+            'real_id' => $row->id,
+            'tgl' => $row->tgl,
+            'created_at' => $row->created_at,
+            'tipe_dana' => $tipe,
+            'arah' => $arah,
+            'nominal' => $row->nominal,
+            'ket' => $row->ket,
+            'bkt_nota' => $bktNotaPath,
+        ];
     }
 }

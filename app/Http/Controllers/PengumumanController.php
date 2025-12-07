@@ -37,8 +37,7 @@ class PengumumanController extends Controller
         'kat_iuran_id' => $validated['kat_iuran_id'],
     ]);
 
-   
-    $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
+        $users = User::whereNotIn('role_id', [1, 2, 3, 4])->get();
 
         foreach ($users as $user) {
             PemasukanIuran::create([

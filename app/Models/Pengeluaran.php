@@ -16,15 +16,23 @@ class Pengeluaran extends Model
         'ket',
         'toko',
         'bkt_nota',
+        'masuk_bop_id',
+        'masuk_iuran_id',
     ];
 
-    public function total()
-    {
-        return $this->hasMany(Total::class);
-    }
 
     public function kegiatan()
     {
-        return $this->belongsTo(Kegiatan::class, 'keg_id');
+        return $this->belongsTo(Kegiatan::class);
+    }
+
+    public function pemasukan_bop()
+    {
+        return $this->belongsTo(PemasukanBOP::class);
+    }
+
+    public function pemasukan_iuran()
+    {
+        return $this->belongsTo(PemasukanIuran::class);
     }
 }

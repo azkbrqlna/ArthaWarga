@@ -1,16 +1,9 @@
+import React from "react";
 import {
-    SquareCheckBig,
     LayoutTemplate,
     Menu,
-    LogOut,
-    Database,
     WalletIcon,
-    Inbox,
-    Grid2x2Plus,
-    ClipboardCheck,
-    Wallet,
-    CalendarDays,
-    PieChart,
+    LogOut,
 } from "lucide-react";
 import {
     Sidebar,
@@ -25,15 +18,14 @@ import {
     SidebarTrigger,
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
-import { usePage, useForm, Link } from "@inertiajs/react";
+import { usePage, useForm } from "@inertiajs/react";
 import { Toaster } from "sonner";
 import AIChat from "@/components/AIChat";
 
-export default function AppLayout({ children }) {
+export default function AppLayoutMasukIuran({ children }) {
     const { url, props } = usePage();
     const { auth } = props;
     const { post } = useForm();
-    const isProfilPage = url.startsWith("/profil");
 
     const handleLogout = (e) => {
         e.preventDefault();
@@ -48,9 +40,7 @@ export default function AppLayout({ children }) {
         displayName
     )}`;
 
-    // 🔹 menu untuk user role 5 (Warga)
-    // "Iuran Warga" / "Bayar Iuran" ada di sini
-    const wargaItems = [
+    const items = [
         {
             title: "Ringkasan Keuangan",
             url: "/dashboard",
@@ -59,55 +49,10 @@ export default function AppLayout({ children }) {
         { title: "Iuran Warga", url: "/masuk-iuran", icon: WalletIcon },
     ];
 
-    // 🔹 menu normal untuk non-admin dan non-warga (misal: Pengurus RT)
-    // HAPUS "Bayar Iuran" dari sini jika Pengurus RT tidak perlu menu ini di sidebar mereka
-    const defaultItems = [
-        {
-            title: "Ringkasan Keuangan",
-            url: "/dashboard",
-            icon: LayoutTemplate,
-        },
-        {
-            title: "Kegiatan",
-            url: "/kegiatan",
-            icon: CalendarDays,
-        },
-        {
-            title: "Approval",
-            url: "/approval",
-            icon: ClipboardCheck,
-        },
-        // {
-        //     title: "Bayar Iuran",  <-- INI DIHAPUS DARI DEFAULT
-        //     url: "/masuk-iuran",
-        //     icon: Wallet,
-        // },
-    ];
-
-    const adminItems = [
-        { title: "Dashboard", url: "/dashboard", icon: Grid2x2Plus },
-        { title: "Manajemen Data", url: "/manajemen-data", icon: Inbox },
-    ];
-
-    // 🔹 pilih menu berdasarkan role
-    let items;
-    if (auth?.user?.role_id === 1) {
-        items = adminItems;
-    } else if (auth?.user?.role_id === 5) {
-        items = wargaItems;
-    } else {
-        // Ini akan dipakai oleh role 2, 3, 4 (Pengurus RT, dll)
-        items = defaultItems;
-    }
-
     return (
         <SidebarProvider>
-            <div
-                className={`flex min-h-screen w-full ${
-                    isProfilPage ? "bg-blue-100" : "bg-white"
-                }`}
-            >
-                {/* Sidebar Trigger Mobile */}
+            <div className="flex min-h-screen w-full bg-white">
+                {/* Sidebar Trigger (mobile) */}
                 <div className="fixed top-4 left-4 z-50 md:hidden">
                     <SidebarTrigger className="bg-white rounded-md shadow p-2">
                         <Menu className="w-5 h-5 text-gray-700" />
@@ -164,11 +109,7 @@ export default function AppLayout({ children }) {
 
                         {/* Profil + Logout */}
                         <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
-                            {/* 🔗 Klik avatar atau nama = ke halaman profil */}
-                            <Link
-                                href="/profil"
-                                className="flex items-center gap-2 hover:bg-gray-100 rounded-lg p-1 transition"
-                            >
+                            <div className="flex items-center gap-2">
                                 <img
                                     src={avatarUrl}
                                     alt="avatar"
@@ -182,9 +123,8 @@ export default function AppLayout({ children }) {
                                         {displayName}
                                     </p>
                                 </div>
-                            </Link>
+                            </div>
 
-                            {/* Tombol Logout */}
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -200,18 +140,14 @@ export default function AppLayout({ children }) {
 
                 {/* Main Content */}
                 <main className="flex-1 h-full overflow-y-auto overflow-x-hidden">
-                    <div
-                        className={`w-full h-full bg-white ${
-                            isProfilPage ? "" : "px-8 py-10 md:px-12 md:py-12"
-                        }`}
-                    >
+                    <div className="w-full h-full px-8 py-10 md:px-12 md:py-12 bg-white">
                         {children}
                     </div>
                 </main>
             </div>
 
             <Toaster position="top-right" richColors closeButton />
-            {/* <AIChat /> */}
+            <AIChat />
         </SidebarProvider>
     );
 }

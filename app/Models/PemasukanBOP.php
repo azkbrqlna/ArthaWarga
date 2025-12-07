@@ -14,8 +14,8 @@ class PemasukanBOP extends Model
         'bkt_nota'
     ];
 
-    public function total()
+    public function pengeluaran()
     {
-        return $this->hasMany(Total::class);
+        return $this->hasMany(Pengeluaran::class);
     }
 }
