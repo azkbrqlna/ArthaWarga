@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\PemasukanIuran;
-use App\Models\Pengumuman;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -14,7 +13,6 @@ class MasukIuranController extends Controller
     public function index()
     {
         $userId = Auth::id();
-        $pengumuman = Pengumuman::all();
 
 
         $iurans = PemasukanIuran::with(['pengumuman.kat_iuran'])
@@ -36,7 +34,6 @@ class MasukIuranController extends Controller
 
         return Inertia::render('Warga/MasukIuranIndex', [
             'iurans' => $iurans,
-            'pengumuman' => $pengumuman,
             'totalIuran' => $totalIuran,
             'pendingIuran' => $unpaidIuran,
             'paidIuran' => $paidIuran

@@ -17,11 +17,13 @@ return new class extends Migration
             $table->foreignId('usr_id')->constrained('usr')->cascadeOnDelete();
             $table->integer('bulan');
             $table->integer('tahun');
-            $table->integer('mtr_bln_lalu');
-            $table->integer('mtr_skrg');
-            $table->enum('status', ['ditagihkan','pending', 'approved'])->nullable();
+            $table->integer('mtr_bln_lalu')->nullable();
+            $table->integer('mtr_skrg')->nullable();
+            $table->enum('status', ['ditagihkan','pending', 'approved', 'declined'])->default('ditagihkan');
             $table->integer('harga_meteran')->nullable();
             $table->integer('harga_sampah')->nullable();
+            $table->integer('abonemen')->nullable();
+            $table->integer('jimpitan_air')->nullable();
             $table->date('tgl_byr')->nullable();
             $table->string('bkt_byr')->nullable();  
             $table->date('tgl_approved')->nullable();

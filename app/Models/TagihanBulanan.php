@@ -18,19 +18,21 @@ class TagihanBulanan extends Model
         'status',
         'harga_meteran',
         'harga_sampah',
+        'abonemen',
+        'jimpitan_air',
         'tgl_byr',
         'bkt_byr',
         'tgl_approved',
         'nominal',
     ];
 
-      public function users()
+   public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'usr_id');
     }
 
-    public function kategori_iuran()
+    public function kategori()
     {
-        return $this->belongsTo(KategoriIuran::class);
+        return $this->belongsTo(KategoriIuran::class, 'kat_iuran_id');
     }
 }

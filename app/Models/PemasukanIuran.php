@@ -10,7 +10,6 @@ class PemasukanIuran extends Model
 
     protected $fillable = [
         'usr_id',
-        'pengumuman_id',
         'kat_iuran_id',
         'tgl',
         'nominal',
@@ -21,7 +20,7 @@ class PemasukanIuran extends Model
         'status',
     ];
 
-    public function kategori_iuran()
+    public function kategoriIuran()
     {
         // tambahkan foreign key & local key biar eksplisit
         return $this->belongsTo(KategoriIuran::class, 'kat_iuran_id', 'id');
