@@ -27,7 +27,7 @@ class ApiDocsController extends Controller
 
             // Redirect pengguna kembali ke halaman dokumentasi Scramble
             // DIGANTI: 'scramble.docs.index' -> 'scramble.docs.ui'
-            return redirect()->route('scramble.docs.ui'); 
+            return redirect()->to(config('scramble.doc_route', 'docs/api'));
         }
 
         // Jika salah, kembalikan dengan pesan error

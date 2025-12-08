@@ -15,6 +15,7 @@ use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\SpjController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\AirController;
 use Inertia\Inertia;
 
 // --- Rute untuk API Documentation Password Protection ---
@@ -76,9 +77,12 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/manajemen-data/{id}/edit', [SuperadminController::class, 'editUser'])->name('superadmin.editUser');
     Route::put('/manajemen-data/{id}', [SuperadminController::class, 'update'])->name('superadmin.updateUser');
     Route::delete('/manajemen-data/{id}', [SuperadminController::class, 'deleteUser'])->name('superadmin.deleteUser');
+
+    Route::get('/air', [AirController::class, 'index'])->name('air.index'); 
 });
 
 // --- TARUH DI SINI (DILUAR GROUP role.access) ---
 Route::middleware(['auth'])->group(function () {
     Route::get('/download/pdf', [DownloaderController::class, 'download'])->name('download.pdf');
 });
+

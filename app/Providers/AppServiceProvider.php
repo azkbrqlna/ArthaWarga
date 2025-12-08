@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Auth;
 use Dedoc\Scramble\Scramble;
 use Dedoc\Scramble\Support\Generator\OpenApi;
 use Dedoc\Scramble\Support\Generator\SecurityScheme;
+use Illuminate\Support\Facades\Gate;
+use Illuminate\Http\Request;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -32,6 +34,12 @@ class AppServiceProvider extends ServiceProvider
                 'user' => Auth::user(),
             ],
         ]);
+        
+        Gate::define('viewApiDocs', function ($user = null) {
+            // Izinkan jika user login (opsional) ATAU jika session password benar
+            return request()->session()->get('api_docs_access') === true 
+                   || app()->environment('local'); // Selalu boleh di local
+        });
 
         // Tambahkan konfigurasi Scramble
         Scramble::configure()

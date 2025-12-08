@@ -11,6 +11,7 @@ import {
     Wallet,
     CalendarDays,
     PieChart,
+    Droplets, // Icon untuk Air
 } from "lucide-react";
 import {
     Sidebar,
@@ -48,8 +49,8 @@ export default function AppLayout({ children }) {
         displayName
     )}`;
 
-    // 🔹 menu untuk user role 5 (Warga)
-    // "Iuran Warga" / "Bayar Iuran" ada di sini
+    // 🔹 MENU WARGA (Role 5)
+    // Warga BISA melihat "Iuran Warga" (Bayar Iuran)"
     const wargaItems = [
         {
             title: "Ringkasan Keuangan",
@@ -59,8 +60,8 @@ export default function AppLayout({ children }) {
         { title: "Iuran Warga", url: "/masuk-iuran", icon: WalletIcon },
     ];
 
-    // 🔹 menu normal untuk non-admin dan non-warga (misal: Pengurus RT)
-    // HAPUS "Bayar Iuran" dari sini jika Pengurus RT tidak perlu menu ini di sidebar mereka
+    // 🔹 MENU PENGURUS (Non-Admin, Non-Warga)
+    // Menu "Bayar Iuran" SUDAH DIHAPUS dari sini
     const defaultItems = [
         {
             title: "Ringkasan Keuangan",
@@ -77,11 +78,11 @@ export default function AppLayout({ children }) {
             url: "/approval",
             icon: ClipboardCheck,
         },
-        // {
-        //     title: "Bayar Iuran",  <-- INI DIHAPUS DARI DEFAULT
-        //     url: "/masuk-iuran",
-        //     icon: Wallet,
-        // },
+        {
+            title: "Air",
+            url: "/air",
+            icon: Droplets,
+        },
     ];
 
     const adminItems = [
@@ -89,15 +90,14 @@ export default function AppLayout({ children }) {
         { title: "Manajemen Data", url: "/manajemen-data", icon: Inbox },
     ];
 
-    // 🔹 pilih menu berdasarkan role
+    // 🔹 LOGIKA PEMILIHAN MENU
     let items;
     if (auth?.user?.role_id === 1) {
         items = adminItems;
     } else if (auth?.user?.role_id === 5) {
-        items = wargaItems;
+        items = wargaItems; // Warga -> Menu Warga (Ada Iuran)
     } else {
-        // Ini akan dipakai oleh role 2, 3, 4 (Pengurus RT, dll)
-        items = defaultItems;
+        items = defaultItems; // Pengurus -> Menu Default (TIDAK ADA Iuran)
     }
 
     return (
@@ -164,7 +164,6 @@ export default function AppLayout({ children }) {
 
                         {/* Profil + Logout */}
                         <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
-                            {/* 🔗 Klik avatar atau nama = ke halaman profil */}
                             <Link
                                 href="/profil"
                                 className="flex items-center gap-2 hover:bg-gray-100 rounded-lg p-1 transition"
@@ -184,7 +183,6 @@ export default function AppLayout({ children }) {
                                 </div>
                             </Link>
 
-                            {/* Tombol Logout */}
                             <Button
                                 variant="ghost"
                                 size="icon"
@@ -211,7 +209,6 @@ export default function AppLayout({ children }) {
             </div>
 
             <Toaster position="top-right" richColors closeButton />
-            {/* <AIChat /> */}
         </SidebarProvider>
     );
 }
