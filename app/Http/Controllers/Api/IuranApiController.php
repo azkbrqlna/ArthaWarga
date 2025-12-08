@@ -15,8 +15,9 @@ class IuranApiController extends Controller
      */
     public function index()
     {
+        // PERBAIKAN: Menghapus 'usr_id' dari select karena kolom tersebut tidak ada di database
         $data = PemasukanIuran::with('kategori_iuran')
-            ->select('id', 'kat_iuran_id', 'tgl', 'nominal', 'ket', 'usr_id')
+            ->select('id', 'kat_iuran_id', 'tgl', 'nominal', 'ket') 
             ->latest()
             ->get();
 
@@ -39,13 +40,14 @@ class IuranApiController extends Controller
             'ket'          => 'nullable|string',
         ]);
 
+        // PERBAIKAN: Menghapus 'usr_id' dan 'status'
         $iuran = PemasukanIuran::create([
-            'usr_id'        => Auth::id(),
+            // 'usr_id'        => Auth::id(), // HAPUS INI
             'kat_iuran_id'  => $validated['kat_iuran_id'],
             'tgl'           => $validated['tgl'],
             'nominal'       => $validated['nominal'],
             'ket'           => $validated['ket'],
-            'status'        => 'approved',
+            // 'status'        => 'approved', // HAPUS INI
         ]);
 
         return response()->json([
