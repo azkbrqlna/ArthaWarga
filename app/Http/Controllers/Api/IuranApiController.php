@@ -10,9 +10,12 @@ use Illuminate\Support\Facades\Auth;
 
 class IuranApiController extends Controller
 {
+    /**
+     * Lihat daftar data iuran
+     */
     public function index()
     {
-        $data = PemasukanIuran::with('kategori')
+        $data = PemasukanIuran::with('kategori_iuran')
             ->select('id', 'kat_iuran_id', 'tgl', 'nominal', 'ket', 'usr_id')
             ->latest()
             ->get();
@@ -24,7 +27,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * GET kategori iuran (kecuali id 1 & 2)
+     * Lihat daftar kategori iuran (kecuali id 1 & 2)
      */
     public function kategori()
     {
@@ -37,7 +40,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * POST buat kategori iuran
+     * Tambah kategori iuran baru
      */
     public function kat_iuran_create(Request $request)
     {
@@ -55,7 +58,7 @@ class IuranApiController extends Controller
     }
 
     /**
-     * DELETE kategori iuran
+     * Hapus kategori iuran
      */
     public function kat_iuran_delete($id)
     {
@@ -85,6 +88,9 @@ class IuranApiController extends Controller
         ]);
     }
 
+    /**
+     * Tambah data iuran
+     */
     public function iuran_create(Request $request)
     {
         $validated = $request->validate([
@@ -107,6 +113,58 @@ class IuranApiController extends Controller
             'success' => true,
             'message' => 'Data iuran berhasil disimpan.',
             'data' => $iuran
+        ]);
+    }
+
+    /**
+     * Update data iuran
+     */
+    public function iuran_update(Request $request, $id)
+    {
+        $iuran = PemasukanIuran::find($id);
+
+        if (!$iuran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data iuran tidak ditemukan.'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'kat_iuran_id' => 'sometimes|exists:kat_iuran,id',
+            'tgl'          => 'sometimes|date',
+            'nominal'      => 'sometimes|numeric|min:0',
+            'ket'          => 'nullable|string',
+        ]);
+
+        $iuran->update($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data iuran berhasil diperbarui.',
+            'data' => $iuran
+        ]);
+    }
+
+    /**
+     * Hapus data iuran
+     */
+    public function iuran_delete($id)
+    {
+        $iuran = PemasukanIuran::find($id);
+
+        if (!$iuran) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Data iuran tidak ditemukan.'
+            ], 404);
+        }
+
+        $iuran->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Data iuran berhasil dihapus.'
         ]);
     }
 }

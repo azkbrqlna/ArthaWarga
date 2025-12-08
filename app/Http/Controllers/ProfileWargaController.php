@@ -31,7 +31,7 @@ class ProfileWargaController extends Controller
                 'no_hp'          => $user->no_hp,
                 'rt'             => $user->rt,
                 'rw'             => $user->rw,
-                'status'         => $user->status,
+                'status'             => $user->status,
                 'kode_pos'       => $user->kode_pos,
                 'alamat'         => $user->alamat
             ]
@@ -52,7 +52,7 @@ class ProfileWargaController extends Controller
             'no_kk'      => 'nullable|string',
             'rt'         => 'nullable|string',
             'rw'         => 'nullable|string',
-            'status'     => 'nullable|string',
+            'status'         => 'nullable|string',
             'kode_pos'   => 'nullable|string',
             'alamat'     => 'nullable|string',
         ]);

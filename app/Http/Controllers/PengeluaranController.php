@@ -64,10 +64,11 @@ class PengeluaranController extends Controller
         ]);
 
         if ($request->hasFile('bkt_nota')) {
-            $file = $request->file('bkt_nota');
-            $extension = $file->getClientOriginalExtension();
-            $filename = now()->format('Ymd_His') . '_nota.' . $extension;
-            $path = $file->storeAs('nota_pengeluaran', $filename, 'public');
+            $file       = $request->file('bkt_nota');
+            $extension  = $file->getClientOriginalExtension();
+            $filename   = now()->format('Ymd_His') . '_nota.' . $extension;
+            $path       = $file->storeAs('nota_pengeluaran', $filename, 'public');
+
             $validated['bkt_nota'] = $path;
         }
 
@@ -90,11 +91,15 @@ class PengeluaranController extends Controller
         $saldo = $totalMasuk - $totalKeluar;
 
         if ($saldo < $validated['nominal']) {
-            return back()->withErrors(['nominal' => 'Saldo ' . strtoupper($validated['tipe']) . ' tidak mencukupi.']);
+            return back()->withErrors([
+                'nominal' => 'Saldo ' . strtoupper($validated['tipe']) . ' tidak mencukupi.',
+            ]);
         }
 
         Pengeluaran::create($validated);
 
-        return redirect()->route('dashboard')->with('success', 'Pengeluaran dari ' . strtoupper($validated['tipe']) . ' berhasil disimpan.');
+        return redirect()
+            ->route('dashboard')
+            ->with('success', 'Pengeluaran dari ' . strtoupper($validated['tipe']) . ' berhasil disimpan.');
     }
 }

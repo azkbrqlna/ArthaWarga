@@ -16,7 +16,6 @@ class PemasukanIuran extends Model
         'nominal',
         'ket',
         'bkt_byr',
-        'bkt_nota',
         'tgl_byr',
         'tgl_approved',
         'status',

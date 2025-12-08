@@ -21,6 +21,10 @@ import {
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
+import FinancialLineChart from "@/components/FinancialLineChart";
+
+import DownloadPdfBtn from "@/components/DownloadPdfBtn";
+
 export default function Dashboard() {
     const {
         transaksi = [],
@@ -37,7 +41,9 @@ export default function Dashboard() {
     const [sortField, setSortField] = useState("tgl");
     const [sortOrder, setSortOrder] = useState("desc");
     const [currentPage, setCurrentPage] = useState(1);
-    const [selectedDate, setSelectedDate] = useState("");
+    const [selectedMonth, setSelectedMonth] = useState("");
+    const [selectedYear, setSelectedYear] = useState("");
+
     const itemsPerPage = 8;
 
     const toggleSort = (field) => {
@@ -49,8 +55,39 @@ export default function Dashboard() {
         }
     };
 
+    const formatRupiah = (val) =>
+        "Rp " + parseInt(val || 0).toLocaleString("id-ID");
+
+    const handleFilterChange = (month, year) => {
+        setSelectedMonth(month);
+        setSelectedYear(year);
+
+        // Update URL params agar state tersimpan saat refresh (opsional)
+        router.get(
+            route("dashboard"),
+            { month, year },
+            { preserveScroll: true, preserveState: true }
+        );
+    };
+
+    // --- LOGIKA FILTER UTAMA ---
+    // Menggabungkan filter Bulan & Tahun untuk data tabel dan chart
+    const filteredData = useMemo(() => {
+        return transaksi.filter((t) => {
+            const d = new Date(t.tgl);
+            const month = String(d.getMonth() + 1).padStart(2, "0");
+            const year = String(d.getFullYear());
+
+            let monthMatch = selectedMonth ? month === selectedMonth : true;
+            let yearMatch = selectedYear ? year === selectedYear : true;
+
+            return monthMatch && yearMatch;
+        });
+    }, [transaksi, selectedMonth, selectedYear]);
+
+    // --- LOGIKA SORTING & PAGINATION ---
     const sortedData = useMemo(() => {
-        return [...transaksi].sort((a, b) => {
+        return [...filteredData].sort((a, b) => {
             const valA = a[sortField];
             const valB = b[sortField];
             if (!valA || !valB) return 0;
@@ -59,9 +96,9 @@ export default function Dashboard() {
                     ? valA.localeCompare(valB)
                     : valB.localeCompare(valA);
             }
-            return sortOrder === "asc" ? valA - valB : valB - valA;
+            return sortOrder === "asc" ? valA - valB : valB - a[sortField];
         });
-    }, [transaksi, sortField, sortOrder]);
+    }, [filteredData, sortField, sortOrder]);
 
     const totalPages = Math.ceil(sortedData.length / itemsPerPage);
     const paginatedData = sortedData.slice(
@@ -69,18 +106,61 @@ export default function Dashboard() {
         currentPage * itemsPerPage
     );
 
-    const formatRupiah = (val) =>
-        "Rp " + parseInt(val || 0).toLocaleString("id-ID");
+    // --- LOGIKA DATA CHART ---
+    const chartData = useMemo(() => {
+        const monthlyData = {};
 
-    const handleDateChange = (e) => {
-        const value = e.target.value;
-        setSelectedDate(value);
-        router.get(
-            route("dashboard"),
-            { date: value },
-            { preserveScroll: true, preserveState: true }
-        );
-    };
+        filteredData.forEach((t) => {
+            const date = new Date(t.tgl);
+            const key = `${date.getFullYear()}-${String(
+                date.getMonth() + 1
+            ).padStart(2, "0")}`;
+
+            if (!monthlyData[key]) {
+                monthlyData[key] = { pemasukan: 0, pengeluaran: 0, dateObj: date };
+            }
+
+            const nominal =
+                t.status === "Pemasukan"
+                    ? t.jumlah_sisa - t.jumlah_awal
+                    : t.jumlah_digunakan;
+
+            if (t.status === "Pemasukan") {
+                monthlyData[key].pemasukan += nominal;
+            } else {
+                monthlyData[key].pengeluaran += nominal;
+            }
+        });
+
+        let saldo = 0;
+
+        return Object.keys(monthlyData)
+            .sort()
+            .map((key) => {
+                const d = monthlyData[key];
+                saldo += d.pemasukan - d.pengeluaran;
+
+                return {
+                    month: d.dateObj.toLocaleString("id-ID", {
+                        month: "short",
+                        year: "numeric",
+                    }),
+                    pemasukan: d.pemasukan,
+                    pengeluaran: d.pengeluaran,
+                    saldo,
+                };
+            });
+    }, [filteredData]);
+
+    // --- PERSIAPAN TANGGAL UNTUK TOMBOL DOWNLOAD PDF ---
+    // Karena dropdown terpisah (Bulan/Tahun), kita gabung jadi format YYYY-MM-DD (tanggal 01)
+    // agar backend bisa membacanya sebagai tanggal valid.
+    const dateForPdf = useMemo(() => {
+        if (selectedYear && selectedMonth) {
+            return `${selectedYear}-${selectedMonth}-01`;
+        }
+        return "";
+    }, [selectedYear, selectedMonth]);
 
     return (
         <AppLayout>
@@ -151,18 +231,53 @@ export default function Dashboard() {
                         </h2>
 
                         <div className="flex items-center gap-2">
-                            <input
-                                type="date"
-                                value={selectedDate}
-                                onChange={handleDateChange}
-                                className="border rounded-lg px-3 py-2 text-sm text-gray-700 focus:outline-none"
-                            />
+                            {/* Dropdown Bulan */}
+                            <select
+                                value={selectedMonth}
+                                onChange={(e) =>
+                                    handleFilterChange(e.target.value, selectedYear)
+                                }
+                                className="border rounded-lg px-3 py-2 text-sm text-gray-700"
+                            >
+                                <option value="">Bulan</option>
+                                {[
+                                    "01", "02", "03", "04", "05", "06",
+                                    "07", "08", "09", "10", "11", "12",
+                                ].map((m, i) => (
+                                    <option key={m} value={m}>
+                                        {new Date(0, i).toLocaleString("id-ID", {
+                                            month: "long",
+                                        })}
+                                    </option>
+                                ))}
+                            </select>
 
-                            {selectedDate && (
+                            {/* Dropdown Tahun */}
+                            <select
+                                value={selectedYear}
+                                onChange={(e) =>
+                                    handleFilterChange(selectedMonth, e.target.value)
+                                }
+                                className="border rounded-lg px-3 py-2 text-sm text-gray-700"
+                            >
+                                <option value="">Tahun</option>
+                                {Array.from({ length: 6 }).map((_, i) => {
+                                    const year = new Date().getFullYear() - i;
+                                    return (
+                                        <option key={year} value={year}>
+                                            {year}
+                                        </option>
+                                    );
+                                })}
+                            </select>
+
+                            {/* Tombol Reset */}
+                            {(selectedMonth || selectedYear) && (
                                 <Button
                                     variant="outline"
                                     onClick={() => {
-                                        setSelectedDate("");
+                                        setSelectedMonth("");
+                                        setSelectedYear("");
                                         router.get(
                                             route("dashboard"),
                                             {},
@@ -177,6 +292,12 @@ export default function Dashboard() {
                                     Reset
                                 </Button>
                             )}
+
+                            {/* TOMBOL DOWNLOAD PDF (Ditempatkan di sini) */}
+                            <DownloadPdfBtn 
+                                month={selectedMonth} 
+                                year={selectedYear} 
+                            />
                         </div>
                     </div>
 
@@ -293,6 +414,12 @@ export default function Dashboard() {
                     </div>
                 </div>
 
+                {/* CHART KEJUTAN */}
+                <div className="mt-8 mb-8">
+                    <FinancialLineChart data={chartData} />
+                </div>
+                {/* AKHIR CHART KEJUTAN */}
+
                 {/* TABEL TRANSAKSI */}
                 <div className="pb-10">
                     <div className="rounded-xl border overflow-hidden">
@@ -340,7 +467,6 @@ export default function Dashboard() {
                             <TableBody>
                                 {paginatedData.length ? (
                                     paginatedData.map((t, i) => {
-                                        // nominal asli pemasukan/pengeluaran
                                         const nominal =
                                             t.status === "Pemasukan"
                                                 ? t.jumlah_sisa - t.jumlah_awal
