@@ -96,7 +96,7 @@ export default function Dashboard() {
 
                     {userRole !== 5 && (
                         <div className="flex gap-2 mt-4 md:mt-0">
-                            {(userRole === 2 || userRole === 4) && (
+                            {/* {(userRole === 2 || userRole === 4) && (
                                 <Button
                                     className="bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                     onClick={() =>
@@ -105,7 +105,7 @@ export default function Dashboard() {
                                 >
                                     Tambah Kegiatan
                                 </Button>
-                            )}
+                            )} */}
 
                             {(userRole === 2 || userRole === 3) && (
                                 <>
@@ -127,7 +127,7 @@ export default function Dashboard() {
                                     >
                                         Tambah Pengeluaran
                                     </Button>
-                                    <Button
+                                    {/* <Button
                                         className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
                                             router.visit(
@@ -136,7 +136,7 @@ export default function Dashboard() {
                                         }
                                     >
                                         Tambah Pengumuman
-                                    </Button>
+                                    </Button> */}
                                 </>
                             )}
                         </div>
