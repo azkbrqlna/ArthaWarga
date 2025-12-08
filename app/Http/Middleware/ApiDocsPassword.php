@@ -9,14 +9,12 @@ class ApiDocsPassword
 {
     public function handle(Request $request, Closure $next)
     {
-        $password = 'password123'; // Variabel ini tidak digunakan di sini
+        $password = 'password123'; 
 
         if ($request->session()->get('api_docs_access') !== true) {
-            // Jika sesi 'api_docs_access' tidak ada,
-            // langsung diarahkan ke form password.
             return redirect()->route('docs.password.form');
         }
 
-        return $next($request); // Jika sesi ada, lanjutkan ke dokumentasi.
+        return $next($request); 
     }
 }

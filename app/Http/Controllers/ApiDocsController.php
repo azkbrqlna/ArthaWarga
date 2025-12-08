@@ -11,7 +11,6 @@ class ApiDocsController extends Controller
 
     public function showPasswordForm()
     {
-        // Tampilkan view form password (Anda perlu membuat view ini)
         return view('docs.password');
     }
 
@@ -26,7 +25,6 @@ class ApiDocsController extends Controller
             $request->session()->put('api_docs_access', true);
 
             // Redirect pengguna kembali ke halaman dokumentasi Scramble
-            // DIGANTI: 'scramble.docs.index' -> 'scramble.docs.ui'
             return redirect()->route('scramble.docs.ui'); 
         }
 
