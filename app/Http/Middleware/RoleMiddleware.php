@@ -23,7 +23,7 @@ class RoleMiddleware
         $role = $user->role_id; // pastikan kolom ini ada di tabel users
 
         $access = [
-            1 => ['dashboard', 'profil.index', 'profile.update'], // superadmin
+            1 => ['dashboard', 'profil.index', 'profile.update', 'superadmin.users', 'superadmin.createUser', 'superadmin.storeUser', 'superadmin.editUser', 'superadmin.updateUser', 'superadmin.deleteUser'], // superadmin
             2 => [ // ketua rt
             'dashboard',
             'pemasukan.index',
@@ -32,6 +32,7 @@ class RoleMiddleware
             'kegiatan.create',
             'kegiatan.store',
             'kegiatan.index',
+            'kegiatan.show',
             'bop.create',
             'iuran.create',
             'pengumuman',
@@ -45,7 +46,7 @@ class RoleMiddleware
             'approval.patch'],
             3 => ['dashboard', 'pemasukan.index', 'pengeluaran', 'rincian.show', "pengumuman",'profil.index', 'profile.update', 'bop.create', 'iuran.create', 'kat_iuran.create', 'kat_iuran.delete', 'pengumuman.create', 'pengeluaran.store'],
             4 => ['dashboard', 'kegiatan.create','kegiatan.store','kegiatan.index', 'rincian.show', "pengumuman",'profil.index', 'profile.update'],  
-            5 => ['dashboard','rincian.show', 'profil.index', 'profile.update','masuk-iuran.index', 'masuk-iuran.show', 'masuk-iuran.store'], 
+            5 => ['dashboard','rincian.show', 'profil.index', 'profile.update','masuk-iuran.index', 'masuk-iuran.show', 'masuk-iuran.store'], // warga
         ];
 
         $routeName = $request->route()->getName();

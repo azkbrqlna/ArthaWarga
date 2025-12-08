@@ -8,8 +8,9 @@ class KategoriKegiatan extends Model
 {
     protected $table = 'kat_keg';
 
-    public function subkategori_kegiatan()
+    public function kegiatan()
     {
-        return $this->hasMany(SubkatKeg::class);
+        return $this->hasMany(kegiatan::class);
     }
 }
+    

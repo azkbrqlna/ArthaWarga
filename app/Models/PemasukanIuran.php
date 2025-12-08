@@ -21,24 +21,15 @@ class PemasukanIuran extends Model
         'status',
     ];
 
-    public function pengumuman()
-    {
-        return $this->belongsTo(Pengumuman::class);
-    }
-
     public function kategori_iuran()
     {
         // tambahkan foreign key & local key biar eksplisit
         return $this->belongsTo(KategoriIuran::class, 'kat_iuran_id', 'id');
     }
 
-    public function total()
+    public function pengeluaran()
     {
-        return $this->hasMany(Total::class);
+        return $this->hasMany(Pengeluaran::class);
     }
 
-    public function user()
-    {
-        return $this->belongsTo(User::class,'usr_id', 'id');
-    }
 }

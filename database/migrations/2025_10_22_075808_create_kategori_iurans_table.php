@@ -14,6 +14,10 @@ return new class extends Migration
         Schema::create('kat_iuran', function (Blueprint $table) {
             $table->id();
             $table->string('nm_kat');
+            $table->integer('harga_meteran')->nullable();
+            $table->integer('abonemen')->nullable();
+            $table->integer('jimpitan_air')->nullable();
+            $table->integer('harga_sampah')->nullable();
             $table->timestamps();
         });
     }
