@@ -2,6 +2,8 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+
+// --- Controller Imports ---
 use App\Http\Controllers\Api\AuthApiController;
 use App\Http\Controllers\Api\BopApiController;
 use App\Http\Controllers\Api\DashboardApiController;
@@ -12,12 +14,12 @@ use App\Http\Controllers\Api\PengeluaranApiController;
 use App\Http\Controllers\Api\PengumumanApiController;
 use App\Http\Controllers\Api\SuperadminApiController;
 
+// --- PUBLIC (Tanpa Login) ---
 
 Route::get('/check', function () {
     return response()->json(['message' => 'API Connected']);
 });
 
-// --- PUBLIC (Tanpa Login) ---
 Route::post('/login', [AuthApiController::class, 'login']);
 
 
@@ -37,15 +39,17 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/bop/update/{id}', [BopApiController::class, 'update']);
 
     // 3. Iuran
-    Route::get('/iuran', [IuranApiController::class, 'index']);          // History
+    Route::get('/iuran', [IuranApiController::class, 'index']);      // History
     Route::post('/iuran/create', [IuranApiController::class, 'iuran_create']); // Bayar
     Route::patch('/iuran/update/{id}', [IuranApiController::class, 'iuran_update']);
     Route::delete('/iuran/{id}', [IuranApiController::class, 'iuran_delete']);
 
-    // 4. Kategori Iuran
-    Route::get('/iuran/kategori', [KategoriIuranApiController::class, 'kategori']);
-    Route::post('/iuran/kategori', [KategoriIuranApiController::class, 'kat_iuran_create']);
-    Route::delete('/iuran/kategori/{id}', [KategoriIuranApiController::class, 'kat_iuran_delete']);
+    // 4. Kategori Iuran 
+    Route::get('/kat_iuran', [KategoriIuranApiController::class, 'index']);      
+    Route::post('/kat_iuran', [KategoriIuranApiController::class, 'store']);    
+    Route::get('/kat_iuran/{id}', [KategoriIuranApiController::class, 'show']);  
+    Route::patch('/kat_iuran/{id}', [KategoriIuranApiController::class, 'update']); 
+    Route::delete('/kat_iuran/{id}', [KategoriIuranApiController::class, 'destroy']); 
 
     // 5. Kegiatan
     Route::get('/kegiatan', [KegiatanApiController::class, 'index']);

@@ -23,8 +23,8 @@ class UserSeeder extends Seeder
 
         $superadminRole = Role::where('nm_role', 'Superadmin')->first()->id ?? 1;
         $ketuaRtRole    = Role::where('nm_role', 'Ketua RT')->first()->id ?? 2;
-        $sekretarisRole = Role::where('nm_role', 'Sekretaris')->first()->id ?? 3;
-        $bendaharaRole  = Role::where('nm_role', 'Bendahara')->first()->id ?? 4;
+        $bendaharaRole  = Role::where('nm_role', 'Bendahara')->first()->id ?? 3;
+        $sekretarisRole = Role::where('nm_role', 'Sekretaris')->first()->id ?? 4;
         $wargaRole      = Role::where('nm_role', 'Warga')->first()->id ?? 5;
 
         // 2. === AMBIL DATA KOTA SEMARANG ===

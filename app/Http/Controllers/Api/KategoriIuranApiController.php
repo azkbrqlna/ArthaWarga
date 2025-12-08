@@ -6,15 +6,58 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\KategoriIuran;
 use App\Models\PemasukanIuran;
+use Illuminate\Validation\Rule;
 
 class KategoriIuranApiController extends Controller
 {
     /**
-     * GET kategori iuran (kecuali Air & Kebersihan)
+     * GET /kategori-iuran: Menampilkan daftar semua kategori iuran (index).
      */
-    public function kategori()
+    public function index()
     {
-        $kategori = KategoriIuran::whereNotIn('id', [1, 2])->get();
+        $kategori = KategoriIuran::all(); 
+
+        return response()->json([
+            'success' => true,
+            'data' => $kategori
+        ]);
+    }
+    
+    /**
+     * POST /kategori-iuran: Menyimpan (Create) kategori iuran baru (store).
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'nm_kat' => 'required|string|max:100|unique:kat_iuran,nm_kat',
+            'harga_meteran' => 'nullable|integer|min:0', 
+            'abonemen' => 'nullable|integer|min:0',      
+            'harga_sampah' => 'nullable|integer|min:0',  
+            'jimpitan_air' => 'nullable|integer|min:0|max:100', 
+        ]);
+
+        $kategori = KategoriIuran::create($validated);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Kategori iuran berhasil ditambahkan.',
+            'data' => $kategori,
+        ], 201); 
+    }
+
+    /**
+     * GET /kategori-iuran/{id}: Menampilkan detail satu kategori iuran (show).
+     */
+    public function show(string $id)
+    {
+        $kategori = KategoriIuran::find($id);
+
+        if (!$kategori) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori iuran tidak ditemukan.'
+            ], 404);
+        }
 
         return response()->json([
             'success' => true,
@@ -23,27 +66,40 @@ class KategoriIuranApiController extends Controller
     }
 
     /**
-     * create buat kategori iuran
+     * PUT/PATCH /kategori-iuran/{id}: Mengubah (Update) data kategori iuran.
      */
-    public function kat_iuran_create(Request $request)
+    public function update(Request $request, string $id)
     {
-        $validated = $request->validate([
-            'nm_kat' => 'required|string',
-        ]);
+        $kategori = KategoriIuran::find($id);
 
-        $kategori = KategoriIuran::create($validated);
+        if (!$kategori) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Kategori iuran tidak ditemukan.'
+            ], 404);
+        }
+
+        $validated = $request->validate([
+            'nm_kat' => ['required', 'string', 'max:100', Rule::unique('kat_iuran')->ignore($kategori->id)], 
+            'harga_meteran' => 'nullable|integer|min:0',
+            'abonemen' => 'nullable|integer|min:0',
+            'harga_sampah' => 'nullable|integer|min:0',
+            'jimpitan_air' => 'nullable|integer|min:0|max:100',
+        ]);
+        
+        $kategori->update($validated);
 
         return response()->json([
             'success' => true,
-            'message' => 'Kategori iuran berhasil disimpan.',
-            'data' => $kategori,
+            'message' => 'Kategori iuran berhasil diperbarui.',
+            'data' => $kategori
         ]);
     }
 
     /**
-     * Delete kategori iuran
+     * DELETE /kategori-iuran/{id}: Menghapus (Delete) kategori iuran (destroy).
      */
-    public function kat_iuran_delete($id)
+    public function destroy(string $id)
     {
         $kategori = KategoriIuran::find($id);
 
@@ -59,8 +115,8 @@ class KategoriIuranApiController extends Controller
         if ($dipakai) {
             return response()->json([
                 'success' => false,
-                'message' => 'Kategori digunakan di data iuran lain dan tidak dapat dihapus.'
-            ], 400);
+                'message' => 'Kategori digunakan dalam data iuran lain dan tidak dapat dihapus.'
+            ], 400); 
         }
 
         $kategori->delete();
@@ -70,6 +126,4 @@ class KategoriIuranApiController extends Controller
             'message' => 'Kategori berhasil dihapus.'
         ]);
     }
-
 }
-
