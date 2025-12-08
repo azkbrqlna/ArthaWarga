@@ -11,8 +11,7 @@ use App\Http\Controllers\Api\KegiatanApiController;
 use App\Http\Controllers\Api\PengeluaranApiController;
 use App\Http\Controllers\Api\PengumumanApiController;
 use App\Http\Controllers\Api\SuperadminApiController;
-use App\Http\Controllers\DownloaderController;
-
+use App\Http\Controllers\Api\LaporanController;
 
 Route::get('/check', function () {
     return response()->json(['message' => 'API Connected']);
@@ -78,6 +77,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::delete('/users/{id}', [SuperadminApiController::class, 'destroy']);
     });
     // 9. Download PDF Keuangan
-    Route::get('/download/pdf', [DownloaderController::class, 'download'])
-        ->name('api.download.pdf');
+        Route::get('/laporan/header', [LaporanController::class, 'header']);
 });
