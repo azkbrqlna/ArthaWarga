@@ -53,12 +53,6 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
     Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index'); 
 
-    // PENGUMUMAN & PERSETUJUAN (Approval)
-    Route::get('/dashboard/pengumuman', [PengumumanController::class, 'pengumuman'])->name('pengumuman');
-    Route::post('/pengumuman/create', [PengumumanController::class, 'pengumuman_create'])->name('pengumuman.create');
-    Route::get('/approval', [PengumumanController::class, 'approval'])->name('approval');
-    Route::patch('/approval/{id}', [PengumumanController::class, 'approval_patch'])->name('approval.patch'); 
-    
     // PENGELUARAN & SPJ
 
     Route::get('/dashboard/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
@@ -85,14 +79,11 @@ Route::middleware(['role.access'])->group(function () {
     Route::delete('/manajemen-data/{id}', [SuperadminController::class, 'deleteUser'])->name('superadmin.deleteUser');
     
     
-});
+    // TAGIHAN BULANAN
 
-
-// --- Rute yang Memerlukan Autentikasi Saja ---
-Route::middleware(['auth'])->group(function () {
-    Route::get('/download/pdf', [DownloaderController::class, 'download'])->name('download.pdf');
-    
-    
+    Route::get('/tagihan-bulanan/create', [TagihanBulananController::class, 'create'])->name('tagihan.create');
+    Route::post('/tagihan-bulanan/store', [TagihanBulananController::class, 'store'])->name('tagihan.store');
+    Route::post('/tagihan-bulanan/upload', [TagihanBulananController::class, 'upload_bukti'])->name('tagihan.upload');
     //UNTUK RT
     Route::post('/tagihan-bulanan/generate', [TagihanBulananController::class, 'generate'])->name('tagihan.generate');
     Route::get('/tagihan-bulanan/monitoring', [TagihanBulananController::class, 'index_rt'])->name('tagihan.monitoring');
@@ -103,4 +94,12 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/tagihan-bulanan', [TagihanBulananController::class, 'index_warga'])->name('tagihan.warga.index');
     Route::get('/tagihan-bulanan/{id}', [TagihanBulananController::class, 'show_warga'])->name('tagihan.warga.show');
     Route::post('/tagihan-bulanan/bayar', [TagihanBulananController::class, 'bayar'])->name('tagihan.bayar');
+});
+
+
+// --- Rute yang Memerlukan Autentikasi Saja ---
+Route::middleware(['auth'])->group(function () {
+    Route::get('/download/pdf', [DownloaderController::class, 'download'])->name('download.pdf');
+    
+    
 });

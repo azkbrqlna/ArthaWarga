@@ -47,7 +47,17 @@ class RoleMiddleware
                 'profil.index',
                 'profil.update',
                 'approval',
-                'approval.patch'
+                'approval.patch',
+                'tagihan.create',
+                'tagihan.store',
+                'tagihan.upload',
+                'tagihan.generate',
+                'tagihan.monitoring',
+                'tagihan.approve',
+                'tagihan.decline',
+                'tagihan.warga.index',
+                'tagihan.warga.show',
+                'tagihan.bayar',
             ], $kategoriIuranRoutes), 
             
             3 => array_merge([ // Bendahara
@@ -61,7 +71,17 @@ class RoleMiddleware
                 'bop.create', 
                 'iuran.create', 
                 'pengumuman.create', 
-                'pengeluaran.store'
+                'pengeluaran.store',
+                'tagihan.create',
+                'tagihan.store',
+                'tagihan.upload',
+                'tagihan.generate',
+                'tagihan.monitoring',
+                'tagihan.approve',
+                'tagihan.decline',
+                'tagihan.warga.index',
+                'tagihan.warga.show',
+                'tagihan.bayar',
             ], $kategoriIuranRoutes), 
             
             4 => [ // Sekretaris
@@ -72,7 +92,17 @@ class RoleMiddleware
                 'rincian.show', 
                 'pengumuman',
                 'profil.index', 
-                'profil.update'
+                'profil.update',
+                'tagihan.create',
+                'tagihan.store',
+                'tagihan.upload',
+                'tagihan.generate',
+                'tagihan.monitoring',
+                'tagihan.approve',
+                'tagihan.decline',
+                'tagihan.warga.index',
+                'tagihan.warga.show',
+                'tagihan.bayar',
             ], 
             5 => [ // Warga
                 'dashboard',
@@ -81,7 +111,11 @@ class RoleMiddleware
                 'profil.update',
                 'masuk-iuran.index', 
                 'masuk-iuran.show', 
-                'masuk-iuran.store'
+                'masuk-iuran.store',
+                'tagihan.upload',
+                'tagihan.warga.index',
+                'tagihan.warga.show',
+                'tagihan.bayar',
             ], 
         ];
 
