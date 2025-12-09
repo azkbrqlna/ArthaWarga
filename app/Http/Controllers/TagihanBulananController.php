@@ -162,7 +162,7 @@ class TagihanBulananController extends Controller
         if ($jimpitan > 0) {
             PemasukanIuran::create([
                 'usr_id'       => $tagihan->usr_id,
-                'kat_iuran_id' => $tagihan->kat_iuran_id, 
+                'kat_iuran_id' => '5', // Asumsi ID Kategori Jimpitan adalah 3
                 'tgl'          => now(),
                 'nominal'      => $jimpitan, // Hanya nominal jimpitan yg masuk kas
                 'ket'          => 'Jimpitan Air (Auto) - ' . $tagihan->bulan . '/' . $tagihan->tahun,

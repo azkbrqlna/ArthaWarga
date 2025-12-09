@@ -17,7 +17,7 @@ class IuranController extends Controller
     {
         // Ambil data kategori yang dikecualikan (Air/Sampah = ID 1 & 2)
         // Sesuai logika Transaksi Umum (7 Kategori)
-        $kategori_iuran = KategoriIuran::whereNotIn('id', [1, 2])->get();
+        $kategori_iuran = KategoriIuran::whereNot('id', 1)->get();
 
         return Inertia::render('Ringkasan/Pemasukan', [
             'kategori_iuran' => $kategori_iuran

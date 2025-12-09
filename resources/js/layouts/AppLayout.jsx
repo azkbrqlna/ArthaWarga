@@ -56,7 +56,7 @@ export default function AppLayout({ children }) {
             url: "/dashboard",
             icon: LayoutTemplate,
         },
-        { title: "Iuran Warga", url: "/masuk-iuran", icon: WalletIcon },
+        { title: "Tagihan Bulanan", url: "/tagihan-bulanan", icon: WalletIcon },
     ];
 
     // 🔹 menu normal untuk non-admin dan non-warga (misal: Pengurus RT)

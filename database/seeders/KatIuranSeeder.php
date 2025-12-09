@@ -16,7 +16,7 @@ class KatIuranSeeder extends Seeder
         // 1. DAFTAR KATEGORI YANG INGIN KITA PERTAHANKAN
         $kat_iurans_data = [
             [
-                'nm_kat'        => 'Air',
+                'nm_kat'        => 'Air dan Sampah',
                 'harga_meteran' => 2000,
                 'abonemen'      => 5000,
                 'jimpitan_air'  => 500,

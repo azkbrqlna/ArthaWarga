@@ -13,6 +13,7 @@ use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\SpjController;
 use App\Http\Controllers\KategoriIuranController; 
 use App\Http\Controllers\SuperadminController;
+use App\Http\Controllers\TagihanBulananController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -66,10 +67,6 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/profil/photo/{id}', [ProfileWargaController::class, 'updatePhoto'])->name('profil.updatePhoto');
     Route::delete('/profil/photo/{id}', [ProfileWargaController::class, 'deletePhoto'])->name('profil.deletePhoto');
 
-    Route::get('/masuk-iuran', [MasukIuranController::class, 'index'])->name('masuk-iuran.index');
-    Route::get('/masuk-iuran/{id}', [MasukIuranController::class, 'show'])->name('masuk-iuran.show');
-    Route::post('/masuk-iuran/upload', [MasukIuranController::class, 'store'])->name('masuk-iuran.store');
-
     // MANAJEMEN DATA (Superadmin)
     Route::get('/manajemen-data', [SuperadminController::class, 'users'])->name('superadmin.users');
     Route::get('/tambah-data', [SuperadminController::class, 'createUser'])->name('superadmin.createUser');
@@ -78,14 +75,13 @@ Route::middleware(['role.access'])->group(function () {
     Route::put('/manajemen-data/{id}', [SuperadminController::class, 'update'])->name('superadmin.updateUser');
     Route::delete('/manajemen-data/{id}', [SuperadminController::class, 'deleteUser'])->name('superadmin.deleteUser');
     
-    // TAGIHAN BULANAN
 
     Route::get('/tagihan-bulanan/create', [TagihanBulananController::class, 'create'])->name('tagihan.create');
     Route::post('/tagihan-bulanan/store', [TagihanBulananController::class, 'store'])->name('tagihan.store');
     Route::post('/tagihan-bulanan/upload', [TagihanBulananController::class, 'upload_bukti'])->name('tagihan.upload');
     
     //UNTUK RT
-    Route::get('/tagihan-bulanan/monitoring', [TagihanBulananController::class, 'index_rt'])->name('tagihan.monitoring');
+    Route::get('/approval', [TagihanBulananController::class, 'index_rt'])->name('tagihan.monitoring');
     Route::patch('/tagihan-bulanan/{id}/approve', [TagihanBulananController::class, 'approve'])->name('tagihan.approve');
     Route::patch('/tagihan-bulanan/{id}/decline', [TagihanBulananController::class, 'decline'])->name('tagihan.decline');
     
