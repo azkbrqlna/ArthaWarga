@@ -29,8 +29,7 @@ class RoleMiddleware
         $access = [
             1 => array_merge(
                 ['dashboard', 'profil.index', 'profil.update', 'superadmin.users', 'superadmin.createUser', 'superadmin.storeUser', 'superadmin.editUser', 'superadmin.updateUser', 'superadmin.deleteUser'], 
-                $kategoriIuranRoutes 
-            ), 
+            ), // SuperAdmin
             2 => array_merge([ 
                 'dashboard',
                 'pemasukan.index',
@@ -50,15 +49,11 @@ class RoleMiddleware
                 'approval.patch',
                 'tagihan.create',
                 'tagihan.store',
-                'tagihan.upload',
                 'tagihan.generate',
                 'tagihan.monitoring',
                 'tagihan.approve',
                 'tagihan.decline',
-                'tagihan.warga.index',
-                'tagihan.warga.show',
-                'tagihan.bayar',
-            ], $kategoriIuranRoutes), 
+            ], $kategoriIuranRoutes), // Ketua RT
             
             3 => array_merge([ // Bendahara
                 'dashboard', 
@@ -74,14 +69,10 @@ class RoleMiddleware
                 'pengeluaran.store',
                 'tagihan.create',
                 'tagihan.store',
-                'tagihan.upload',
                 'tagihan.generate',
                 'tagihan.monitoring',
                 'tagihan.approve',
                 'tagihan.decline',
-                'tagihan.warga.index',
-                'tagihan.warga.show',
-                'tagihan.bayar',
             ], $kategoriIuranRoutes), 
             
             4 => [ // Sekretaris
@@ -95,14 +86,10 @@ class RoleMiddleware
                 'profil.update',
                 'tagihan.create',
                 'tagihan.store',
-                'tagihan.upload',
                 'tagihan.generate',
                 'tagihan.monitoring',
                 'tagihan.approve',
                 'tagihan.decline',
-                'tagihan.warga.index',
-                'tagihan.warga.show',
-                'tagihan.bayar',
             ], 
             5 => [ // Warga
                 'dashboard',

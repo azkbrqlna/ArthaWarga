@@ -53,6 +53,7 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
     Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index'); 
 
+
     // PENGELUARAN & SPJ
 
     Route::get('/dashboard/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
@@ -85,8 +86,6 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/tagihan-bulanan/store', [TagihanBulananController::class, 'store'])->name('tagihan.store');
     Route::post('/tagihan-bulanan/upload', [TagihanBulananController::class, 'upload_bukti'])->name('tagihan.upload');
     //UNTUK RT
-    //NANTI INI DIHAPUS
-    Route::post('/tagihan-bulanan/generate', [TagihanBulananController::class, 'generate'])->name('tagihan.generate');
     Route::get('/tagihan-bulanan/monitoring', [TagihanBulananController::class, 'index_rt'])->name('tagihan.monitoring');
     //SAMPE ATAS INI
     Route::patch('/tagihan-bulanan/{id}/approve', [TagihanBulananController::class, 'approve'])->name('tagihan.approve');

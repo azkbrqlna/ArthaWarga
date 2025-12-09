@@ -279,12 +279,7 @@ export default function Pengeluaran() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label>
-                            Bukti Nota / Kwitansi
-                            <span className="text-gray-400 text-xs ml-2">
-                                (Opsional)
-                            </span>
-                        </Label>
+                        <Label>Bukti Nota / Kwitansi</Label>
                         <label
                             htmlFor="nota"
                             className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg py-10 cursor-pointer hover:bg-gray-50"

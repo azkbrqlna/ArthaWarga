@@ -114,15 +114,29 @@ class TagihanBulananController extends Controller
     /**
      * MONITORING TAGIHAN (INDEX RT)
      */
+    /**
+     * MONITORING TAGIHAN (INDEX RT)
+     */
     public function index_rt()
     {
+        // Hitung Saldo Ditagihkan (Status: ditagihkan & pending)
+        // Kita asumsikan 'pending' juga masih masuk kategori belum masuk kas (masih proses)
+        $totalDitagihkan = TagihanBulanan::whereIn('status', ['ditagihkan', 'pending'])
+            ->sum('nominal');
+
+        // Hitung Saldo Lunas (Status: approved)
+        $totalLunas = TagihanBulanan::where('status', 'approved')
+            ->sum('nominal');
+
         $tagihan = TagihanBulanan::with(['user', 'kategori'])
             ->orderByDesc('tahun')
             ->orderByDesc('bulan')
             ->get();
 
         return Inertia::render("TagihanBulanan/IndexRT", [
-            'tagihan' => $tagihan
+            'tagihan'         => $tagihan,
+            'totalDitagihkan' => $totalDitagihkan, // Kirim ke Frontend
+            'totalLunas'      => $totalLunas       // Kirim ke Frontend
         ]);
     }
 
@@ -138,14 +152,11 @@ class TagihanBulananController extends Controller
             return back()->with('error', 'Tagihan sudah diapprove.');
         }
 
-        // 1. Update Status Tagihan
         $tagihan->update([
             'status' => 'approved',
             'tgl_approved' => now(),
         ]);
 
-        // 2. MASUKKAN JIMPITAN KE TABEL PEMASUKAN_IURAN (Kas RT)
-        // Ambil nominal jimpitan yang tersimpan di snapshot
         $jimpitan = $tagihan->jimpitan_air ?? 0;
 
         if ($jimpitan > 0) {
@@ -165,7 +176,7 @@ class TagihanBulananController extends Controller
     public function decline($id)
     {
         $tagihan = TagihanBulanan::findOrFail($id);
-        $tagihan->status = 'declined';
+        $tagihan->status = 'ditagihkan';
         $tagihan->save();
 
         return back()->with('success', 'Tagihan ditolak.');
