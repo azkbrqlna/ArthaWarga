@@ -13,10 +13,10 @@ class KatIuranSeeder extends Seeder
         $kat_iurans_data = [
             'Air' => [
                 'config' => [
-                    'harga_meteran' => null,
-                    'abonemen' => null,
-                    'jimpitan_air' => null,
-                    'harga_sampah' => null,
+                    'harga_meteran' => 2000,
+                    'abonemen' => 10000,
+                    'jimpitan_air' => 100,
+                    'harga_sampah' => 5000,
                 ]
             ],
             'Kebersihan' => [

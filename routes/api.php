@@ -59,7 +59,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/kegiatan', [KegiatanApiController::class, 'index']);
     Route::get('/kegiatan/{id}', [KegiatanApiController::class, 'show']);
     Route::post('/kegiatan', [KegiatanApiController::class, 'store']);
-    Route::patch('/kegiatan/update/{id}', [KegiatanApiController::class, 'update']);
+    Route::post('/kegiatan/update/{id}', [KegiatanApiController::class, 'update']);
     Route::delete('/kegiatan/{id}', [KegiatanApiController::class, 'destroy']);
 
     // 5. Kegiatan 
