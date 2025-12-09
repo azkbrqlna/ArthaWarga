@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\DownloadPdfRequest; // <-- Pastikan ini ada dan warnanya tidak merah di editor
+use App\Http\Controllers\Controller;
+use App\Http\Requests\DownloadPdfRequest;
 use App\Models\PemasukanBOP;
 use App\Models\Pengeluaran;
 use App\Models\PemasukanIuran;
@@ -12,23 +13,16 @@ use Illuminate\Support\Facades\Auth;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 
-/**
- * @group Download
- * API untuk mengunduh laporan dan dokumen.
- */
 class DownloaderController extends Controller
 {
     /**
      * Download Laporan Keuangan (PDF)
-     * Endpoint ini menghasilkan file PDF laporan keuangan.
-     * Bisa difilter berdasarkan bulan dan tahun tertentu.
      */
     public function download(DownloadPdfRequest $request)
     {
         // 1. Ambil User Login
         $user = Auth::user();
         if (!$user) {
-            // Jaga-jaga jika dipanggil tanpa login yang valid, meski sudah di middleware auth
             return response()->json(['message' => 'Unauthorized'], 401);
         }
         
@@ -39,12 +33,11 @@ class DownloaderController extends Controller
         $month = $request->input('month');
         $year = $request->input('year');
 
-        // Patch: Jika Tahun kosong, pakai tahun sekarang
         if (empty($year)) {
             $year = Carbon::now()->year;
         }
 
-        // 3. Tentukan Rentang Tanggal & Label Periode
+        // 3. Tentukan Rentang Tanggal
         $startDate = null;
         $endDate = null;
         $periodeLabel = '-';
@@ -64,74 +57,81 @@ class DownloaderController extends Controller
             $periodeLabel = 'Tahun ' . $year;
         }
 
-        // Helper filter query
-        $applyFilter = function($query) use ($startDate, $endDate) {
-            return $query->whereBetween('tgl', [$startDate, $endDate]);
-        };
-
         // Fallback gambar (null saja agar aman)
         $localFallbackImage = null;
 
         // --- QUERY DATA ---
-        // A. BOP Masuk
-        $bopMasuk = $applyFilter(PemasukanBOP::select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at'))
-            ->get()->map(fn($row) => $this->mapData($row, 'bop', 'masuk', $localFallbackImage));
 
-        // B. BOP Keluar
-        $bopKeluar = $applyFilter(Pengeluaran::where('tipe', 'bop')->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at'))
-            ->get()->map(fn($row) => $this->mapData($row, 'bop', 'keluar', $localFallbackImage));
+        // A. BOP Masuk 
+        $bopMasuk = PemasukanBOP::whereBetween('tgl', [$startDate, $endDate])
+            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
+            ->get()
+            ->map(fn($row) => $this->mapData($row, 'bop', 'masuk', $localFallbackImage));
 
-        // C. Iuran Masuk
-        $iuranMasuk = $applyFilter(PemasukanIuran::where('status', 'approved')->select('id', 'tgl', 'nominal', 'ket', 'created_at', 'bkt_nota'))
-            ->get()->map(fn($row) => $this->mapData($row, 'iuran', 'masuk', $localFallbackImage));
+        // B. Iuran Masuk
+        // Hapus where('status', 'approved') jika kolom status tidak ada di DB
+        $iuranMasuk = PemasukanIuran::whereBetween('tgl', [$startDate, $endDate])
+            ->select('id', 'tgl', 'nominal', 'ket', 'created_at') // Sesuaikan kolom
+            ->get()
+            ->map(fn($row) => $this->mapData($row, 'iuran', 'masuk', $localFallbackImage));
 
-        // D. Iuran Keluar
-        $iuranKeluar = $applyFilter(Pengeluaran::where('tipe', 'iuran')->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at'))
-            ->get()->map(fn($row) => $this->mapData($row, 'iuran', 'keluar', $localFallbackImage));
+        // C. PENGELUARAN (Semua tipe digabung)
+        // Pastikan nama kolom 'tgl', 'nominal', 'ket' sesuai dengan tabel 'pengeluaran' Anda
+        $pengeluaranAll = Pengeluaran::whereBetween('tgl', [$startDate, $endDate])
+            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at')
+            ->get()
+            ->map(fn($row) => $this->mapData($row, 'iuran', 'keluar', $localFallbackImage)); 
 
         // --- HITUNG SALDO AWAL ---
         $saldoBop = 0;
         $saldoIuran = 0;
 
         if ($startDate) {
-            $saldoBop = PemasukanBOP::where('tgl', '<', $startDate)->sum('nominal')
-                - Pengeluaran::where('tipe', 'bop')->where('tgl', '<', $startDate)->sum('nominal');
-
-            $saldoIuran = PemasukanIuran::where('status', 'approved')->where('tgl', '<', $startDate)->sum('nominal')
-                - Pengeluaran::where('tipe', 'iuran')->where('tgl', '<', $startDate)->sum('nominal');
+            // Saldo Awal BOP
+            $saldoBop = PemasukanBOP::where('tgl', '<', $startDate)->sum('nominal');
+            
+            // Saldo Awal Iuran (Pemasukan - Pengeluaran Sebelumnya)
+            $masukIuranAwal = PemasukanIuran::where('tgl', '<', $startDate)->sum('nominal');
+            $keluarAwal = Pengeluaran::where('tgl', '<', $startDate)->sum('nominal');
+            
+            $saldoIuran = $masukIuranAwal - $keluarAwal;
         }
 
         // --- GABUNG DATA ---
         $timeline = collect()
-            ->concat($bopMasuk)->concat($bopKeluar)
-            ->concat($iuranMasuk)->concat($iuranKeluar)
+            ->concat($bopMasuk)
+            ->concat($iuranMasuk)
+            ->concat($pengeluaranAll) 
             ->sortBy(fn($item) => $item['tgl'] . '-' . ($item['created_at'] ?? ''))
             ->values();
 
         $final = [];
         
         foreach ($timeline as $row) {
-            $kategori = ($row['tipe_dana'] === 'bop') ? 'BOP' : 'Iuran';
+            // Tentukan kategori string
+            $kategori = ($row['tipe_dana'] === 'bop') ? 'BOP' : 'Kas/Iuran';
+            
+            // Tentukan saldo mana yang dipakai
             $currentSaldo = ($row['tipe_dana'] === 'bop') ? $saldoBop : $saldoIuran;
             
             $jumlah_awal = $currentSaldo;
             $jumlah_digunakan = 0;
+            $jumlah_sisa = 0;
 
             if ($row['arah'] === 'masuk') {
                 $jumlah_sisa = $jumlah_awal + $row['nominal'];
-                $currentSaldo = $jumlah_sisa; 
                 $status = 'Pemasukan';
             } else {
                 $jumlah_digunakan = $row['nominal'];
                 $jumlah_sisa = $jumlah_awal - $row['nominal'];
-                $currentSaldo = $jumlah_sisa; 
                 $status = 'Pengeluaran';
             }
 
+            // Update saldo berjalan
             if ($row['tipe_dana'] === 'bop') {
-                $saldoBop = $currentSaldo;
+                $saldoBop = $jumlah_sisa;
             } else {
-                $saldoIuran = $currentSaldo;
+                $saldoIuran = $jumlah_sisa;
             }
 
             $final[] = [
@@ -164,9 +164,11 @@ class DownloaderController extends Controller
         return $pdf->download($filename);
     }
 
+    // --- FUNGSI HELPER INI YANG SEBELUMNYA HILANG ---
     private function mapData($row, $tipe, $arah, $fallbackImage)
     {
-        $bktNota = $row->bkt_nota;
+        // Cek apakah kolom bkt_nota ada di $row
+        $bktNota = $row->bkt_nota ?? null;
         $bktNotaPath = null;
 
         if (!empty($bktNota) && Storage::disk('public')->exists($bktNota)) {
@@ -180,7 +182,7 @@ class DownloaderController extends Controller
         return [
             'id' => $tipe . '-' . $arah . '-' . $row->id,
             'real_id' => $row->id,
-            'tgl' => $row->tgl,
+            'tgl' => $row->tgl, // Pastikan format Y-m-d
             'created_at' => $row->created_at,
             'tipe_dana' => $tipe,
             'arah' => $arah,
