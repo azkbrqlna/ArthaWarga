@@ -4,6 +4,7 @@ namespace Database\Seeders;
 
 use App\Models\KategoriIuran;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB; // 💡 Import DB Facade
 
 class KatIuranSeeder extends Seeder
 {
@@ -12,19 +13,17 @@ class KatIuranSeeder extends Seeder
      */
     public function run(): void
     {
+        // 1. DAFTAR KATEGORI YANG INGIN KITA PERTAHANKAN
         $kat_iurans_data = [
-            // 1. Kategori AIR (Master Data Utama)
-            // Ini memuat semua komponen harga yang akan disnapshot ke tagihan bulanan
             [
                 'nm_kat'        => 'Air',
-                'harga_meteran' => 2000,   // Rp 2.000 per meter kubik
-                'abonemen'      => 5000,   // Biaya admin/abonemen tetap
-                'jimpitan_air'  => 500,    // Masuk ke kas RT
-                'harga_sampah'  => 15000,  // Opsi jika warga ingin bayar sampah sekalian
+                'harga_meteran' => 2000,
+                'abonemen'      => 5000,
+                'jimpitan_air'  => 500,
+                'harga_sampah'  => 15000,
             ],
-            
-            // 2. Kategori Lainnya (Harga Null karena biasanya input manual / sukarela)
-            ['nm_kat' => 'Kebersihan'], // Opsional, jika ada yg bayar sampah terpisah
+            // 💡 HANYA 8 KATEGORI YANG DIINGINKAN (Gizi, Sosial, Kas, Keamanan, Kegiatan, Lingkungan, Pembangunan, Kebersihan)
+            ['nm_kat' => 'Kebersihan'],
             ['nm_kat' => 'Gizi'],
             ['nm_kat' => 'Sosial/Kematian'],
             ['nm_kat' => 'Kas'],
@@ -32,11 +31,19 @@ class KatIuranSeeder extends Seeder
             ['nm_kat' => 'Kegiatan'],
             ['nm_kat' => 'Lingkungan'],
             ['nm_kat' => 'Pembangunan'],
-            ['nm_kat' => 'Sumbangan Agustusan'],
         ];
 
+        // 2. AMBIL SEMUA NAMA KATEGORI YANG HARUS ADA
+        $allowed_names = array_column($kat_iurans_data, 'nm_kat');
+
+        // 🛑 LANGKAH PENTING: HAPUS SEMUA KATEGORI YANG TIDAK ADA DI DAFTAR BARU
+        // Pastikan KategoriIuran tidak memiliki relasi yang menghalangi penghapusan
+        DB::table('kat_iuran')
+            ->whereNotIn('nm_kat', $allowed_names)
+            ->delete();
+
+        // 3. UPDATE/CREATE data baru
         foreach ($kat_iurans_data as $data) {
-            // Default value null jika tidak didefinisikan di array atas
             $values = [
                 'harga_meteran' => $data['harga_meteran'] ?? null,
                 'abonemen'      => $data['abonemen'] ?? null,
@@ -45,8 +52,8 @@ class KatIuranSeeder extends Seeder
             ];
 
             KategoriIuran::updateOrCreate(
-                ['nm_kat' => $data['nm_kat']], // Cek berdasarkan nama
-                $values                        // Update nilai harga
+                ['nm_kat' => $data['nm_kat']], 
+                $values
             );
         }
     }

@@ -21,14 +21,12 @@
 
         /* 3. CONTAINER */
         .container {
-            width: 170mm;        
-            margin: 20mm auto;   
+            width: 170mm; 
+            margin: 20mm auto; 
             box-sizing: border-box; 
-            padding: 0;          
+            padding: 0; 
             position: relative;
         }
-
-        /* --- HEADER INFO DIHAPUS --- */
 
         /* JUDUL */
         .title {
@@ -36,8 +34,8 @@
             font-size: 18pt;
             font-weight: bold;
             text-decoration: underline;
-            margin-top: 0;      /* Langsung di atas */
-            margin-bottom: 30px; /* Jarak ke tabel */
+            margin-top: 0; 
+            margin-bottom: 30px; 
             letter-spacing: 2px;
             text-transform: uppercase;
             clear: both;
@@ -70,12 +68,13 @@
             font-style: italic;
             display: block;
             line-height: 1.3;
+            font-size: 11pt; 
         }
 
         /* --- STYLE KOTAK TOTAL --- */
         .total-section {
             margin-top: 20px;
-            text-align: right; /* Rata kanan */
+            text-align: right; 
         }
         
         .total-box-inline {
@@ -92,18 +91,31 @@
         }
 
         /* FOOTER (TTD) */
-        .footer-table {
+        table.footer-table {
             width: 100%;
             margin-top: 30px;
             border-collapse: collapse;
+            border: none; 
         }
+        .footer-table td {
+             border: none !important;
+        }
+        
         .footer-left { width: 40%; vertical-align: top; }
-        .footer-right { width: 60%; vertical-align: top; text-align: right; }
+        
+        /* KOREKSI: MENGATUR RATA TENGAH UNTUK SEL TANDA TANGAN */
+        .footer-right { 
+            width: 60%; 
+            vertical-align: top; 
+            text-align: center; 
+        }
 
         .signature-block {
-            display: inline-block;
-            text-align: left;
-            width: 280px;
+            width: 280px; 
+            margin-left: auto;
+            margin-right: auto;
+            text-align: center; 
+            display: block; 
         }
     </style>
 </head>
@@ -111,8 +123,6 @@
 
     <div class="container">
         
-        <!-- HEADER NOMOR DIHAPUS SESUAI REQUEST -->
-
         <!-- JUDUL -->
         <div class="title">KUITANSI</div>
 
@@ -145,7 +155,6 @@
                         <!-- Deskripsi Text -->
                         {{ $deskripsi }}
 
-                        <!-- DAFTAR BARANG DIHAPUS, GANTI LANGSUNG TOTAL -->
                         <div class="total-section">
                             <span style="font-weight: bold; font-size: 11pt; margin-right: 5px;">JUMLAH = </span>
                             <div class="total-box-inline">
@@ -160,14 +169,33 @@
         <!-- FOOTER TTD -->
         <table class="footer-table">
             <tr>
-                <td class="footer-left"></td>
+                <!-- Footer Left kosong (tanpa border) -->
+                <td class="footer-left"></td> 
+                
+                <!-- Footer Right (tanpa border) -->
                 <td class="footer-right">
                     <div class="signature-block">
-                        <p>{{ $kota }}, {{ $tanggal }}</p>
+                        @php
+                            // Set locale ke Bahasa Indonesia untuk pemformatan tanggal
+                            \Carbon\Carbon::setLocale('id'); 
+                            
+                            try {
+                                // Asumsi $tanggal datang sebagai 'd/m/Y' dari Controller
+                                $formattedDate = \Carbon\Carbon::createFromFormat('d/m/Y', $tanggal)->isoFormat('D MMMM Y');
+                            } catch (\Exception $e) {
+                                $formattedDate = $tanggal; // Fallback jika format d/m/Y salah
+                            }
+                        @endphp
+                        
+                        <p>{{ $kota }}, {{ $formattedDate }}</p>
                         <p>Barang/Jasa sudah diterima dengan baik dan lengkap</p>
-                        <br>
+                        
+                        <div style="margin-top: 60px;"></div> 
+                        
                         <p>Penerima,</p>
-                        <br><br><br><br>
+                        
+                        <div style="margin-top: 80px;"></div> 
+
                         <p>(.............................................)</p>
                     </div>
                 </td>

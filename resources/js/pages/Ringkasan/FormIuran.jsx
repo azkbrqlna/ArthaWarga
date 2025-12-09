@@ -29,7 +29,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
 
     const { data, setData, reset } = useForm({
         kat_iuran_id: "",
-        tgl: tanggal || "",
+        tgl: tanggal || new Date().toISOString().slice(0, 10),
         nominal: "",
         ket: "",
     });
@@ -71,7 +71,10 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
         e.preventDefault();
         setIsLoading(true);
 
-        // 🔍 Validasi user-friendly
+        const cleanNominalString = data.nominal.replace(/[^0-9]/g, "");
+        const cleanNominal = parseInt(cleanNominalString) || 0;
+
+        // 🔍 Validasi
         if (!data.kat_iuran_id) {
             notifyError(
                 "Belum memilih jenis iuran",
@@ -80,7 +83,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
             setIsLoading(false);
             return;
         }
-        if (!data.nominal || data.nominal === "Rp 0") {
+        if (cleanNominal <= 0) {
             notifyError(
                 "Nominal belum diisi",
                 "Masukkan jumlah uang iuran yang sesuai."
@@ -97,33 +100,36 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
             return;
         }
 
-        const cleanNominal = data.nominal.replace(/[^0-9]/g, "");
+        // Payload data yang akan dikirim
+        const payload = {
+            kat_iuran_id: data.kat_iuran_id,
+            tgl: data.tgl,
+            nominal: cleanNominal,
+            ket: data.ket,
+        };
 
         try {
-            await axios.post(route("iuran.create"), {
-                ...data,
-                nominal: cleanNominal,
-            });
+            const res = await axios.post(route("iuran.create"), payload);
 
-            notifySuccess("Berhasil", "Data iuran berhasil disimpan!");
-            reset();
-            router.visit("/dashboard");
+            if (res.data.success) {
+                notifySuccess("Berhasil", res.data.message);
+                reset();
+                router.visit(route("dashboard"));
+            } else {
+                notifyError("Gagal Menyimpan", res.data.message);
+            }
         } catch (error) {
-            console.error(error);
+            // 💡 Penanganan Error dari Controller (termasuk pesan ERROR: ... )
             let pesan = "Terjadi kesalahan, coba beberapa saat lagi.";
-            if (error.response) {
-                switch (error.response.status) {
-                    case 422:
-                        pesan =
-                            "Periksa kembali data yang kamu isi, ada yang belum sesuai.";
-                        break;
-                    case 500:
-                        pesan =
-                            "Server sedang bermasalah. Coba beberapa saat lagi.";
-                        break;
-                    default:
-                        pesan = error.response.data?.message || pesan;
+            if (error.response && error.response.data) {
+                if (error.response.status === 422) {
+                    pesan =
+                        "Periksa kembali data yang kamu isi, ada yang belum sesuai.";
+                } else {
+                    pesan = error.response.data.message || pesan;
                 }
+            } else if (error.message) {
+                pesan = "Gagal koneksi ke server.";
             }
             notifyError("Gagal Menyimpan", pesan);
         } finally {
@@ -131,7 +137,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
         }
     };
 
-    // 🟢 Tambah kategori baru
+    // ... (Fungsi handleAddKategori dan handleDeleteKategori tetap sama)
     const handleAddKategori = async () => {
         if (!namaKat.trim()) {
             notifyError("Input kosong", "Nama kategori tidak boleh kosong.");
@@ -147,7 +153,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                 setKategori((prev) => [...prev, res.data.data]);
                 notifySuccess(
                     "Kategori Ditambahkan",
-                    "Jenis iuran baru berhasil disimpan."
+                    res.data.message || "Jenis iuran baru berhasil disimpan."
                 );
                 setNamaKat("");
                 setOpenAdd(false);
@@ -158,12 +164,14 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                 );
             }
         } catch (error) {
-            console.error(error);
-            notifyError("Gagal Menambah", "Terjadi kesalahan pada server.");
+            notifyError(
+                "Gagal Menambah",
+                error.response?.data?.message ||
+                    "Terjadi kesalahan pada server."
+            );
         }
     };
 
-    // 🔴 Hapus kategori
     const handleDeleteKategori = async () => {
         if (!selectedDelete) return;
 
@@ -176,7 +184,10 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                 setKategori((prev) =>
                     prev.filter((item) => item.id !== selectedDelete)
                 );
-                notifySuccess("Berhasil", "Kategori berhasil dihapus.");
+                notifySuccess(
+                    "Berhasil",
+                    res.data.message || "Kategori berhasil dihapus."
+                );
                 setOpenDelete(false);
             } else {
                 notifyError(
@@ -185,8 +196,11 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                 );
             }
         } catch (error) {
-            console.error(error);
-            notifyError("Gagal Menghapus", "Terjadi kesalahan pada server.");
+            notifyError(
+                "Gagal Menghapus",
+                error.response?.data?.message ||
+                    "Terjadi kesalahan pada server."
+            );
         }
     };
 
@@ -200,14 +214,14 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                     </Label>
                     <Dialog open={openAdd} onOpenChange={setOpenAdd}>
                         <DialogTrigger asChild>
-                            {/* <Button
+                            <Button
                                 type="button"
                                 size="sm"
                                 className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1"
                             >
                                 <Plus className="w-4 h-4" />
                                 Tambah
-                            </Button> */}
+                            </Button>
                         </DialogTrigger>
                         <DialogContent className="space-y-4">
                             <DialogHeader>

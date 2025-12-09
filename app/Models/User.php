@@ -64,4 +64,11 @@ class User extends Authenticatable
     {
         return $this->hasMany(TagihanBulanan::class);
     }
+
+    public function pemasukan_iuran()
+    {
+        // Foreign Key di tabel masuk_iuran adalah 'usr_id'
+        // Local Key di tabel usr adalah 'id'
+        return $this->hasMany(PemasukanIuran::class, 'usr_id', 'id');
+    }
 }

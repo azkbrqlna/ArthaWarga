@@ -14,7 +14,6 @@ use App\Http\Controllers\SpjController;
 use App\Http\Controllers\KategoriIuranController; 
 use App\Http\Controllers\SuperadminController;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\TagihanBulananController;
 use Inertia\Inertia;
 
 // --- API Documentation Password Protection ---
@@ -55,7 +54,6 @@ Route::middleware(['role.access'])->group(function () {
 
 
     // PENGELUARAN & SPJ
-
     Route::get('/dashboard/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
     Route::post('/pengeluaran', [PengeluaranController::class, 'store'])->name('pengeluaran.store');
     Route::get('/spj/download/{id}', [SpjController::class, 'download'])->name('spj.download');
@@ -72,9 +70,7 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/masuk-iuran/{id}', [MasukIuranController::class, 'show'])->name('masuk-iuran.show');
     Route::post('/masuk-iuran/upload', [MasukIuranController::class, 'store'])->name('masuk-iuran.store');
 
-
-    Route::get('/spj/download/{id}', [SpjController::class, 'download'])->name('spj.download');
-
+    // MANAJEMEN DATA (Superadmin)
     Route::get('/manajemen-data', [SuperadminController::class, 'users'])->name('superadmin.users');
     Route::get('/tambah-data', [SuperadminController::class, 'createUser'])->name('superadmin.createUser');
     Route::post('/manajemen-data', [SuperadminController::class, 'storeUser'])->name('superadmin.storeUser');
@@ -103,6 +99,4 @@ Route::middleware(['role.access'])->group(function () {
 // --- Rute yang Memerlukan Autentikasi Saja ---
 Route::middleware(['auth'])->group(function () {
     Route::get('/download/pdf', [DownloaderController::class, 'download'])->name('download.pdf');
-    
-    
 });

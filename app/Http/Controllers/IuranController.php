@@ -12,15 +12,19 @@ use Inertia\Inertia;
 
 class IuranController extends Controller
 {
-    
+    // 💡 Fungsi yang menampilkan halaman form 'Ringkasan/Pemasukan'
     public function pemasukan()
     {
+        // Ambil data kategori yang dikecualikan (Air/Sampah = ID 1 & 2)
+        // Sesuai logika Transaksi Umum (7 Kategori)
         $kategori_iuran = KategoriIuran::whereNotIn('id', [1, 2])->get();
 
         return Inertia::render('Ringkasan/Pemasukan', [
             'kategori_iuran' => $kategori_iuran
         ]);
     }
+
+    // 💡 Fungsi untuk membuat kategori baru (kat_iuran_create)
     public function kat_iuran_create(Request $request)
     {
         $validated = $request->validate([
@@ -36,6 +40,7 @@ class IuranController extends Controller
         ]);
     }
 
+    // 💡 Fungsi untuk menghapus kategori (kat_iuran_delete)
     public function kat_iuran_delete($id)
     {
         $kategori = KategoriIuran::find($id);
@@ -64,6 +69,7 @@ class IuranController extends Controller
         ]);
     }
 
+    // 💡 Fungsi untuk menampilkan daftar iuran (index)
     public function index()
     {
         $data = PemasukanIuran::select('kat_iuran_id', 'tgl', 'nominal', 'ket')
@@ -73,27 +79,42 @@ class IuranController extends Controller
         return response()->json(['data' => $data]);
     }
 
+    /**
+     * Menyimpan data Iuran Transaksi Umum (Oleh Pengurus RT).
+     * Route: /iuran/create (name: iuran.create)
+     */
     public function iuran_create(Request $request)
     {
+        // 🛑 REVISI 1: Validasi diperbarui
         $validated = $request->validate([
-            'kat_iuran_id' => 'required|exists:kat_iuran,id',
-            'tgl' => 'required|date',
-            'nominal' => 'required|numeric|min:0',
-            'ket' => 'nullable|string',
+            'kat_iuran_id' => 'required|integer|exists:kat_iuran,id', 
+            'tgl'          => 'required|date',
+            'nominal'      => 'required|integer|min:0', 
+            'ket'          => 'nullable|string',
         ]);
+        
+        // 🛑 REVISI 2 & 3: Tambahkan usr_id dan status
+        $validated['usr_id'] = Auth::id(); 
+        $validated['status'] = 'approved'; 
 
-        $iuran = PemasukanIuran::create([
-            'usr_id' => Auth::user()->id,
-            'kat_iuran_id' => $validated['kat_iuran_id'],
-            'tgl' => $validated['tgl'],
-            'nominal' => $validated['nominal'],
-            'ket' => $validated['ket'],
-            'status' => 'approved',
-        ]);
-       
-        return back()->with('success', 'Data iuran berhasil disimpan.');
+        $validated['tgl_byr'] = null;
+        $validated['bkt_byr'] = null;
+
+        try {
+            PemasukanIuran::create($validated);
+            
+            // 🛑 REVISI 4: Response JSON untuk AJAX
+            return response()->json([
+                'success' => true, 
+                'message' => 'Data iuran umum berhasil disimpan.'
+            ], 200);
+
+        } catch (\Exception $e) {
+            // Debug: Kembalikan error spesifik database
+            return response()->json([
+                'success' => false, 
+                'message' => 'Gagal menyimpan data. ERROR: ' . $e->getMessage() 
+            ], 500);
+        }
     }
-
-    
 }
-

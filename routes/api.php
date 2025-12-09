@@ -55,7 +55,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/kegiatan', [KegiatanApiController::class, 'index']);
     Route::get('/kegiatan/{id}', [KegiatanApiController::class, 'show']);
     Route::post('/kegiatan', [KegiatanApiController::class, 'store']);
-    Route::post('/kegiatan/update/{id}', [KegiatanApiController::class, 'update']);
+    Route::patch('/kegiatan/update/{id}', [KegiatanApiController::class, 'update']);
     Route::delete('/kegiatan/{id}', [KegiatanApiController::class, 'destroy']);
 
     // 6. Pengeluaran
