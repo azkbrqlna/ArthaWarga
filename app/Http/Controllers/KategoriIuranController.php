@@ -18,7 +18,7 @@ class KategoriIuranController extends Controller
     public function index()
     {
         // Mengambil data kategori urut abjad
-        $kategoriList = KategoriIuran::orderBy('nm_kat', 'asc')->get();
+        $kategoriList = KategoriIuran::orderBy('nm_kat', 'asc')->whereNot('id', 1)->get();
 
         // Render halaman React yang baru kita buat tadi
         return Inertia::render('TagihanBulanan/KategoriIndex', [
