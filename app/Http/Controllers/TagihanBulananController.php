@@ -123,7 +123,7 @@ class TagihanBulananController extends Controller
             'nominal'       => $nominal
         ]);
 
-        return redirect()->route('tagihan.create')->with('success', 'Tagihan berhasil dibuat!');
+        return redirect()->route('tagihan.rt.index')->with('success', 'Tagihan berhasil dibuat!');
     }
 
     /**
@@ -261,7 +261,7 @@ class TagihanBulananController extends Controller
             'nominal'      => $nominal
         ]);
 
-        return redirect()->route('tagihan.create')->with('success', 'Data tagihan berhasil diperbarui.');
+        return redirect()->route('tagihan.rt.index')->with('success', 'Data tagihan berhasil diperbarui.');
     }
 
     /**
