@@ -78,7 +78,7 @@ class KegiatanApiController extends Controller
             'panitia'     => 'nullable|string|max:255',
             // File upload: array, dan setiap item harus berupa file dengan kriteria tertentu
             'dok_keg'     => 'nullable|array', 
-            'dok_keg.*'   => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120', // Maks 5MB per file
+            'dok_keg.*'   => 'file|mimes:jpg,jpeg,png,pdf|max:5120', // Maks 5MB per file
         ]);
 
         if ($validator->fails()) {
@@ -149,8 +149,8 @@ class KegiatanApiController extends Controller
             // Field ini dikirim dari frontend untuk file yang tidak ingin dihapus
             'existing_dok_keg' => 'sometimes|nullable|array', 
             // File upload baru
-            'dok_keg'          => 'nullable|array', 
-            'dok_keg.*'        => 'required|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            'dok_keg'          => 'sometimes|nullable|array', 
+            'dok_keg.*'        => 'file|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
         
         if ($validator->fails()) {

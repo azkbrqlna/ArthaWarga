@@ -117,7 +117,11 @@ export default function Dashboard() {
             ).padStart(2, "0")}`;
 
             if (!monthlyData[key]) {
-                monthlyData[key] = { pemasukan: 0, pengeluaran: 0, dateObj: date };
+                monthlyData[key] = {
+                    pemasukan: 0,
+                    pengeluaran: 0,
+                    dateObj: date,
+                };
             }
 
             const nominal =
@@ -189,6 +193,27 @@ export default function Dashboard() {
 
                             {(userRole === 2 || userRole === 3) && (
                                 <>
+                                    {/* --- TOMBOL BARU: MASTER DATA (BIRU) --- */}
+                                    <Button
+                                        className="bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
+                                        onClick={() =>
+                                            router.visit(
+                                                route("kat_iuran.index")
+                                            )
+                                        }
+                                    >
+                                        Perbarui Master Data
+                                    </Button>
+                                    <Button
+                                        className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
+                                        onClick={() =>
+                                            router.visit(
+                                                route("kategori.index")
+                                            )
+                                        } // <-- Link ke halaman baru
+                                    >
+                                        Kelola Kategori
+                                    </Button>
                                     <Button
                                         className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
@@ -235,19 +260,35 @@ export default function Dashboard() {
                             <select
                                 value={selectedMonth}
                                 onChange={(e) =>
-                                    handleFilterChange(e.target.value, selectedYear)
+                                    handleFilterChange(
+                                        e.target.value,
+                                        selectedYear
+                                    )
                                 }
                                 className="border rounded-lg px-3 py-2 text-sm text-gray-700"
                             >
                                 <option value="">Bulan</option>
                                 {[
-                                    "01", "02", "03", "04", "05", "06",
-                                    "07", "08", "09", "10", "11", "12",
+                                    "01",
+                                    "02",
+                                    "03",
+                                    "04",
+                                    "05",
+                                    "06",
+                                    "07",
+                                    "08",
+                                    "09",
+                                    "10",
+                                    "11",
+                                    "12",
                                 ].map((m, i) => (
                                     <option key={m} value={m}>
-                                        {new Date(0, i).toLocaleString("id-ID", {
-                                            month: "long",
-                                        })}
+                                        {new Date(0, i).toLocaleString(
+                                            "id-ID",
+                                            {
+                                                month: "long",
+                                            }
+                                        )}
                                     </option>
                                 ))}
                             </select>
@@ -256,7 +297,10 @@ export default function Dashboard() {
                             <select
                                 value={selectedYear}
                                 onChange={(e) =>
-                                    handleFilterChange(selectedMonth, e.target.value)
+                                    handleFilterChange(
+                                        selectedMonth,
+                                        e.target.value
+                                    )
                                 }
                                 className="border rounded-lg px-3 py-2 text-sm text-gray-700"
                             >
@@ -294,9 +338,9 @@ export default function Dashboard() {
                             )}
 
                             {/* TOMBOL DOWNLOAD PDF (Ditempatkan di sini) */}
-                            <DownloadPdfBtn 
-                                month={selectedMonth} 
-                                year={selectedYear} 
+                            <DownloadPdfBtn
+                                month={selectedMonth}
+                                year={selectedYear}
                             />
                         </div>
                     </div>
