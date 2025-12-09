@@ -37,9 +37,11 @@ class ProfileWargaController extends Controller
 
                 'kecamatan_nama' => $user->kecamatan->nama_kecamatan ?? '-', 
                 'kelurahan_nama' => $user->kelurahan->nama_kelurahan ?? '-',
+                'kota_nama'      => $user->kota->nama_kota ?? '-',
 
                 'kecamatan_id'   => $user->kecamatan_id,
                 'kelurahan_id'   => $user->kelurahan_id,
+                'kota_id'        => $user->kota_id,
 
             ]
         ]);
@@ -64,6 +66,7 @@ class ProfileWargaController extends Controller
             'alamat'     => 'nullable|string',
             'kelurahan_id'  => 'nullable|string',
             'kecamatan_id'  => 'nullable|string',
+            'kota_id'    => 'nullable|string',
         ]);
 
         if (!empty($validated['password'])) {

@@ -39,6 +39,7 @@ export default function Profil() {
         role_id: user.role_id || "",
         kelurahan_id: user.kelurahan_id || "",
         kecamatan_id: user.kecamatan_id || "",
+        kota_id: user.kota_id || "",
     });
 
     const [isEditing, setIsEditing] = useState(false);
@@ -162,6 +163,7 @@ export default function Profil() {
             role_id: user.role_id || "",
             kelurahan_id: user.kelurahan_id || "",
             kecamatan_id: user.kecamatan_id || "",
+            kota_id: user.kota_id || "",
         });
     };
 
@@ -460,6 +462,13 @@ export default function Profil() {
                                 label="Kelurahan"
                                 name="kelurahan_nama"
                                 value={user.kelurahan_nama}
+                                onChange={handleChange}
+                                disabled={true}
+                            />
+                            <InputField
+                                label="Kota"
+                                name="kota_nama"
+                                value={user.kota_nama}
                                 onChange={handleChange}
                                 disabled={true}
                             />
