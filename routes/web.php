@@ -11,7 +11,8 @@ use App\Http\Controllers\PengeluaranController;
 use App\Http\Controllers\ProfileWargaController;
 use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\SpjController;
-use App\Http\Controllers\KategoriIuranController; 
+use App\Http\Controllers\KategoriIuranController;
+use App\Http\Controllers\HargaIuranController;
 use App\Http\Controllers\SuperadminController;
 use App\Http\Controllers\TagihanBulananController;
 use Illuminate\Support\Facades\Route;
@@ -41,12 +42,15 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/bop/create', [BopController::class, 'bop_create'])->name('bop.create');
     Route::post('/iuran/create', [IuranController::class, 'iuran_create'])->name('iuran.create');
 
-    // KATEGORI IURAN
-    Route::get('/kat_iuran', [KategoriIuranController::class, 'index'])->name('kat_iuran.index');          
-    Route::post('/kat_iuran', [KategoriIuranController::class, 'store'])->name('kat_iuran.store');         
-    Route::get('/kat_iuran/{id}', [KategoriIuranController::class, 'show'])->name('kat_iuran.show');       
-    Route::put('/kat_iuran/{id}', [KategoriIuranController::class, 'update'])->name('kat_iuran.update');   
-    Route::delete('/kat_iuran/{id}', [KategoriIuranController::class, 'destroy'])->name('kat_iuran.destroy'); 
+    // KATEGORI IURAN (TERPISAH ANTARA NAMA & HARGA)
+    
+    // A. Konfigurasi Harga (Menggunakan HargaIuranController)
+    Route::get('/kat_iuran', [HargaIuranController::class, 'index'])->name('kat_iuran.index'); 
+    Route::put('/kat_iuran/{harga_iuran}', [HargaIuranController::class, 'update'])->name('kat_iuran.update'); 
+    
+    // B. Master Nama Kategori (Menggunakan KategoriIuranController)
+    Route::post('/kat_iuran', [KategoriIuranController::class, 'store'])->name('kat_iuran.store'); 
+    Route::delete('/kat_iuran/{kat_iuran}', [KategoriIuranController::class, 'destroy'])->name('kat_iuran.destroy'); 
 
     // KEGIATAN
     Route::get('/dashboard/kegiatan', [KegiatanController::class, 'create'])->name('kegiatan.create');

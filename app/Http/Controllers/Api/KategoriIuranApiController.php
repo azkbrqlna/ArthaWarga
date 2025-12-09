@@ -6,16 +6,17 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\KategoriIuran;
 use App\Models\PemasukanIuran;
+use App\Models\HargaIuran; 
 use Illuminate\Validation\Rule;
 
 class KategoriIuranApiController extends Controller
 {
     /**
-     * GET /kategori-iuran: Menampilkan daftar semua kategori iuran (index).
+     * GET /api/kategori-iuran: Menampilkan daftar NAMA kategori (index).
      */
     public function index()
     {
-        $kategori = KategoriIuran::all(); 
+        $kategori = KategoriIuran::select('id', 'nm_kat')->get(); 
 
         return response()->json([
             'success' => true,
@@ -24,33 +25,38 @@ class KategoriIuranApiController extends Controller
     }
     
     /**
-     * POST /kategori-iuran: Menyimpan (Create) kategori iuran baru (store).
+     * POST /api/kategori-iuran: Menyimpan NAMA kategori baru dan membuat entri harga default (store).
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nm_kat' => 'required|string|max:100|unique:kat_iuran,nm_kat',
-            'harga_meteran' => 'nullable|integer|min:0', 
-            'abonemen' => 'nullable|integer|min:0',      
-            'harga_sampah' => 'nullable|integer|min:0',  
-            'jimpitan_air' => 'nullable|integer|min:0|max:100', 
+            'nm_kat' => 'required|string|max:100|unique:kat_iuran,nm_kat', 
         ]);
 
+        // 1. Buat entri master di tabel kat_iuran
         $kategori = KategoriIuran::create($validated);
+        
+        // 2. Buat entri konfigurasi harga default di tabel harga_iuran
+        $harga_default = HargaIuran::create([
+            'kat_iuran_id' => $kategori->id,
+        ]);
+        
+        // Muat relasi harga untuk respons, agar data yang dikembalikan lengkap
+        $kategori->load('hargaKonfigurasi');
 
         return response()->json([
             'success' => true,
-            'message' => 'Kategori iuran berhasil ditambahkan.',
+            'message' => 'Kategori iuran berhasil ditambahkan dan konfigurasi harga default dibuat.',
             'data' => $kategori,
         ], 201); 
     }
 
     /**
-     * GET /kategori-iuran/{id}: Menampilkan detail satu kategori iuran (show).
+     * GET /api/kategori-iuran/{id}: Menampilkan detail satu kategori iuran (show).
      */
     public function show(string $id)
     {
-        $kategori = KategoriIuran::find($id);
+        $kategori = KategoriIuran::with('hargaKonfigurasi')->find($id);
 
         if (!$kategori) {
             return response()->json([
@@ -64,40 +70,9 @@ class KategoriIuranApiController extends Controller
             'data' => $kategori
         ]);
     }
-
+    
     /**
-     * PUT/PATCH /kategori-iuran/{id}: Mengubah (Update) data kategori iuran.
-     */
-    public function update(Request $request, string $id)
-    {
-        $kategori = KategoriIuran::find($id);
-
-        if (!$kategori) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Kategori iuran tidak ditemukan.'
-            ], 404);
-        }
-
-        $validated = $request->validate([
-            'nm_kat' => ['required', 'string', 'max:100', Rule::unique('kat_iuran')->ignore($kategori->id)], 
-            'harga_meteran' => 'nullable|integer|min:0',
-            'abonemen' => 'nullable|integer|min:0',
-            'harga_sampah' => 'nullable|integer|min:0',
-            'jimpitan_air' => 'nullable|integer|min:0|max:100',
-        ]);
-        
-        $kategori->update($validated);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Kategori iuran berhasil diperbarui.',
-            'data' => $kategori
-        ]);
-    }
-
-    /**
-     * DELETE /kategori-iuran/{id}: Menghapus (Delete) kategori iuran (destroy).
+     * DELETE /api/kategori-iuran/{id}: Menghapus kategori iuran (destroy).
      */
     public function destroy(string $id)
     {

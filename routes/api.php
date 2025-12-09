@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\KegiatanApiController;
 use App\Http\Controllers\Api\PengeluaranApiController;
 use App\Http\Controllers\Api\PengumumanApiController;
 use App\Http\Controllers\Api\SuperadminApiController;
+use App\Http\Controllers\Api\HargaIuranApiController;
 
 // --- PUBLIC (Tanpa Login) ---
 
@@ -44,12 +45,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::patch('/iuran/update/{id}', [IuranApiController::class, 'iuran_update']);
     Route::delete('/iuran/{id}', [IuranApiController::class, 'iuran_delete']);
 
-    // 4. Kategori Iuran 
-    Route::get('/kat_iuran', [KategoriIuranApiController::class, 'index']);      
-    Route::post('/kat_iuran', [KategoriIuranApiController::class, 'store']);    
-    Route::get('/kat_iuran/{id}', [KategoriIuranApiController::class, 'show']);  
-    Route::patch('/kat_iuran/{id}', [KategoriIuranApiController::class, 'update']); 
-    Route::delete('/kat_iuran/{id}', [KategoriIuranApiController::class, 'destroy']); 
+   // 4. Kategori Iuran (MASTER NAMA & KONFIGURASI HARGA)
+    
+    // A. Master Nama Kategori (CRUD Dasar)
+    Route::resource('kat_iuran', KategoriIuranApiController::class)->only(['index', 'store', 'show', 'destroy']);
+    
+    // B. Konfigurasi Harga (
+    Route::prefix('kat_iuran')->group(function () {
+        Route::get('/harga', [HargaIuranApiController::class, 'index'])->name('kat_iuran.harga.index');
+        Route::patch('/harga/{id}', [HargaIuranApiController::class, 'update'])->name('kat_iuran.harga.update');
+    });
 
     // 5. Kegiatan
     Route::get('/kegiatan', [KegiatanApiController::class, 'index']);

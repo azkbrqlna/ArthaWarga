@@ -4,80 +4,44 @@ namespace App\Http\Controllers;
 
 use App\Models\KategoriIuran;
 use App\Models\PemasukanIuran; 
+use App\Models\HargaIuran; 
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
 use Inertia\Inertia; 
 
 class KategoriIuranController extends Controller
 {
-    /**
-     * GET /kat_iuran: Menampilkan daftar dan halaman manajemen master data.
-     */
-    public function index()
-    {
-        $kategori = KategoriIuran::all(); 
-
-        return Inertia::render('Admin/MasterData/KategoriIuranIndex', [
-            'kategoriIurans' => $kategori
-        ]);
-    }
 
     /**
-     * POST /kat_iuran: Menyimpan (Create) kategori iuran baru.
+     * POST /kat_iuran: Menyimpan NAMA kategori iuran baru dan membuat entri harga default.
      */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nm_kat' => 'required|string|max:100|unique:kat_iuran,nm_kat',            
-            'harga_meteran' => 'nullable|integer|min:0', 
-            'abonemen' => 'nullable|integer|min:0',      
-            'harga_sampah' => 'nullable|integer|min:0',  
-            'jimpitan_air' => 'nullable|integer|min:0|max:100',
+            'nm_kat' => 'required|string|max:100|unique:kat_iuran,nm_kat', 
         ]);
 
-        KategoriIuran::create($validated);
-
-        return redirect()->route('kat_iuran.index')
-                         ->with('success', 'Kategori iuran berhasil ditambahkan.');
-    }
-
-    /**
-     * PUT/PATCH /kat_iuran/{id}: Mengubah (Update) data kategori iuran.
-     */
-    public function update(Request $request, KategoriIuran $kategoriIuran)
-    {
-        $validated = $request->validate([
-            'nm_kat' => [
-                'required', 
-                'string', 
-                'max:100', 
-                Rule::unique('kat_iuran', 'nm_kat')->ignore($kategoriIuran->id)
-            ], 
-            'harga_meteran' => 'nullable|integer|min:0',
-            'abonemen' => 'nullable|integer|min:0',
-            'harga_sampah' => 'nullable|integer|min:0',
-            'jimpitan_air' => 'nullable|integer|min:0|max:100',
-        ]);
+        $kategori = KategoriIuran::create($validated);
         
-        $kategoriIuran->update($validated);
+        HargaIuran::create([
+            'kat_iuran_id' => $kategori->id,
+        ]);
 
-        return redirect()->route('kat_iuran.index')
-                         ->with('success', 'Kategori iuran berhasil diperbarui.');
+        return redirect()->back() 
+                         ->with('success', 'Kategori iuran berhasil ditambahkan dan konfigurasi harga default dibuat.');
     }
 
-    /**
-     * DELETE /kat_iuran/{id}: Menghapus (Delete) kategori iuran.
-     */
-    public function destroy(KategoriIuran $kategoriIuran)
+
+    public function destroy(KategoriIuran $kat_iuran)
     {
-        if ($kategoriIuran->pemasukanIuran()->exists()) {
-             return redirect()->route('kat_iuran.index')
+        if ($kat_iuran->pemasukanIuran()->exists()) {
+             return redirect()->back()
                               ->with('error', 'Gagal menghapus! Kategori ini masih digunakan dalam data iuran.');
         }
         
-        $kategoriIuran->delete();
+        $kat_iuran->delete();
         
-        return redirect()->route('kat_iuran.index')
+        return redirect()->back()
                          ->with('success', 'Kategori iuran berhasil dihapus.');
     }
 
