@@ -54,10 +54,10 @@ Route::middleware(['role.access'])->group(function () {
     Route::delete('/kat_iuran/{kat_iuran}', [KategoriIuranController::class, 'destroy'])->name('kat_iuran.destroy'); 
     
     // KEGIATAN
+    
     Route::get('/dashboard/kegiatan', [KegiatanController::class, 'create'])->name('kegiatan.create');
     Route::post('/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
     Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index'); 
-
     // PENGUMUMAN & PERSETUJUAN (Approval) 
     // Route::get('/dashboard/pengumuman', [PengumumanController::class, 'pengumuman'])->name('pengumuman');
     // Route::post('/pengumuman/create', [PengumumanController::class, 'pengumuman_create'])->name('pengumuman.create');
@@ -87,6 +87,13 @@ Route::middleware(['role.access'])->group(function () {
     Route::put('/manajemen-data/{id}', [SuperadminController::class, 'update'])->name('superadmin.updateUser');
     Route::delete('/manajemen-data/{id}', [SuperadminController::class, 'deleteUser'])->name('superadmin.deleteUser');
     
+    // A. Konfigurasi Harga (Menggunakan HargaIuranController)
+    Route::get('/kat_iuran', [HargaIuranController::class, 'index'])->name('kat_iuran.index'); 
+    Route::put('/kat_iuran/{harga_iuran}', [HargaIuranController::class, 'update'])->name('kat_iuran.update'); 
+    
+    // B. Master Nama Kategori (Menggunakan KategoriIuranController)
+    Route::post('/kat_iuran', [KategoriIuranController::class, 'store'])->name('kat_iuran.store'); 
+    Route::delete('/kat_iuran/{kat_iuran}', [KategoriIuranController::class, 'destroy'])->name('kat_iuran.destroy');
 
     Route::get('/tagihan-bulanan/create', [TagihanBulananController::class, 'create'])->name('tagihan.create');
     Route::post('/tagihan-bulanan/store', [TagihanBulananController::class, 'store'])->name('tagihan.store');
