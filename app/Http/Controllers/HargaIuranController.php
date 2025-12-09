@@ -14,7 +14,7 @@ class HargaIuranController extends Controller
     {
         $kategori = HargaIuran::with('kategori')->get(); 
 
-        return Inertia::render('Admin/MasterData/HargaIuranIndex', [
+        return Inertia::render('TagihanBulanan/MasterIuranIndex', [
             'kategoriIurans' => $kategori
         ]);
     }
