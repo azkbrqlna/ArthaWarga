@@ -16,6 +16,7 @@ use App\Http\Controllers\KategoriIuranController;
 use App\Http\Controllers\HargaIuranController;
 use App\Http\Controllers\SuperadminController;
 use App\Http\Controllers\TagihanBulananController;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // --- API Documentation Password Protection ---

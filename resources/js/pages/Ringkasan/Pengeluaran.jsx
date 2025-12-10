@@ -23,7 +23,7 @@ export default function Pengeluaran() {
     const fileInputRef = useRef(null);
 
     const { data, setData, post, reset, processing } = useForm({
-        tipe: "bop",
+        tipe: "",
         tgl: "",
         keg_id: "",
         nominal: 0,

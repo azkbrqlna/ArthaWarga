@@ -98,7 +98,6 @@ class IuranController extends Controller
         $validated['status'] = 'approved'; 
 
         $validated['tgl_byr'] = null;
-        $validated['bkt_byr'] = null;
 
         try {
             PemasukanIuran::create($validated);

@@ -193,27 +193,6 @@ export default function Dashboard() {
 
                             {(userRole === 2 || userRole === 3) && (
                                 <>
-                                    {/* --- TOMBOL BARU: MASTER DATA (BIRU) --- */}
-                                    <Button
-                                        className="bg-blue-500 hover:bg-blue-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
-                                        onClick={() =>
-                                            router.visit(
-                                                route("kat_iuran.index")
-                                            )
-                                        }
-                                    >
-                                        Perbarui Master Data
-                                    </Button>
-                                    <Button
-                                        className="bg-yellow-500 hover:bg-yellow-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
-                                        onClick={() =>
-                                            router.visit(
-                                                route("kategori.index")
-                                            )
-                                        } // <-- Link ke halaman baru
-                                    >
-                                        Kelola Kategori
-                                    </Button>
                                     <Button
                                         className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs md:text-sm px-3 md:px-4 py-2 rounded-md"
                                         onClick={() =>
