@@ -1,7 +1,34 @@
-import React from "react";
-// Import Layout baru (pastikan file AppLayout sudah disimpan di folder Layouts)
+import React, { useState } from "react";
 import AppLayout from "../../Layouts/AppLayout";
 import { Head, router } from "@inertiajs/react";
+
+// Import komponen UI Table
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+
+// Import komponen Dialog (Modal) untuk popup bukti
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+
+// Import Ikon
+import {
+    Clock,
+    CheckCircle,
+    Check,
+    X,
+    ChevronsUpDown,
+    Eye,
+} from "lucide-react";
 
 export default function IndexRT({
     auth,
@@ -9,6 +36,10 @@ export default function IndexRT({
     totalDitagihkan,
     totalLunas,
 }) {
+    // State untuk mengontrol Modal Bukti Pembayaran
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProofUrl, setSelectedProofUrl] = useState(null);
+
     const formatRupiah = (number) =>
         new Intl.NumberFormat("id-ID", {
             style: "currency",
@@ -16,237 +47,254 @@ export default function IndexRT({
             minimumFractionDigits: 0,
         }).format(number || 0);
 
+    // --- FUNGSI AKSI (TANPA CONFIRM ALERT) ---
     const handleApprove = (id) => {
-        if (confirm("Verifikasi pembayaran ini valid?")) {
-            router.patch(route("tagihan.approve", id));
-        }
+        // Langsung eksekusi patch
+        router.patch(route("tagihan.approve", id));
     };
 
     const handleDecline = (id) => {
-        if (confirm("Tolak pembayaran ini?")) {
-            router.patch(route("tagihan.decline", id));
-        }
+        // Langsung eksekusi patch
+        router.patch(route("tagihan.decline", id));
+    };
+
+    // Fungsi untuk membuka modal bukti
+    const handleViewProof = (url) => {
+        setSelectedProofUrl(url);
+        setIsModalOpen(true);
     };
 
     return (
-        // Hapus prop 'user' dan 'header' karena AppLayout baru menggunakan usePage() dan tidak ada slot header
         <AppLayout>
             <Head title="Manajemen Tagihan" />
 
-            {/* JUDUL HALAMAN DIPINDAH KE SINI (DALAM CONTENT) */}
-            <div className="mb-6">
-                <h2 className="font-bold text-2xl text-gray-800">
-                    Manajemen Tagihan Air (RT)
-                </h2>
-                <p className="text-gray-500 text-sm">
-                    Monitor pembayaran dan verifikasi bukti transfer warga.
-                </p>
-            </div>
-
-            {/* AREA SALDO / RINGKASAN */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
-                {/* Kartu Saldo Ditagihkan */}
-                <div className="bg-white overflow-hidden shadow-sm border border-gray-100 rounded-xl p-6 border-l-4 border-l-yellow-500">
-                    <div className="text-gray-500 text-xs font-bold uppercase tracking-wider">
-                        Saldo Ditagihkan (Pending)
+            <div className="space-y-8">
+                {/* --- HEADER --- */}
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full bg-white">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-900">
+                            Manajemen Tagihan (RT)
+                        </h1>
+                        <p className="text-gray-500 text-sm mt-1">
+                            Monitor pembayaran dan verifikasi bukti transfer
+                            warga.
+                        </p>
                     </div>
-                    <div className="mt-2 text-3xl font-bold text-gray-900">
-                        {formatRupiah(totalDitagihkan)}
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">
-                        Menunggu pembayaran/verifikasi
-                    </p>
                 </div>
 
-                {/* Kartu Saldo Lunas */}
-                <div className="bg-white overflow-hidden shadow-sm border border-gray-100 rounded-xl p-6 border-l-4 border-l-green-500">
-                    <div className="text-gray-500 text-xs font-bold uppercase tracking-wider">
-                        Saldo Lunas
+                {/* --- CARD STATISTIK --- */}
+                <div className="flex flex-col md:flex-row gap-4 w-full">
+                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3 ">
+                        <div className="bg-yellow-50 p-3 rounded-lg">
+                            <Clock className="w-6 h-6 text-yellow-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                                Ditagihkan (Pending)
+                            </p>
+                            <p className="text-xl font-bold text-gray-900 mt-0.5">
+                                {formatRupiah(totalDitagihkan)}
+                            </p>
+                        </div>
                     </div>
-                    <div className="mt-2 text-3xl font-bold text-green-600">
-                        {formatRupiah(totalLunas)}
-                    </div>
-                    <p className="text-xs text-gray-400 mt-1">
-                        Sudah masuk pembukuan
-                    </p>
-                </div>
-            </div>
 
-            <div className="bg-white overflow-hidden shadow-sm border border-gray-200 rounded-xl">
-                <div className="p-0 overflow-x-auto">
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Warga
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                        <div className="bg-green-50 p-3 rounded-lg">
+                            <CheckCircle className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                                Saldo Lunas
+                            </p>
+                            <p className="text-xl font-bold text-gray-900 mt-0.5">
+                                {formatRupiah(totalLunas)}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+
+                {/* --- TABEL TAGIHAN --- */}
+                <div className="rounded-xl border bg-white overflow-hidden ">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="bg-white border-b hover:bg-white">
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
+                                    <div className="flex items-center gap-2 cursor-pointer hover:text-gray-600">
+                                        Warga
+                                        <ChevronsUpDown className="h-4 w-4 text-gray-400" />
+                                    </div>
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
                                     Periode
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
                                     Meteran
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
                                     Nominal
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
                                     Bukti
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Status
-                                </th>
-                                <th className="px-6 py-4 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">
-                                    Aksi
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200 text-sm">
-                            {tagihan.map((item) => (
-                                <tr
-                                    key={item.id}
-                                    className="hover:bg-gray-50 transition-colors"
-                                >
-                                    <td className="px-6 py-4">
-                                        <div className="font-bold text-gray-900">
-                                            {item.user?.nm_lengkap}
-                                        </div>
-                                        <div className="text-xs text-gray-500">
-                                            {item.user?.alamat}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                                        <span className="bg-blue-50 text-blue-700 px-2 py-1 rounded text-xs font-medium">
-                                            {item.bulan} / {item.tahun}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-gray-600">
-                                        <div className="text-xs">
-                                            Lalu: {item.mtr_bln_lalu}
-                                        </div>
-                                        <div
-                                            className={`text-sm ${
-                                                item.mtr_skrg
-                                                    ? "font-bold text-gray-800"
-                                                    : "text-gray-400"
-                                            }`}
-                                        >
-                                            Skrg: {item.mtr_skrg || "?"}
-                                        </div>
-                                    </td>
-                                    <td className="px-6 py-4 font-bold text-gray-700">
-                                        {item.nominal
-                                            ? formatRupiah(item.nominal)
-                                            : "-"}
-                                        {item.harga_sampah > 0 && (
-                                            <span className="block text-[10px] text-green-600 font-normal">
-                                                +Sampah
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        {item.bkt_byr ? (
-                                            <a
-                                                href={`/storage/${item.bkt_byr}`}
-                                                target="_blank"
-                                                className="text-blue-600 hover:text-blue-800 hover:underline text-xs flex items-center gap-1 font-medium"
-                                            >
-                                                <svg
-                                                    className="w-3 h-3"
-                                                    fill="none"
-                                                    stroke="currentColor"
-                                                    viewBox="0 0 24 24"
-                                                >
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth="2"
-                                                        d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"
-                                                    ></path>
-                                                    <path
-                                                        strokeLinecap="round"
-                                                        strokeLinejoin="round"
-                                                        strokeWidth="2"
-                                                        d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"
-                                                    ></path>
-                                                </svg>
-                                                Lihat
-                                            </a>
-                                        ) : (
-                                            <span className="text-gray-400 text-xs">
-                                                -
-                                            </span>
-                                        )}
-                                    </td>
-                                    <td className="px-6 py-4">
-                                        <span
-                                            className={`px-2.5 py-1 rounded-full text-xs font-bold border
-                                            ${
-                                                item.status === "approved"
-                                                    ? "bg-green-50 text-green-700 border-green-200"
-                                                    : item.status === "pending"
-                                                    ? "bg-yellow-50 text-yellow-700 border-yellow-200"
-                                                    : item.status === "declined"
-                                                    ? "bg-red-50 text-red-700 border-red-200"
-                                                    : "bg-gray-50 text-gray-600 border-gray-200"
-                                            }`}
-                                        >
-                                            {item.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        {item.status === "pending" && (
-                                            <div className="flex gap-2">
-                                                <button
-                                                    onClick={() =>
-                                                        handleApprove(item.id)
-                                                    }
-                                                    className="text-white bg-green-500 hover:bg-green-600 p-1.5 rounded-md transition shadow-sm"
-                                                    title="Setujui Pembayaran"
-                                                >
-                                                    <svg
-                                                        className="w-4 h-4"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth="3"
-                                                            d="M5 13l4 4L19 7"
-                                                        ></path>
-                                                    </svg>
-                                                </button>
-                                                <button
-                                                    onClick={() =>
-                                                        handleDecline(item.id)
-                                                    }
-                                                    className="text-white bg-red-500 hover:bg-red-600 p-1.5 rounded-md transition shadow-sm"
-                                                    title="Tolak Pembayaran"
-                                                >
-                                                    <svg
-                                                        className="w-4 h-4"
-                                                        fill="none"
-                                                        stroke="currentColor"
-                                                        viewBox="0 0 24 24"
-                                                    >
-                                                        <path
-                                                            strokeLinecap="round"
-                                                            strokeLinejoin="round"
-                                                            strokeWidth="3"
-                                                            d="M6 18L18 6M6 6l12 12"
-                                                        ></path>
-                                                    </svg>
-                                                </button>
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900 text-center">
+                                    Aksi / Status
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+
+                        <TableBody>
+                            {tagihan.length > 0 ? (
+                                tagihan.map((item) => (
+                                    <TableRow
+                                        key={item.id}
+                                        className="hover:bg-gray-50 transition-colors border-b last:border-0"
+                                    >
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            <div className="text-sm font-medium text-gray-900">
+                                                {item.user?.nm_lengkap}
                                             </div>
-                                        )}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                {item.user?.alamat}
+                                            </div>
+                                        </TableCell>
+
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            <span className="text-sm text-gray-600">
+                                                {item.bulan} {item.tahun}
+                                            </span>
+                                        </TableCell>
+
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            <div className="flex flex-col text-sm">
+                                                <span className="text-gray-500 text-xs">
+                                                    Lalu: {item.mtr_bln_lalu}
+                                                </span>
+                                                <span
+                                                    className={
+                                                        item.mtr_skrg
+                                                            ? "font-medium text-gray-900"
+                                                            : "text-gray-400 italic"
+                                                    }
+                                                >
+                                                    Skrg: {item.mtr_skrg || "-"}
+                                                </span>
+                                            </div>
+                                        </TableCell>
+
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            <div className="text-sm font-medium text-gray-900">
+                                                {item.nominal
+                                                    ? formatRupiah(item.nominal)
+                                                    : "-"}
+                                            </div>
+                                            {item.harga_sampah > 0 && (
+                                                <div className="text-[10px] text-green-600">
+                                                    +Sampah
+                                                </div>
+                                            )}
+                                        </TableCell>
+
+                                        {/* --- KOLOM BUKTI (POPUP) --- */}
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            {item.bkt_byr ? (
+                                                <button
+                                                    onClick={() =>
+                                                        handleViewProof(
+                                                            `/storage/${item.bkt_byr}`
+                                                        )
+                                                    }
+                                                    className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 hover:underline transition-colors focus:outline-none"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    <span className="text-sm font-medium">
+                                                        Lihat
+                                                    </span>
+                                                </button>
+                                            ) : (
+                                                <span className="text-gray-400 text-sm">
+                                                    -
+                                                </span>
+                                            )}
+                                        </TableCell>
+
+                                        {/* --- KOLOM AKSI / STATUS --- */}
+                                        <TableCell className="px-6 py-4 align-middle text-center">
+                                            {item.status === "pending" ? (
+                                                <div className="flex items-center justify-center gap-3">
+                                                    {/* Tombol Tolak (Merah Muda) */}
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDecline(
+                                                                item.id
+                                                            )
+                                                        }
+                                                        className="p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                                        title="Tolak"
+                                                    >
+                                                        <X className="w-5 h-5" />
+                                                    </button>
+
+                                                    {/* Tombol Terima (Hijau Muda) */}
+                                                    <button
+                                                        onClick={() =>
+                                                            handleApprove(
+                                                                item.id
+                                                            )
+                                                        }
+                                                        className="p-2 rounded-md bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                                                        title="Terima"
+                                                    >
+                                                        <Check className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            ) : item.status === "approved" ? (
+                                                <span className="inline-block px-4 py-2 rounded-md bg-green-50 text-green-700 font-medium text-sm">
+                                                    Disetujui
+                                                </span>
+                                            ) : (
+                                                <span className="inline-block px-4 py-2 rounded-md bg-red-50 text-red-700 font-medium text-sm">
+                                                    Ditolak
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={6}
+                                        className="h-24 text-center text-gray-500 text-sm"
+                                    >
+                                        Tidak ada data yang ditemukan.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
                 </div>
             </div>
+
+            {/* --- MODAL POPUP BUKTI PEMBAYARAN --- */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Bukti Pembayaran</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex items-center justify-center p-2">
+                        {selectedProofUrl ? (
+                            <img
+                                src={selectedProofUrl}
+                                alt="Bukti Transfer"
+                                className="rounded-lg max-h-[500px] w-auto object-contain"
+                            />
+                        ) : (
+                            <p className="text-gray-500">
+                                Gambar tidak ditemukan.
+                            </p>
+                        )}
+                    </div>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }
