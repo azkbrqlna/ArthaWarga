@@ -1,5 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { usePage, router } from "@inertiajs/react";
+import { route } from "ziggy-js";
 import AppLayout from "@/layouts/AppLayout";
 import {
     Table,
@@ -26,6 +27,8 @@ export default function Kegiatan() {
     const [sortField, setSortField] = useState("tgl_mulai");
     const [sortOrder, setSortOrder] = useState("desc");
     const [currentPage, setCurrentPage] = useState(1);
+
+    // ✅ State untuk Popup Gambar
     const [selectedImage, setSelectedImage] = useState(null);
 
     const itemsPerPage = 8;
@@ -62,6 +65,7 @@ export default function Kegiatan() {
         currentPage * itemsPerPage
     );
 
+    // ✅ Fungsi helper format tarikh (seperti kod rakan anda)
     const formatDate = (dateString) => {
         if (!dateString) return "-";
         const date = new Date(dateString);
@@ -70,6 +74,11 @@ export default function Kegiatan() {
             month: "long",
             year: "numeric",
         });
+    };
+
+    // Fungsi untuk pindah ke halaman detail saat baris diklik
+    const handleRowClick = (id) => {
+        router.visit(route("kegiatan.show", id));
     };
 
     return (
@@ -136,9 +145,14 @@ export default function Kegiatan() {
                                     paginatedData.map((keg, i) => (
                                         <TableRow
                                             key={i}
-                                            className="hover:bg-gray-50 transition"
+                                            // ✅ 1. Jadikan Baris Bisa Diklik
+                                            className="hover:bg-gray-50 transition cursor-pointer"
+                                            onClick={() =>
+                                                handleRowClick(keg.id)
+                                            }
                                         >
                                             <TableCell>{keg.nm_keg}</TableCell>
+                                            {/* ✅ Gunakan formatDate di sini */}
                                             <TableCell>
                                                 {formatDate(keg.tgl_mulai)}
                                             </TableCell>
@@ -150,24 +164,23 @@ export default function Kegiatan() {
 
                                             <TableCell>
                                                 {keg.dok_keg ? (
+                                                    // ✅ 2. Tombol Lihat: Buka Popup & Cegah Pindah Halaman
                                                     <button
-                                                        onClick={() =>
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // ⛔ PENTING: Agar tidak men-trigger klik baris
                                                             setSelectedImage(
                                                                 `/storage/${keg.dok_keg}`
-                                                            )
-                                                        }
-                                                        className="text-blue-500 flex items-center gap-1 hover:underline"
+                                                            );
+                                                        }}
+                                                        className="text-blue-500 flex items-center gap-1 hover:underline hover:text-blue-700 transition z-10 relative"
                                                     >
                                                         <FileText className="w-4 h-4" />
                                                         Lihat
                                                     </button>
                                                 ) : (
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className="text-gray-600"
-                                                    >
-                                                        Tidak ada
-                                                    </Badge>
+                                                    <span className="text-gray-400 text-xs italic">
+                                                        -
+                                                    </span>
                                                 )}
                                             </TableCell>
                                         </TableRow>
@@ -234,25 +247,26 @@ export default function Kegiatan() {
                     )}
                 </div>
 
-                {/* Popup Image */}
+                {/* ✅ 3. MODAL POPUP GAMBAR */}
                 <Dialog
                     open={!!selectedImage}
-                    onOpenChange={() => setSelectedImage(null)}
+                    onOpenChange={(open) => !open && setSelectedImage(null)}
                 >
-                    <DialogContent className="max-w-3xl p-0 overflow-hidden">
-                        <div className="relative">
+                    <DialogContent className="max-w-3xl p-0 overflow-hidden bg-transparent border-none shadow-none">
+                        <div className="relative flex justify-center items-center">
+                            {/* Tombol Close */}
                             <button
                                 onClick={() => setSelectedImage(null)}
-                                className="absolute top-3 right-3 bg-white rounded-full p-1 shadow z-50"
+                                className="absolute -top-10 right-0 md:-right-10 bg-white/20 hover:bg-white/40 text-white rounded-full p-2 transition"
                             >
-                                <X className="h-5 w-5 text-gray-700" />
+                                <X className="h-6 w-6" />
                             </button>
 
                             {selectedImage && (
                                 <img
                                     src={selectedImage}
-                                    alt="Preview"
-                                    className="w-full h-auto rounded-lg"
+                                    alt="Preview Dokumentasi"
+                                    className="w-auto h-auto max-h-[80vh] max-w-full rounded-lg shadow-2xl object-contain bg-black"
                                 />
                             )}
                         </div>
