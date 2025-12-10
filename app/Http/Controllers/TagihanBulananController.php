@@ -123,7 +123,7 @@ class TagihanBulananController extends Controller
             'nominal'       => $nominal
         ]);
 
-        return redirect()->route('tagihan.create')->with('success', 'Tagihan berhasil dibuat!');
+        return redirect()->route('tagihan.rt.index')->with('success', 'Tagihan berhasil dibuat!');
     }
 
     /**
@@ -261,20 +261,27 @@ class TagihanBulananController extends Controller
             'nominal'      => $nominal
         ]);
 
-        return redirect()->route('tagihan.create')->with('success', 'Data tagihan berhasil diperbarui.');
+        return redirect()->route('tagihan.rt.index')->with('success', 'Data tagihan berhasil diperbarui.');
     }
 
     /**
      * HAPUS TAGIHAN
      */
-    public function destroy($id)
+public function destroy($id)
     {
         if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
         
-        $tagihan = TagihanBulanan::findOrFail($id);
-        $tagihan->delete();
+        try {
+            $tagihan = TagihanBulanan::findOrFail($id);
+            $tagihan->delete();
 
-        return redirect()->back()->with('success', 'Tagihan berhasil dihapus.');
+            // PENTING: Redirect ke route index, bukan back()
+            return redirect()->route('tagihan.rt.index')->with('success', 'Tagihan berhasil dihapus.');
+            
+        } catch (\Exception $e) {
+            // Tangkap error jika gagal hapus (misal ada foreign key constraint)
+            return redirect()->route('tagihan.rt.index')->with('error', 'Gagal menghapus tagihan: ' . $e->getMessage());
+        }
     }
 
     // =========================================================================

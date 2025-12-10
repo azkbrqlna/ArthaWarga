@@ -64,10 +64,6 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/kegiatan/update/{id}', [KegiatanApiController::class, 'update']);
     Route::delete('/kegiatan/{id}', [KegiatanApiController::class, 'destroy']);
 
-    // 5. Kegiatan 
-    Route::resource('kegiatan', KegiatanApiController::class)->except(['create', 'edit'])
-        ->parameters(['kegiatan' => 'id']);
-
     // 6. Pengeluaran 
 
         Route::get('/pengeluaran', [PengeluaranApiController::class, 'index']);

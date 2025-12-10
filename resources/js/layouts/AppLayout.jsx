@@ -51,7 +51,6 @@ export default function AppLayout({ children }) {
     )}`;
 
     // 🔹 menu untuk user role 5 (Warga)
-    // "Iuran Warga" / "Bayar Iuran" ada di sini
     const wargaItems = [
         {
             title: "Ringkasan Keuangan",
@@ -62,7 +61,6 @@ export default function AppLayout({ children }) {
     ];
 
     // 🔹 menu normal untuk non-admin dan non-warga (misal: Pengurus RT)
-    // HAPUS "Bayar Iuran" dari sini jika Pengurus RT tidak perlu menu ini di sidebar mereka
     const defaultItems = [
         {
             title: "Ringkasan Keuangan",
@@ -70,13 +68,21 @@ export default function AppLayout({ children }) {
             icon: LayoutTemplate,
         },
         {
+            title: "Tagihan Bulanan",
+            url: "/tagihan-bulanan/index",
+            icon: WalletIcon,
+        },
+        {
             title: "Kegiatan",
-            url: "/kegiatan",
+            // Pastikan Controller Kegiatan index berfungsi. 
+            // Jika ingin ke form tambah, ganti jadi "/dashboard/kegiatan"
+            url: "/kegiatan", 
             icon: CalendarDays,
         },
         {
             title: "Approval",
-            url: "/approval",
+            // PERBAIKAN: Mengarah ke approval tagihan karena route '/approval' biasa mati
+            url: "/tagihan-bulanan/approval", 
             icon: ClipboardCheck,
         },
         {
