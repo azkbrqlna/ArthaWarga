@@ -13,12 +13,13 @@ return new class extends Migration
     {
         Schema::create('keg', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('kat_keg_id')->constrained('kat_keg')->cascadeOnDelete();
             $table->string('nm_keg');
             $table->date('tgl_mulai')->nullable();
             $table->date('tgl_selesai')->nullable();
             $table->string('pj_keg')->nullable();
             $table->string('panitia')->nullable();
-            $table->string('dok_keg')->nullable();
+            $table->json('dok_keg')->nullable();
             $table->timestamps();
         });
     }

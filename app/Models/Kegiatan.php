@@ -14,7 +14,8 @@ class Kegiatan extends Model
         'tgl_selesai', 
         'pj_keg', 
         'panitia', 
-        'dok_keg' 
+        'dok_keg' ,
+        'kat_keg_id'
     ];
 
     protected $casts = [

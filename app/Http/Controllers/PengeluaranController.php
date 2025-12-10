@@ -7,6 +7,7 @@ use App\Models\PemasukanBOP;
 use App\Models\PemasukanIuran;
 use App\Models\Kegiatan;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage; // Tambahkan ini
 use Inertia\Inertia;
 
 class PengeluaranController extends Controller
@@ -15,7 +16,14 @@ class PengeluaranController extends Controller
     {
         $pengeluarans = Pengeluaran::with(['kegiatan', 'pemasukan_bop', 'pemasukan_iuran'])
             ->latest()
-            ->get();
+            ->get()
+            ->map(function ($pengeluaran) {
+                // Tambahkan URL lengkap untuk ditampilkan di frontend
+                $pengeluaran->bkt_nota_url = $pengeluaran->bkt_nota 
+                    ? asset('storage/' . $pengeluaran->bkt_nota) 
+                    : null;
+                return $pengeluaran;
+            });
 
         // Hitung saldo
         $totalMasukBop = PemasukanBOP::sum('nominal');
@@ -48,6 +56,7 @@ class PengeluaranController extends Controller
             'ket' => 'required|string',
             'toko' => 'nullable|string',
             'tipe' => 'required|in:bop,iuran',
+            'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         $data = [
@@ -57,6 +66,13 @@ class PengeluaranController extends Controller
             'ket' => $request->ket,
             'toko' => $request->toko,
         ];
+
+        // LOGIKA PENYIMPANAN FILE
+        if ($request->hasFile('bkt_nota')) {
+            // Simpan ke folder 'storage/app/public/nota'
+            $path = $request->file('bkt_nota')->store('nota', 'public');
+            $data['bkt_nota'] = $path;
+        }
 
         // Tentukan sumber dana
         if ($request->tipe === 'bop') {
@@ -70,11 +86,4 @@ class PengeluaranController extends Controller
         return back()->with('success', 'Pengeluaran berhasil ditambahkan.');
     }
 
-    public function destroy($id)
-    {
-        $del = Pengeluaran::findOrFail($id);
-        $del->delete();
-
-        return back()->with('success', 'Pengeluaran berhasil dihapus.');
-    }
 }

@@ -16,8 +16,6 @@ class PemasukanIuran extends Model
         'tgl',
         'nominal',
         'ket',
-        'status', // BARU: Tambahkan kolom status
-        'bkt_byr',
     ];
 
     public function kategori_iuran()

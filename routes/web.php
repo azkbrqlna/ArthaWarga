@@ -16,6 +16,7 @@ use App\Http\Controllers\KategoriIuranController;
 use App\Http\Controllers\HargaIuranController;
 use App\Http\Controllers\SuperadminController;
 use App\Http\Controllers\TagihanBulananController;
+use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 // --- API Documentation Password Protection ---
@@ -86,7 +87,7 @@ Route::middleware(['role.access'])->group(function () {
     Route::post('/tagihan-bulanan/upload', [TagihanBulananController::class, 'upload_bukti'])->name('tagihan.upload');
     
     //UNTUK RT
-    Route::get('/tagihan-bulanan/approval', [TagihanBulananController::class, 'approval_rt'])->name('tagihan.approval');
+    Route::get('/approval', [TagihanBulananController::class, 'approval_rt'])->name('tagihan.approval');
     Route::patch('/tagihan-bulanan/{id}/approve', [TagihanBulananController::class, 'approve'])->name('tagihan.approve');
     Route::patch('/tagihan-bulanan/{id}/decline', [TagihanBulananController::class, 'decline'])->name('tagihan.decline');
     

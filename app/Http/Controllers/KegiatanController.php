@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\KategoriKegiatan;
 use App\Models\Kegiatan;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -25,8 +26,8 @@ class KegiatanController extends Controller
                            ->withQueryString();
 
         return Inertia::render('Kegiatan/Kegiatan', [
-    'kegiatans' => $kegiatans
-]);
+            'kegiatans' => $kegiatans
+        ]);
 
     }
 
@@ -42,30 +43,51 @@ class KegiatanController extends Controller
         ]);
     }
 
+    public function create()
+    {
+        $kategoris = KategoriKegiatan::select('id', 'nm_kat')->get();
+        return Inertia::render('Kegiatan/Tambah_kegiatan',[
+            'kategoris' => $kategoris
+        ]);
+    }
+
     /**
      * Simpan kegiatan baru.
      */
     public function store(Request $request)
     {
         $data = $request->validate([
+            'kat_keg_id'  => 'required|exists:kat_keg,id', // Tambahkan validasi ini
             'nm_keg'      => 'required|string|max:255',
             'tgl_mulai'   => 'nullable|date',
             'tgl_selesai' => 'nullable|date|after_or_equal:tgl_mulai',
             'pj_keg'      => 'nullable|string|max:255',
             'panitia'     => 'nullable|string|max:255',
-            'dok_keg'     => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:5120',
+            
+            // Validasi untuk array (upload banyak file)
+            'dok_keg'     => 'nullable|array', 
+            'dok_keg.*'   => 'file|mimes:jpg,jpeg,png|max:5120', // Validasi per file
         ]);
 
+        $paths = []; // Array untuk menampung nama file
+
         if ($request->hasFile('dok_keg')) {
-            $file = $request->file('dok_keg');
-            $filename = now()->format('Ymd_His') . '_keg.' . $file->getClientOriginalExtension();
-            $data['dok_keg'] = $file->storeAs('keg', $filename, 'public');
-        } else {
-            $data['dok_keg'] = $data['dok_keg'] ?? '';
+            foreach ($request->file('dok_keg') as $index => $file) {
+                // Tambahkan index/uniqid agar nama file tidak bentrok saat upload barengan
+                $filename = now()->format('Ymd_His') . '_' . $index . '_keg.' . $file->getClientOriginalExtension();
+                
+                // Simpan file dan masukkan path ke array
+                $paths[] = $file->storeAs('keg', $filename, 'public');
+            }
         }
 
-        Kegiatan::create($data);
+        // Masukkan data ke array untuk disimpan
+        // Karena di Model sudah di-cast 'array', Laravel otomatis mengubah array PHP jadi JSON
+        $data['dok_keg'] = !empty($paths) ? $paths : null;
 
+        
+        Kegiatan::create($data);
+        
         return back()->with('success', 'Kegiatan berhasil ditambahkan.');
     }
 
@@ -119,10 +141,8 @@ class KegiatanController extends Controller
 
         return back()->with('success', 'Kegiatan berhasil dihapus.');
     }
-  public function create()
-{
-    return Inertia::render('Kegiatan/Tambah_kegiatan');
-}
+
+   
 
 
 }
