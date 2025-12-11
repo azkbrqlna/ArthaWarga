@@ -2,15 +2,14 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class KategoriKegiatan extends Model
 {
-    protected $table = 'kat_keg';
+    use HasFactory;
 
-    public function kegiatan()
-    {
-        return $this->hasMany(kegiatan::class);
-    }
-}
+    protected $table = 'kat_keg'; 
     
+    protected $guarded = [];
+}

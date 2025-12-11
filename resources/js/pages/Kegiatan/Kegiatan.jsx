@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { usePage, router } from "@inertiajs/react";
-import { route } from "ziggy-js"; // Import ziggy route
+import { route } from "ziggy-js"; // Pastikan import ziggy route
 import AppLayout from "@/layouts/AppLayout";
 import {
     Table,
@@ -22,7 +22,7 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"; // Pastikan komponen ini ada
+} from "@/components/ui/dropdown-menu";
 import {
     ChevronsUpDown,
     ChevronLeft,
@@ -34,7 +34,7 @@ import {
     Trash2,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import Swal from "sweetalert2"; // Opsional: Untuk konfirmasi delete
+import Swal from "sweetalert2";
 
 export default function Kegiatan() {
     const { kegiatans } = usePage().props;
@@ -65,7 +65,7 @@ export default function Kegiatan() {
         const sorted = [...kegiatans.data].sort((a, b) => {
             const valA = a[sortField];
             const valB = b[sortField];
-            if (sortField === "dok_keg" || sortField === "aksi") return 0; // Skip sort
+            if (sortField === "dok_keg" || sortField === "aksi") return 0;
             if (!valA || !valB) return 0;
             if (typeof valA === "string") {
                 return sortOrder === "asc"
@@ -83,7 +83,7 @@ export default function Kegiatan() {
         currentPage * itemsPerPage
     );
 
-    // ✅ Fungsi helper format tarikh (seperti kod rakan anda)
+    // ✅ UPDATE: Format Tanggal (Dari Kode Temanmu)
     const formatDate = (dateString) => {
         if (!dateString) return "-";
         const date = new Date(dateString);
@@ -94,8 +94,15 @@ export default function Kegiatan() {
         });
     };
 
+    // ✅ UPDATE: Fungsi Pindah Halaman saat Klik Baris
+    const handleRowClick = (id) => {
+        router.visit(route("kegiatan.show", id));
+    };
+
     const openDialog = (dokumenArray, namaKegiatan) => {
-        setSelectedDokuments({ dokumen: dokumenArray, nama: namaKegiatan });
+        // Pastikan dokumenArray selalu array, jika string ubah jadi array
+        const docs = Array.isArray(dokumenArray) ? dokumenArray : [dokumenArray];
+        setSelectedDokuments({ dokumen: docs, nama: namaKegiatan });
         setCurrentImageIndex(0);
     };
 
@@ -109,6 +116,7 @@ export default function Kegiatan() {
         setCurrentImageIndex((p) => Math.min(p + 1, totalDokumen - 1));
     const prevImage = () => setCurrentImageIndex((p) => Math.max(p - 1, 0));
 
+    // Handle jika dokumen disimpan sebagai string path di DB, bukan array
     const currentImagePath = selectedDokuments.dokumen
         ? selectedDokuments.dokumen[currentImageIndex]
         : null;
@@ -169,36 +177,21 @@ export default function Kegiatan() {
                             <TableHeader>
                                 <TableRow className="bg-white">
                                     {[
-                                        {
-                                            key: "nm_keg",
-                                            label: "Nama Kegiatan",
-                                        },
-                                        {
-                                            key: "tgl_mulai",
-                                            label: "Tanggal Mulai",
-                                        },
-                                        {
-                                            key: "tgl_selesai",
-                                            label: "Tanggal Selesai",
-                                        },
-                                        {
-                                            key: "pj_keg",
-                                            label: "Penanggung Jawab",
-                                        },
+                                        { key: "nm_keg", label: "Nama Kegiatan" },
+                                        { key: "tgl_mulai", label: "Tanggal Mulai" },
+                                        { key: "tgl_selesai", label: "Tanggal Selesai" },
+                                        { key: "pj_keg", label: "Penanggung Jawab" },
                                         { key: "panitia", label: "Panitia" },
                                         { key: "dok_keg", label: "Dokumen" },
-                                        { key: "aksi", label: "" }, // Kolom Aksi
+                                        { key: "aksi", label: "" },
                                     ].map((col) => (
                                         <TableHead
                                             key={col.key}
                                             onClick={() =>
-                                                col.key !== "aksi" &&
-                                                toggleSort(col.key)
+                                                col.key !== "aksi" && toggleSort(col.key)
                                             }
                                             className={`font-semibold select-none ${
-                                                col.key !== "aksi"
-                                                    ? "cursor-pointer"
-                                                    : ""
+                                                col.key !== "aksi" ? "cursor-pointer" : ""
                                             }`}
                                         >
                                             <div className="flex items-center gap-2">
@@ -217,37 +210,29 @@ export default function Kegiatan() {
                                     paginatedData.map((keg, i) => (
                                         <TableRow
                                             key={i}
-                                            // ✅ 1. Jadikan Baris Bisa Diklik
+                                            // ✅ UPDATE: Klik Row -> Rincian
                                             className="hover:bg-gray-50 transition cursor-pointer"
-                                            onClick={() =>
-                                                handleRowClick(keg.id)
-                                            }
+                                            onClick={() => handleRowClick(keg.id)}
                                         >
                                             <TableCell>{keg.nm_keg}</TableCell>
-                                            {/* ✅ Gunakan formatDate di sini */}
-                                            <TableCell>
-                                                {formatDate(keg.tgl_mulai)}
-                                            </TableCell>
-                                            <TableCell>
-                                                {formatDate(keg.tgl_selesai)}
-                                            </TableCell>
+                                            {/* ✅ UPDATE: Terapkan Format Tanggal */}
+                                            <TableCell>{formatDate(keg.tgl_mulai)}</TableCell>
+                                            <TableCell>{formatDate(keg.tgl_selesai)}</TableCell>
                                             <TableCell>{keg.pj_keg}</TableCell>
                                             <TableCell>{keg.panitia}</TableCell>
+                                            
+                                            {/* Kolom Dokumen (Tombol Lihat) */}
                                             <TableCell>
-                                                {Array.isArray(keg.dok_keg) &&
-                                                keg.dok_keg.length > 0 ? (
+                                                {keg.dok_keg ? (
                                                     <button
-                                                        onClick={() =>
-                                                            openDialog(
-                                                                keg.dok_keg,
-                                                                keg.nm_keg
-                                                            )
-                                                        }
-                                                        className="text-blue-500 flex items-center gap-1 hover:underline"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation(); // ⛔ PENTING: Agar tidak trigger klik row
+                                                            openDialog(keg.dok_keg, keg.nm_keg);
+                                                        }}
+                                                        className="text-blue-500 flex items-center gap-1 hover:underline z-10 relative"
                                                     >
                                                         <FileText className="w-4 h-4" />
-                                                        Lihat (
-                                                        {keg.dok_keg.length})
+                                                        Lihat
                                                     </button>
                                                 ) : (
                                                     <span className="text-gray-400 text-xs italic">
@@ -255,42 +240,36 @@ export default function Kegiatan() {
                                                     </span>
                                                 )}
                                             </TableCell>
-                                            {/* DROPDOWN AKSI */}
+
+                                            {/* Kolom Aksi (Edit/Hapus) */}
                                             <TableCell className="text-right">
                                                 <DropdownMenu>
-                                                    <DropdownMenuTrigger
-                                                        asChild
-                                                    >
+                                                    <DropdownMenuTrigger asChild>
                                                         <Button
                                                             variant="ghost"
                                                             className="h-8 w-8 p-0"
+                                                            // ⛔ PENTING: Stop Propagation di Trigger Menu
+                                                            onClick={(e) => e.stopPropagation()}
                                                         >
-                                                            <span className="sr-only">
-                                                                Open menu
-                                                            </span>
+                                                            <span className="sr-only">Open menu</span>
                                                             <MoreVertical className="h-4 w-4" />
                                                         </Button>
                                                     </DropdownMenuTrigger>
                                                     <DropdownMenuContent align="end">
                                                         <DropdownMenuItem
-                                                            onClick={() =>
-                                                                router.visit(
-                                                                    route(
-                                                                        "kegiatan.edit",
-                                                                        keg.id
-                                                                    )
-                                                                )
-                                                            }
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Stop propagation
+                                                                router.visit(route("kegiatan.edit", keg.id));
+                                                            }}
                                                         >
                                                             <Edit className="mr-2 h-4 w-4" />
                                                             Edit
                                                         </DropdownMenuItem>
                                                         <DropdownMenuItem
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    keg.id
-                                                                )
-                                                            }
+                                                            onClick={(e) => {
+                                                                e.stopPropagation(); // Stop propagation
+                                                                handleDelete(keg.id);
+                                                            }}
                                                             className="text-red-600 focus:text-red-600 focus:bg-red-50"
                                                         >
                                                             <Trash2 className="mr-2 h-4 w-4" />
@@ -315,42 +294,35 @@ export default function Kegiatan() {
                         </Table>
                     </div>
 
-                    {/* PAGINATION (Kode pagination tetap sama) */}
+                    {/* Pagination (Tidak Berubah) */}
                     {sortedData.length > itemsPerPage && (
                         <div className="flex justify-end items-center gap-2 mt-6 px-2 pb-4">
                             <Button
                                 variant="outline"
                                 disabled={currentPage === 1}
-                                onClick={() =>
-                                    setCurrentPage((p) => Math.max(p - 1, 1))
-                                }
+                                onClick={() => setCurrentPage((p) => Math.max(p - 1, 1))}
                             >
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
-                            {Array.from(
-                                { length: totalPages },
-                                (_, i) => i + 1
-                            ).map((num) => (
-                                <Button
-                                    key={num}
-                                    onClick={() => setCurrentPage(num)}
-                                    className={`${
-                                        num === currentPage
-                                            ? "bg-blue-500 text-white"
-                                            : "bg-white border text-blue-500"
-                                    } hover:bg-blue-300 transition`}
-                                >
-                                    {num}
-                                </Button>
-                            ))}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                                (num) => (
+                                    <Button
+                                        key={num}
+                                        onClick={() => setCurrentPage(num)}
+                                        className={`${
+                                            num === currentPage
+                                                ? "bg-blue-500 text-white"
+                                                : "bg-white border text-blue-500"
+                                        } hover:bg-blue-300 transition`}
+                                    >
+                                        {num}
+                                    </Button>
+                                )
+                            )}
                             <Button
                                 variant="outline"
                                 disabled={currentPage === totalPages}
-                                onClick={() =>
-                                    setCurrentPage((p) =>
-                                        Math.min(p + 1, totalPages)
-                                    )
-                                }
+                                onClick={() => setCurrentPage((p) => Math.min(p + 1, totalPages))}
                             >
                                 <ChevronRight className="h-4 w-4" />
                             </Button>
@@ -358,7 +330,7 @@ export default function Kegiatan() {
                     )}
                 </div>
 
-                {/* Popup Dokumen/Gambar (Dialog tetap sama) */}
+                {/* Dialog Popup Gambar (Sesuai Kodemu) */}
                 <Dialog
                     open={!!selectedDokuments.dokumen}
                     onOpenChange={closeDialog}
@@ -368,7 +340,7 @@ export default function Kegiatan() {
                             <DialogTitle>
                                 Dokumen Kegiatan: {selectedDokuments.nama}
                             </DialogTitle>
-                            {totalDokumen > 0 && (
+                            {totalDokumen > 1 && (
                                 <p className="text-sm text-gray-500">
                                     {currentImageIndex + 1} dari {totalDokumen}
                                 </p>
@@ -381,16 +353,18 @@ export default function Kegiatan() {
                             <X className="h-5 w-5 text-gray-700" />
                         </button>
                         <div className="relative flex-grow flex items-center justify-center p-4">
-                            {totalDokumen > 0 ? (
+                            {currentImagePath ? (
                                 <>
-                                    <Button
-                                        onClick={prevImage}
-                                        disabled={currentImageIndex === 0}
-                                        className="absolute left-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
-                                        size="icon"
-                                    >
-                                        <ChevronLeft className="h-5 w-5" />
-                                    </Button>
+                                    {totalDokumen > 1 && (
+                                        <Button
+                                            onClick={prevImage}
+                                            disabled={currentImageIndex === 0}
+                                            className="absolute left-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
+                                            size="icon"
+                                        >
+                                            <ChevronLeft className="h-5 w-5" />
+                                        </Button>
+                                    )}
                                     <div className="w-full h-full max-h-[70vh] flex justify-center items-center overflow-hidden">
                                         <img
                                             src={`/storage/${currentImagePath}`}
@@ -403,17 +377,16 @@ export default function Kegiatan() {
                                             }}
                                         />
                                     </div>
-                                    <Button
-                                        onClick={nextImage}
-                                        disabled={
-                                            currentImageIndex ===
-                                            totalDokumen - 1
-                                        }
-                                        className="absolute right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
-                                        size="icon"
-                                    >
-                                        <ChevronRight className="h-5 w-5" />
-                                    </Button>
+                                    {totalDokumen > 1 && (
+                                        <Button
+                                            onClick={nextImage}
+                                            disabled={currentImageIndex === totalDokumen - 1}
+                                            className="absolute right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
+                                            size="icon"
+                                        >
+                                            <ChevronRight className="h-5 w-5" />
+                                        </Button>
+                                    )}
                                 </>
                             ) : (
                                 <p className="text-center text-gray-500 p-4">

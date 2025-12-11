@@ -29,7 +29,7 @@ class RoleMiddleware
         $access = [
             // ID 1: Superadmin
             1 => array_merge(
-                ['dashboard', 'profil.index', 'profil.update', 'superadmin.users', 'superadmin.createUser', 'superadmin.storeUser', 'superadmin.editUser', 'superadmin.updateUser', 'superadmin.deleteUser'], 
+                ['dashboard', 'profil.index', 'profil.update', 'superadmin.users', 'superadmin.createUser', 'superadmin.storeUser', 'superadmin.editUser', 'superadmin.updateUser', 'superadmin.deleteUser', 'kegiatan.show'], 
                 $kategoriIuranRoutes
             ), 
             
@@ -47,6 +47,7 @@ class RoleMiddleware
                 'kegiatan.create',
                 'kegiatan.store',
                 'kegiatan.index',
+                'kegiatan.show',
                 'kegiatan.edit',    
                 'kegiatan.update', 
                 'kegiatan.destroy', 
@@ -79,6 +80,8 @@ class RoleMiddleware
                 'iuran.create', 
                 'pengumuman.create', 
                 'pengeluaran.store',
+                'kegiatan.index',
+                'kegiatan.show',
                 'tagihan.create',
                 'tagihan.store',
                 'tagihan.generate',
@@ -100,6 +103,8 @@ class RoleMiddleware
                 'kegiatan.create',
                 'kegiatan.store',
                 'kegiatan.index', 
+                'kegiatan.show',
+                'kegiatan.edit',
                 'rincian.show', 
                 'profil.index', 
                 'profil.update',
@@ -136,6 +141,8 @@ class RoleMiddleware
                 'tagihan.bayar',
                 'profil.updatePhoto',
                 'profil.deletePhoto',
+                'kegiatan.index',
+                'kegiatan.show',
             ], 
         ];
 
