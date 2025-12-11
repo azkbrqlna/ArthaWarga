@@ -14,9 +14,7 @@ class LaporanController extends Controller
         $user = auth()->user();
 
         if (!$user) {
-            return response()->json([
-                'error' => 'User tidak ditemukan'
-            ], 404);
+            return response()->json(['error' => 'User tidak ditemukan'], 404);
         }
 
         // 2. Ambil Data Wilayah User
@@ -32,69 +30,90 @@ class LaporanController extends Controller
         $tahun = $request->input('tahun', now()->year);
         $bulan = $request->input('bulan'); // 1 - 12 (Bisa null)
 
-        // --- LOGIKA 1: HITUNG SALDO AWAL ---
+        // --- LOGIKA 1: HITUNG SALDO AWAL (Gabungan Iuran + BOP - Pengeluaran) ---
         
         $saldoAwal = 0;
 
-        // A. Query Pemasukan Sebelumnya
-        // PERUBAHAN: Menghapus filter 'status' karena tidak ada kolom tersebut di image_e9689f.jpg
-        $prevMasuk = DB::table('masuk_iuran')
-            ->whereYear('tgl', $tahun);
+        // A. Saldo dari Iuran (Sebelum periode)
+        $prevIuran = DB::table('masuk_iuran')->whereYear('tgl', $tahun);
+        
+        // B. Saldo dari BOP (Sebelum periode) -> INI BARU DITAMBAHKAN
+        // Mengambil data dari tabel masuk_bop
+        $prevBop = DB::table('masuk_bop')->whereYear('tgl', $tahun);
 
-        // B. Query Pengeluaran Sebelumnya
-        $prevKeluar = DB::table('pengeluaran')
-            ->whereYear('tgl', $tahun);
+        // C. Saldo Keluar (Sebelum periode)
+        $prevKeluar = DB::table('pengeluaran')->whereYear('tgl', $tahun);
 
         if ($bulan) {
             // Jika filter bulan aktif, hitung transaksi SEBELUM bulan tersebut
-            $prevMasuk->whereMonth('tgl', '<', $bulan);
+            $prevIuran->whereMonth('tgl', '<', $bulan);
+            $prevBop->whereMonth('tgl', '<', $bulan);
             $prevKeluar->whereMonth('tgl', '<', $bulan);
         } else {
-            // Jika setahun penuh, tidak perlu hitung saldo awal (set query jadi false)
-            $prevMasuk->whereRaw('1 = 0'); 
+            // Setahun penuh, saldo awal hitungan 0 (kecuali ada logika saldo tahun lalu)
+            $prevIuran->whereRaw('1 = 0');
+            $prevBop->whereRaw('1 = 0');
             $prevKeluar->whereRaw('1 = 0');
         }
 
-        $totalMasukDulu = $prevMasuk->sum('nominal'); 
-        $totalKeluarDulu = $prevKeluar->sum('nominal'); 
+        $totalMasuk = $prevIuran->sum('nominal') + $prevBop->sum('nominal');
+        $totalKeluar = $prevKeluar->sum('nominal');
 
-        $saldoAwal = $totalMasukDulu - $totalKeluarDulu;
+        $saldoAwal = $totalMasuk - $totalKeluar;
 
         // --- LOGIKA 2: AMBIL DATA TRANSAKSI UTAMA ---
 
-        // A. Pemasukan (Query Utama)
-        // PERUBAHAN: Menghapus filter 'status' -> Semua data dianggap approved/valid
-        $pemasukan = DB::table('masuk_iuran')
+        // 1. Pemasukan Iuran (Tabel: masuk_iuran)
+        $queryIuran = DB::table('masuk_iuran')
             ->leftJoin('kat_iuran', 'masuk_iuran.kat_iuran_id', '=', 'kat_iuran.id')
             ->whereYear('masuk_iuran.tgl', $tahun)
             ->select(
                 'masuk_iuran.tgl as tanggal',
-                // Pastikan 'nm_kat' benar. Jika error unknown column, ganti jadi 'nama_kategori' atau 'nama'
+                // Mengambil nama kategori dari tabel relasi
                 DB::raw("COALESCE(kat_iuran.nm_kat, 'Iuran Warga') as kategori"),
                 'masuk_iuran.nominal as pemasukan',
                 DB::raw('0 as pengeluaran'),
-                'masuk_iuran.ket as keterangan'
+                'masuk_iuran.ket as keterangan',
+                DB::raw("'-' as bukti_nota") // Iuran tidak ada nota di screenshot
             );
 
-        // B. Pengeluaran (Query Utama)
-        $pengeluaran = DB::table('pengeluaran')
+        // 2. Pemasukan BOP (Tabel: masuk_bop) -> INI BARU DITAMBAHKAN
+        // Sesuai screenshot image_6e52e4.jpg, kolomnya adalah tgl, nominal, ket, bkt_nota
+        $queryBop = DB::table('masuk_bop')
+            ->whereYear('tgl', $tahun)
+            ->select(
+                'tgl as tanggal',
+                DB::raw("'Dana BOP' as kategori"), // Label kategori manual untuk BOP
+                'nominal as pemasukan',
+                DB::raw('0 as pengeluaran'),
+                'ket as keterangan',
+                'bkt_nota as bukti_nota' // BOP ada nota
+            );
+
+        // 3. Pengeluaran (Tabel: pengeluaran)
+        $queryPengeluaran = DB::table('pengeluaran')
             ->whereYear('tgl', $tahun)
             ->select(
                 'tgl as tanggal', 
                 DB::raw("'Pengeluaran Operasional' as kategori"),
                 DB::raw('0 as pemasukan'),
                 'nominal as pengeluaran', 
-                'ket as keterangan'
+                'ket as keterangan',
+                'bkt_nota as bukti_nota'
             );
 
-        // C. Terapkan Filter Bulan
+        // Terapkan Filter Bulan pada ketiga query
         if ($bulan) {
-            $pemasukan->whereMonth('masuk_iuran.tgl', $bulan);
-            $pengeluaran->whereMonth('tgl', $bulan);
+            $queryIuran->whereMonth('masuk_iuran.tgl', $bulan);
+            $queryBop->whereMonth('tgl', $bulan);
+            $queryPengeluaran->whereMonth('tgl', $bulan);
         }
 
-        // D. Gabungkan & Urutkan
-        $transaksi = $pemasukan->unionAll($pengeluaran)
+        // --- GABUNGKAN SEMUA (UNION) ---
+        // Urutan Union: Iuran + BOP + Pengeluaran
+        $transaksi = $queryIuran
+            ->unionAll($queryBop)
+            ->unionAll($queryPengeluaran)
             ->orderBy('tanggal', 'asc')
             ->get();
 
@@ -117,7 +136,7 @@ class LaporanController extends Controller
                 'pengeluaran' => $keluar,
                 'saldo_akhir' => $saldoBerjalan,
                 'keterangan'  => $item->keterangan ?? '-',
-                'bukti_nota'  => '-'
+                'bukti_nota'  => $item->bukti_nota ?? '-'
             ];
         }
 
@@ -129,6 +148,7 @@ class LaporanController extends Controller
         
         $labelPeriode = $bulan ? ($namaBulan[$bulan] . ' ' . $tahun) : ('Tahun ' . $tahun);
 
+        // 4. Return Response JSON
         return response()->json([
             'tanggal_cetak' => now()->format('d-m-Y H:i:s'),
             'dicetak_oleh'  => $user->nm_lengkap,
