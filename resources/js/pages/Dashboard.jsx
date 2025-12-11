@@ -310,7 +310,7 @@ export default function Dashboard() {
                                             }
                                         );
                                     }}
-                                    className="text-gray-700 text-xs"
+                                    className="text-red-600 hover:text-red-800 text-xs font-medium px-2 border border-red-200 rounded bg-red-50 py-1.5 hover:bg-red-100 transition"
                                 >
                                     Reset
                                 </Button>
