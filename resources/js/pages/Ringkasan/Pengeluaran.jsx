@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useForm, usePage, router } from "@inertiajs/react";
 import { route } from "ziggy-js";
 import AppLayout from "@/layouts/AppLayout";
@@ -23,7 +23,7 @@ export default function Pengeluaran() {
     const fileInputRef = useRef(null);
 
     const { data, setData, post, reset, processing } = useForm({
-        tipe: "",
+        tipe: "bop",
         tgl: "",
         keg_id: "",
         nominal: 0,
@@ -51,21 +51,37 @@ export default function Pengeluaran() {
         return "Rp " + rupiah;
     };
 
+    useEffect(() => {
+        const currentLimit =
+            data.tipe === "bop"
+                ? parseInt(sisaBop || "0", 10)
+                : parseInt(sisaIuran || "0", 10);
+
+        if (data.nominal > currentLimit) {
+            setErrorNominal(
+                `Nominal melebihi Dana ${
+                    data.tipe === "bop" ? "BOP" : "Iuran"
+                } saat ini (${formatRupiah(String(currentLimit))})`
+            );
+        } else {
+            setErrorNominal("");
+        }
+    }, [data.tipe, sisaBop, sisaIuran]);
+
     const handleNominalChange = (e) => {
         const raw = e.target.value;
         const cleanValue = raw.replace(/[^0-9]/g, "");
         const numericValue = parseInt(cleanValue || "0", 10);
 
-        const limit =
-            data.tipe === "bop"
-                ? parseInt(sisaBop || "0", 10)
-                : parseInt(sisaIuran || "0", 10);
+        const rawLimit = data.tipe === "bop" ? sisaBop : sisaIuran;
+        const stringLimit = String(rawLimit || "0").replace(/\./g, "");
+        const currentLimit = parseInt(stringLimit, 10);
 
-        if (numericValue > limit) {
+        if (numericValue > currentLimit) {
             setErrorNominal(
                 `Nominal melebihi Dana ${
                     data.tipe === "bop" ? "BOP" : "Iuran"
-                } Sekarang`
+                } saat ini (${formatRupiah(String(currentLimit))})`
             );
         } else {
             setErrorNominal("");
@@ -88,27 +104,43 @@ export default function Pengeluaran() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (
-            !data.tipe ||
-            !data.tgl ||
-            !data.keg_id ||
-            !data.nominal ||
-            !data.ket.trim()
-        ) {
+        // 1. Cek Validasi Nominal vs Saldo
+        if (errorNominal) {
+            notifyError("Gagal", "Nominal melebihi batas dana.");
+            return;
+        }
+
+        // 2. Cek Kelengkapan Data
+        const missingFields = [];
+
+        if (!data.tipe) missingFields.push("Jenis Pengeluaran");
+        if (!data.tgl) missingFields.push("Tanggal");
+        if (!data.keg_id) missingFields.push("Kegiatan");
+        if (!data.nominal || data.nominal === 0) missingFields.push("Nominal");
+        if (!data.ket || !data.ket.trim()) missingFields.push("Keterangan");
+
+        // TAMBAHAN: Cek Bukti Nota
+        if (!data.bkt_nota) missingFields.push("Bukti Nota");
+
+        // Jika ada field yang kosong, tampilkan error spesifik
+        if (missingFields.length > 0) {
             notifyError(
-                "Data belum lengkap",
-                "Periksa semua kolom wajib diisi."
+                "Data Belum Lengkap",
+                `Mohon lengkapi: ${missingFields.join(", ")}`
             );
             return;
         }
 
+        // 3. Proses Submit
         const sendData = new FormData();
         sendData.append("tipe", data.tipe);
         sendData.append("tgl", data.tgl);
         sendData.append("keg_id", data.keg_id);
-        sendData.append("nominal", data.nominal); // ← FIX, kirim angka apa adanya
+        sendData.append("nominal", data.nominal);
         sendData.append("toko", data.toko);
         sendData.append("ket", data.ket);
+
+        // Karena sudah divalidasi wajib ada, kita bisa langsung append (atau tetap pakai if untuk safety)
         if (data.bkt_nota) sendData.append("bkt_nota", data.bkt_nota);
 
         post(route("pengeluaran.store"), {
@@ -182,8 +214,6 @@ export default function Pengeluaran() {
                                 value={data.tipe}
                                 onValueChange={(val) => {
                                     setData("tipe", val);
-                                    setErrorNominal("");
-                                    setData("nominal", "");
                                 }}
                             >
                                 <SelectTrigger className="w-full border border-gray-300">
@@ -248,10 +278,14 @@ export default function Pengeluaran() {
                             placeholder="Rp 0"
                             value={formatRupiah(data.nominal)}
                             onChange={handleNominalChange}
-                            className={errorNominal ? "border-red-500" : ""}
+                            className={
+                                errorNominal
+                                    ? "border-red-500 focus-visible:ring-0"
+                                    : ""
+                            }
                         />
                         {errorNominal && (
-                            <p className="text-sm text-red-600">
+                            <p className="text-sm text-red-600 mt-1">
                                 {errorNominal}
                             </p>
                         )}
@@ -261,6 +295,7 @@ export default function Pengeluaran() {
                         <Label>Nama Toko (opsional)</Label>
                         <Input
                             type="text"
+                            placeholder="Nama Toko"
                             value={data.toko}
                             onChange={(e) => setData("toko", e.target.value)}
                             className="w-full"
@@ -279,7 +314,10 @@ export default function Pengeluaran() {
                     </div>
 
                     <div className="space-y-2">
-                        <Label>Bukti Nota / Kwitansi</Label>
+                        <Label>
+                            Bukti Nota / Kwitansi{" "}
+                            <span className="text-red-500">*</span>
+                        </Label>
                         <label
                             htmlFor="nota"
                             className="flex flex-col items-center justify-center w-full border-2 border-dashed border-gray-300 rounded-lg py-10 cursor-pointer hover:bg-gray-50"

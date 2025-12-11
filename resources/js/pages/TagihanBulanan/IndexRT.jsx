@@ -1,12 +1,11 @@
 import React, { useState, useMemo } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 import { Head, Link, router } from '@inertiajs/react';
-import { Button } from "@/components/ui/button"; 
 
 export default function IndexRT({ auth, tagihan, totalDitagihkan, totalLunas, totalJimpitan }) {
     // --- STATE & CONFIG ---
-    const [selectedMonth, setSelectedMonth] = useState(defaultMonth);
-    const [selectedYear, setSelectedYear] = useState(defaultYear);
+    const [selectedMonth, setSelectedMonth] = useState("");
+    const [selectedYear, setSelectedYear] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
 
@@ -41,22 +40,6 @@ export default function IndexRT({ auth, tagihan, totalDitagihkan, totalLunas, to
             return monthMatch && yearMatch;
         });
     }, [tagihan, selectedMonth, selectedYear]);
-
-    // --- LOGIKA HITUNG SALDO (Fitur Baru) ---
-    const totals = useMemo(() => {
-        return filteredData.reduce((acc, item) => {
-            const nominal = Number(item.nominal) || 0;
-            const status = item.status ? item.status.toLowerCase() : '';
-
-            // Hitung berdasarkan status
-            if (status === 'approved' || status === 'lunas') {
-                acc.lunas += nominal;
-            } else if (status === 'pending' || status === 'ditagihkan') {
-                acc.pending += nominal;
-            }
-            return acc;
-        }, { lunas: 0, pending: 0 });
-    }, [filteredData]);
 
     // --- LOGIKA PAGINATION ---
     const totalPages = Math.ceil(filteredData.length / itemsPerPage);

@@ -1,273 +1,292 @@
 import React, { useState } from "react";
-import { router, Link } from "@inertiajs/react";
-import { route } from "ziggy-js";
-import AppLayout from "@/layouts/AppLayout";
+import AppLayout from "../../Layouts/AppLayout";
+import { Head, router } from "@inertiajs/react";
 
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent } from "@/components/ui/dialog";
+// Import komponen UI Table
 import {
-    Banknote,
-    ChevronsUpDown,
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogHeader,
+    DialogTitle,
+} from "@/components/ui/dialog";
+
+import {
+    Clock,
+    CheckCircle,
     Check,
     X,
-    ChevronLeft,
-    ChevronRight,
+    ChevronsUpDown,
+    Eye,
 } from "lucide-react";
 
-export default function Approval({ iurans, jumlahTagihan, jumlahApproved }) {
-    const [rows, setRows] = useState(iurans.data || []);
-    const [modalImage, setModalImage] = useState(null);
-    const currentPage = iurans.current_page;
-    const totalPages = iurans.last_page;
+export default function IndexRT({
+    auth,
+    tagihan,
+    totalDitagihkan,
+    totalLunas,
+}) {
+    // State untuk mengontrol Modal Bukti Pembayaran
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedProofUrl, setSelectedProofUrl] = useState(null);
 
-    const formatRupiah = (val) =>
-        "Rp " + parseInt(val || 0).toLocaleString("id-ID");
+    const formatRupiah = (number) =>
+        new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+        }).format(number || 0);
 
-    const handleUpdate = (id, status) => {
-        setRows((prev) =>
-            prev.map((item) => (item.id === id ? { ...item, status } : item))
-        );
-
-        router.patch(route("approval.patch", id), { status });
+    const handleApprove = (id) => {
+        router.patch(route("tagihan.approve", id));
     };
 
-    const goToPage = (page) => {
-        router.get(
-            route("approval"),
-            { page },
-            { preserveScroll: true, preserveState: true }
-        );
+    const handleDecline = (id) => {
+        router.patch(route("tagihan.decline", id));
+    };
+
+    const handleViewProof = (url) => {
+        setSelectedProofUrl(url);
+        setIsModalOpen(true);
     };
 
     return (
         <AppLayout>
-            <div className="space-y-10">
-                {/* HEADER PAGE */}
+            <Head title="Manajemen Tagihan" />
+
+            <div className="space-y-8">
+                {/* --- HEADER --- */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full bg-white">
-                    <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
-                        <span className="font-bold text-gray-900 pr-5">
-                            APPROVAL PEMBAYARAN
-                        </span>
-                    </h1>
+                    <div>
+                        <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
+                            <span className="font-bold text-gray-900 pr-5">
+                                MANAJEMEN TAGIHAN
+                            </span>
+                        </h1>
+                    </div>
                 </div>
 
-                {/* RINGKASAN */}
-                <div>
-                    <h2 className="text-sm font-semibold text-gray-800 mb-3">
-                        RINGKASAN
-                    </h2>
-
-                    <div className="flex flex-col md:flex-row gap-4">
-                        {/* Total Tagihan */}
-                        <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
-                            <div className="bg-gray-100 p-2 rounded-lg">
-                                <Banknote className="w-5 h-5 text-gray-600" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 font-medium">
-                                    Total Tagihan
-                                </p>
-                                <p className="text-lg font-semibold text-gray-900">
-                                    {formatRupiah(jumlahTagihan)}
-                                </p>
-                            </div>
+                {/* --- CARD STATISTIK --- */}
+                <div className="flex flex-col md:flex-row gap-4 w-full">
+                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3 ">
+                        <div className="bg-yellow-50 p-3 rounded-lg">
+                            <Clock className="w-6 h-6 text-yellow-600" />
                         </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                                Ditagihkan (Pending)
+                            </p>
+                            <p className="text-xl font-bold text-gray-900 mt-0.5">
+                                {formatRupiah(totalDitagihkan)}
+                            </p>
+                        </div>
+                    </div>
 
-                        {/* Total Lunas */}
-                        <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
-                            <div className="bg-gray-100 p-2 rounded-lg">
-                                <Banknote className="w-5 h-5 text-gray-600" />
-                            </div>
-                            <div>
-                                <p className="text-xs text-gray-500 font-medium">
-                                    Lunas
-                                </p>
-                                <p className="text-lg font-semibold text-gray-900">
-                                    {formatRupiah(jumlahApproved)}
-                                </p>
-                            </div>
+                    <div className="flex-1 bg-white border rounded-xl p-4 flex items-center gap-3">
+                        <div className="bg-green-50 p-3 rounded-lg">
+                            <CheckCircle className="w-6 h-6 text-green-600" />
+                        </div>
+                        <div>
+                            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">
+                                Saldo Lunas
+                            </p>
+                            <p className="text-xl font-bold text-gray-900 mt-0.5">
+                                {formatRupiah(totalLunas)}
+                            </p>
                         </div>
                     </div>
                 </div>
 
-                {/* TABEL */}
-                <div className="pb-10">
-                    <div className="rounded-xl border overflow-hidden bg-white">
-                        <table className="w-full text-sm">
-                            <thead className="bg-white border-b">
-                                <tr>
-                                    {[
-                                        "No",
-                                        "Nama",
-                                        "Jenis Iuran",
-                                        "Tanggal",
-                                        "Bukti",
-                                        "Status",
-                                    ].map((label, idx) => (
-                                        <th
-                                            key={idx}
-                                            className="p-3 font-semibold text-gray-700"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                {label}
-                                                {label !== "No" && (
-                                                    <ChevronsUpDown className="h-4 w-4 text-gray-400" />
-                                                )}
-                                            </div>
-                                        </th>
-                                    ))}
-                                </tr>
-                            </thead>
+                {/* --- TABEL TAGIHAN --- */}
+                <div className="rounded-xl border bg-white overflow-hidden ">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="bg-white border-b hover:bg-white">
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
+                                    <div className="flex items-center gap-2 cursor-pointer hover:text-gray-600">
+                                        Warga
+                                        <ChevronsUpDown className="h-4 w-4 text-gray-400" />
+                                    </div>
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
+                                    Periode
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
+                                    Meteran
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
+                                    Nominal
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900">
+                                    Bukti
+                                </TableHead>
+                                <TableHead className="py-4 px-6 font-semibold text-gray-900 text-center">
+                                    Aksi / Status
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
 
-                            <tbody>
-                                {rows.map((item, index) => {
-                                    const approved = item.status === "approved";
-                                    const rejected = item.status === "tagihan";
-
-                                    return (
-                                        <tr
-                                            key={item.id}
-                                            className="hover:bg-gray-100 transition border-b"
-                                        >
-                                            <td className="p-3">
-                                                {iurans.from + index}
-                                            </td>
-
-                                            <td className="p-3">
+                        <TableBody>
+                            {tagihan.length > 0 ? (
+                                tagihan.map((item) => (
+                                    <TableRow
+                                        key={item.id}
+                                        className="hover:bg-gray-50 transition-colors border-b last:border-0"
+                                    >
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            <div className="text-sm font-medium text-gray-900">
                                                 {item.user?.nm_lengkap}
-                                            </td>
+                                            </div>
+                                            <div className="text-xs text-gray-500 mt-0.5">
+                                                {item.user?.alamat}
+                                            </div>
+                                        </TableCell>
 
-                                            <td className="p-3">
-                                                {
-                                                    item.pengumuman?.kat_iuran
-                                                        ?.nm_kat
-                                                }
-                                            </td>
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            <span className="text-sm text-gray-600">
+                                                {item.bulan} {item.tahun}
+                                            </span>
+                                        </TableCell>
 
-                                            <td className="p-3">
-                                                {new Date(
-                                                    item.tgl
-                                                ).toLocaleDateString("id-ID")}
-                                            </td>
-
-                                            <td className="p-3">
-                                                <button
-                                                    className="text-blue-600 underline"
-                                                    onClick={() =>
-                                                        setModalImage(
-                                                            item.bkt_byr
-                                                                ? `/storage/${item.bkt_byr}`
-                                                                : null
-                                                        )
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            <div className="flex flex-col text-sm">
+                                                <span className="text-gray-500 text-xs">
+                                                    Lalu: {item.mtr_bln_lalu}
+                                                </span>
+                                                <span
+                                                    className={
+                                                        item.mtr_skrg
+                                                            ? "font-medium text-gray-900"
+                                                            : "text-gray-400 italic"
                                                     }
                                                 >
-                                                    Lihat Bukti
+                                                    Skrg: {item.mtr_skrg || "-"}
+                                                </span>
+                                            </div>
+                                        </TableCell>
+
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            <div className="text-sm font-medium text-gray-900">
+                                                {item.nominal
+                                                    ? formatRupiah(item.nominal)
+                                                    : "-"}
+                                            </div>
+                                            {item.harga_sampah > 0 && (
+                                                <div className="text-[10px] text-green-600">
+                                                    +Sampah
+                                                </div>
+                                            )}
+                                        </TableCell>
+
+                                        {/* --- KOLOM BUKTI (POPUP) --- */}
+                                        <TableCell className="px-6 py-4 align-middle">
+                                            {item.bkt_byr ? (
+                                                <button
+                                                    onClick={() =>
+                                                        handleViewProof(
+                                                            `/storage/${item.bkt_byr}`
+                                                        )
+                                                    }
+                                                    className="inline-flex items-center gap-1.5 text-blue-600 hover:text-blue-700 hover:underline transition-colors focus:outline-none"
+                                                >
+                                                    <Eye className="w-4 h-4" />
+                                                    <span className="text-sm font-medium">
+                                                        Lihat
+                                                    </span>
                                                 </button>
-                                            </td>
+                                            ) : (
+                                                <span className="text-gray-400 text-sm">
+                                                    -
+                                                </span>
+                                            )}
+                                        </TableCell>
 
-                                            <td className="p-3">
-                                                {approved ? (
-                                                    <Badge className="bg-emerald-50 text-emerald-700 px-3 py-1">
-                                                        Disetujui
-                                                    </Badge>
-                                                ) : rejected ? (
-                                                    <Badge className="bg-red-50 text-red-700 px-3 py-1">
-                                                        Ditolak
-                                                    </Badge>
-                                                ) : (
-                                                    <div className="flex gap-2">
-                                                        <Button
-                                                            size="sm"
-                                                            onClick={() =>
-                                                                handleUpdate(
-                                                                    item.id,
-                                                                    "approved"
-                                                                )
-                                                            }
-                                                            className="bg-emerald-600 hover:bg-emerald-700 text-white"
-                                                        >
-                                                            <Check className="w-4 h-4" />
-                                                        </Button>
+                                        {/* --- KOLOM AKSI / STATUS --- */}
+                                        <TableCell className="px-6 py-4 align-middle text-center">
+                                            {item.status === "pending" ? (
+                                                <div className="flex items-center justify-center gap-3">
+                                                    {/* Tombol Tolak (Merah Muda) */}
+                                                    <button
+                                                        onClick={() =>
+                                                            handleDecline(
+                                                                item.id
+                                                            )
+                                                        }
+                                                        className="p-2 rounded-md bg-red-50 text-red-600 hover:bg-red-100 transition-colors"
+                                                        title="Tolak"
+                                                    >
+                                                        <X className="w-5 h-5" />
+                                                    </button>
 
-                                                        <Button
-                                                            size="sm"
-                                                            className="bg-red-500 hover:bg-red-600 text-white"
-                                                            onClick={() =>
-                                                                handleUpdate(
-                                                                    item.id,
-                                                                    "tagihan"
-                                                                )
-                                                            }
-                                                        >
-                                                            <X className="w-4 h-4" />
-                                                        </Button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    );
-                                })}
-                            </tbody>
-                        </table>
-
-                        {totalPages > 1 && (
-                            <div className="flex justify-end items-center gap-2 mt-6 px-2 pb-4">
-                                {/* PREV */}
-                                <Button
-                                    variant="outline"
-                                    disabled={currentPage === 1}
-                                    onClick={() => goToPage(currentPage - 1)}
-                                >
-                                    <ChevronLeft className="h-4 w-4" />
-                                </Button>
-
-                                {/* NUMBERS */}
-                                {Array.from(
-                                    { length: totalPages },
-                                    (_, i) => i + 1
-                                ).map((num) => (
-                                    <Button
-                                        key={num}
-                                        onClick={() => goToPage(num)}
-                                        className={`${
-                                            num === currentPage
-                                                ? "bg-blue-500 text-white"
-                                                : "bg-white border text-blue-500"
-                                        } hover:bg-blue-300 transition`}
+                                                    {/* Tombol Terima (Hijau Muda) */}
+                                                    <button
+                                                        onClick={() =>
+                                                            handleApprove(
+                                                                item.id
+                                                            )
+                                                        }
+                                                        className="p-2 rounded-md bg-green-50 text-green-600 hover:bg-green-100 transition-colors"
+                                                        title="Terima"
+                                                    >
+                                                        <Check className="w-5 h-5" />
+                                                    </button>
+                                                </div>
+                                            ) : item.status === "approved" ? (
+                                                <span className="inline-block px-4 py-2 rounded-md bg-green-50 text-green-700 font-medium text-sm">
+                                                    Disetujui
+                                                </span>
+                                            ) : (
+                                                <span className="inline-block px-4 py-2 rounded-md bg-red-50 text-red-700 font-medium text-sm">
+                                                    Ditolak
+                                                </span>
+                                            )}
+                                        </TableCell>
+                                    </TableRow>
+                                ))
+                            ) : (
+                                <TableRow>
+                                    <TableCell
+                                        colSpan={6}
+                                        className="h-24 text-center text-gray-500 text-sm"
                                     >
-                                        {num}
-                                    </Button>
-                                ))}
+                                        Tidak ada data yang ditemukan.
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                        </TableBody>
+                    </Table>
+                </div>
+            </div>
 
-                                {/* NEXT */}
-                                <Button
-                                    variant="outline"
-                                    disabled={currentPage === totalPages}
-                                    onClick={() => goToPage(currentPage + 1)}
-                                >
-                                    <ChevronRight className="h-4 w-4" />
-                                </Button>
-                            </div>
+            {/* --- MODAL POPUP BUKTI PEMBAYARAN --- */}
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent className="sm:max-w-md">
+                    <DialogHeader>
+                        <DialogTitle>Bukti Pembayaran</DialogTitle>
+                    </DialogHeader>
+                    <div className="flex items-center justify-center p-2">
+                        {selectedProofUrl ? (
+                            <img
+                                src={selectedProofUrl}
+                                alt="Bukti Transfer"
+                                className="rounded-lg max-h-[500px] w-auto object-contain"
+                            />
+                        ) : (
+                            <p className="text-gray-500">
+                                Gambar tidak ditemukan.
+                            </p>
                         )}
                     </div>
-                </div>
-
-                {/* POPUP GAMBAR */}
-                <Dialog
-                    open={!!modalImage}
-                    onOpenChange={() => setModalImage(null)}
-                >
-                    <DialogContent className="max-w-xl">
-                        {modalImage && (
-                            <img
-                                src={modalImage}
-                                className="w-full rounded-lg"
-                            />
-                        )}
-                    </DialogContent>
-                </Dialog>
-            </div>
+                </DialogContent>
+            </Dialog>
         </AppLayout>
     );
 }
