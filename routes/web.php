@@ -6,9 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DownloaderController;
 use App\Http\Controllers\IuranController;
 use App\Http\Controllers\KegiatanController;
-use App\Http\Controllers\MasukIuranController;
 use App\Http\Controllers\PengeluaranController;
-// use App\Http\Controllers\PengumumanController; 
 use App\Http\Controllers\ProfileWargaController;
 use App\Http\Controllers\ApiDocsController;
 use App\Http\Controllers\SpjController;
@@ -16,7 +14,6 @@ use App\Http\Controllers\KategoriIuranController;
 use App\Http\Controllers\HargaIuranController;
 use App\Http\Controllers\SuperadminController;
 use App\Http\Controllers\TagihanBulananController;
-use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
