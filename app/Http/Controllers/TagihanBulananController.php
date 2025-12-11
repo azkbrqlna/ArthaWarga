@@ -18,33 +18,23 @@ class TagihanBulananController extends Controller
     // =========================================================================
 
     public function index_rt()
-    {
-        // Pastikan hanya Admin/RT yang bisa akses
-        if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
+{
+    // Pastikan hanya Admin/RT yang bisa akses
+    if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
 
-        // 1. Ambil semua data tagihan
-        $tagihan = TagihanBulanan::with(['user', 'kategori'])
-            ->orderByDesc('tahun')
-            ->orderByDesc('bulan')
-            ->get();
+    // 1. Ambil semua data tagihan
+    // Data ini yang akan dikirim ke frontend dan difilter/dihitung di sana
+    $tagihan = TagihanBulanan::with(['user', 'kategori'])
+        ->orderByDesc('tahun')
+        ->orderByDesc('bulan')
+        ->get();
 
-        // 2. HITUNG TOTAL KEUANGAN DARI TAGIHAN (di server)
-        // a. Total Ditagihkan (Masih hutang atau menunggu verifikasi)
-        $totalDitagihkan = $tagihan->whereIn('status', ['ditagihkan', 'pending'])->sum('nominal');
-
-        // b. Total Lunas (Uang sudah diverifikasi masuk)
-        $totalLunas = $tagihan->where('status', 'approved')->sum('nominal');
-
-        // c. Total Jimpitan Terkumpul (Akumulasi Jimpitan dari tagihan yang sudah approved)
-        $totalJimpitan = $tagihan->where('status', 'approved')->sum('jimpitan_air');
-
-        return Inertia::render("TagihanBulanan/IndexRT", [
-            'tagihan'         => $tagihan,
-            'totalDitagihkan' => $totalDitagihkan,
-            'totalLunas'      => $totalLunas,
-            'totalJimpitan'   => $totalJimpitan, // Tambahan Jimpitan
-        ]);
-    }
+    // Tidak perlu menghitung total di sini lagi karena sudah dihandle React
+    
+    return Inertia::render("TagihanBulanan/IndexRT", [
+        'tagihan' => $tagihan,
+    ]);
+}
 
     /**
      * FORM TAMBAH TAGIHAN (MANUAL)
