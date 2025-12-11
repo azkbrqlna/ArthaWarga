@@ -1,70 +1,78 @@
 import React, { useState, useEffect } from 'react';
 import AppLayout from '../../Layouts/AppLayout';
 import { Head, useForm, Link } from '@inertiajs/react';
-import Breadcrumbs from '@/Components/Breadcrumbs'; // Pastikan path ini sesuai dengan lokasi file Breadcrumbs.jsx Anda
+import Breadcrumbs from '@/Components/Breadcrumbs';
 
 export default function Create({ auth, wargaList, masterHarga }) {
-    // Default Value Bulan & Tahun (Saat ini)
+    
+    // --- 1. LOGIC TANGGAL: Default Bulan Lalu ---
     const today = new Date();
+    // Mundurkan 1 bulan dari hari ini
+    today.setMonth(today.getMonth() - 1);
+    
+    const defaultBulan = today.getMonth() + 1; // getMonth() mulai dari 0, jadi +1
+    const defaultTahun = today.getFullYear();
 
     const { data, setData, post, processing, errors } = useForm({
         usr_id: '',
-        bulan: today.getMonth() + 1, // 1-12
-        tahun: today.getFullYear(),
+        bulan: defaultBulan, 
+        tahun: defaultTahun,
         mtr_bln_lalu: 0,
         mtr_skrg: '',
-        pakai_sampah: false, // Default Tidak
+        pakai_sampah: false, 
     });
 
     const [estimasi, setEstimasi] = useState(0);
 
-    // 1. LOGIC AUTOFILL: Saat Warga Dipilih
+    // --- LOGIC AUTOFILL: Saat Warga Dipilih ---
     const handleUserChange = (e) => {
         const selectedId = e.target.value;
-
-        // Cari data warga di array props
         const selectedWarga = wargaList.find(w => w.id == selectedId);
 
         if (selectedWarga) {
             setData(prev => ({
                 ...prev,
                 usr_id: selectedId,
-                mtr_bln_lalu: selectedWarga.last_meter, // Autofill Meteran Terakhir
-                mtr_skrg: '' // Reset input meteran sekarang
+                mtr_bln_lalu: selectedWarga.last_meter,
+                mtr_skrg: '' 
             }));
         } else {
             setData('usr_id', '');
         }
     };
 
-    // 2. LOGIC PREVIEW HARGA (Frontend Only)
+    // --- 2. LOGIC HITUNG ESTIMASI (RESPONSIF & AMAN DARI NaN) ---
     useEffect(() => {
         const mtrLalu = parseInt(data.mtr_bln_lalu) || 0;
         const mtrSkrg = parseInt(data.mtr_skrg) || 0;
-
+        
         // Pemakaian (cegah minus)
         const pemakaian = Math.max(0, mtrSkrg - mtrLalu);
 
-        const biayaAir = pemakaian * (masterHarga.harga_meteran || 0);
-        const biayaAbonemen = masterHarga.abonemen || 0;
-        const biayaJimpitan = masterHarga.jimpitan_air || 0;
-        const biayaSampah = data.pakai_sampah ? (masterHarga.harga_sampah || 0) : 0;
+        // Safety Check: Pastikan harga ada, kalau null anggap 0
+        const h_meter    = masterHarga?.harga_meteran ?? 0;
+        const h_abonemen = masterHarga?.abonemen ?? 0;
+        const h_jimpitan = masterHarga?.jimpitan_air ?? 0;
+        const h_sampah   = masterHarga?.harga_sampah ?? 0;
 
-        setEstimasi(biayaAir + biayaAbonemen + biayaJimpitan + biayaSampah);
+        const biayaAir      = pemakaian * h_meter;
+        const biayaSampahTotal = data.pakai_sampah ? h_sampah : 0;
 
-    }, [data.mtr_bln_lalu, data.mtr_skrg, data.pakai_sampah]);
+        // Total
+        setEstimasi(biayaAir + h_abonemen + h_jimpitan + biayaSampahTotal);
+
+    }, [data.mtr_bln_lalu, data.mtr_skrg, data.pakai_sampah, masterHarga]); // Tambahkan masterHarga
 
     const submit = (e) => {
         e.preventDefault();
         post(route('tagihan.store'));
     };
 
-    const formatRupiah = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+    const formatRupiah = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num || 0);
 
-    // Data untuk Breadcrumbs
     const breadcrumbItems = [
-        { label: 'Dashboard', href: '/dashboard' }, // Sesuaikan route dashboard
-        { label: 'Tambah Tagihan', href: null } // Halaman aktif (href null)
+        { label: 'Dashboard', href: '/dashboard' }, 
+        { label: 'Tambah Tagihan', href: null } 
     ];
 
     return (
@@ -73,7 +81,6 @@ export default function Create({ auth, wargaList, masterHarga }) {
                 <h1 className="text-3xl font-bold mb-10">TAMBAH KEGIATAN</h1>
                     <Breadcrumbs items={breadcrumbItems} />
 
-                {/* 3. Form (Tanpa Box Wrapper / Shadow) */}
                 <form onSubmit={submit} className="space-y-6">
 
                     {/* ROW 1: Pilih Warga */}
@@ -171,7 +178,9 @@ export default function Create({ auth, wargaList, masterHarga }) {
                             onChange={(e) => setData('pakai_sampah', e.target.value === '1')}
                         >
                             <option value="0">Tidak Menggunakan Sampah</option>
-                            <option value="1">Ya (+ {formatRupiah(masterHarga.harga_sampah)})</option>
+                            <option value="1">
+                                Ya (+ {formatRupiah(masterHarga?.harga_sampah)})
+                            </option>
                         </select>
                     </div>
 

@@ -69,7 +69,7 @@ export default function AppLayout({ children }) {
         },
         {
             title: "Tagihan Bulanan",
-            url: "/tagihan-bulanan/index",
+            url: "/tagihan-bulanan/monitoring",
             icon: WalletIcon,
         },
         {
