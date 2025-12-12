@@ -78,7 +78,7 @@ export default function Create({ auth, wargaList, masterHarga }) {
     return (
         <AppLayout user={auth.user}>
             <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
-                <h1 className="text-3xl font-bold mb-10">TAMBAH KEGIATAN</h1>
+                <h1 className="text-3xl font-bold mb-10">TAMBAH TAGIHAN</h1>
                     <Breadcrumbs items={breadcrumbItems} />
 
                 <form onSubmit={submit} className="space-y-6">

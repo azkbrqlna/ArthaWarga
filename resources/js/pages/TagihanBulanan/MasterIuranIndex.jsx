@@ -59,7 +59,10 @@ export default function MasterData({ auth, kategoriIurans }) {
         put(route("kat_iuran.update", data.id), {
             preserveScroll: true,
             onSuccess: () => {
-                notifySuccess("Berhasil", "Tagihan air & sampah berhasil diperbarui!");
+                notifySuccess(
+                    "Berhasil",
+                    "Tagihan air & sampah berhasil diperbarui!"
+                );
             },
             onError: (err) => {
                 notifyError("Gagal", "Terjadi kesalahan saat menyimpan.");
@@ -70,11 +73,16 @@ export default function MasterData({ auth, kategoriIurans }) {
     return (
         <AppLayout>
             <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
-                <h1 className="text-3xl font-bold mb-8">Edit Tagihan Air & Sampah</h1>
+                <h1 className="text-3xl font-bold mb-8">
+                    Edit Tagihan Air & Sampah
+                </h1>
 
                 <Breadcrumbs
                     items={[
-                        { label: "Dashboard", href: route("dashboard") },
+                        {
+                            label: "Tagihan Bulanan",
+                            href: route("tagihan.rt.index"),
+                        },
                         { label: "Edit Tagihan" },
                     ]}
                 />

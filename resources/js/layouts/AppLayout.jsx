@@ -74,15 +74,12 @@ export default function AppLayout({ children }) {
         },
         {
             title: "Kegiatan",
-            // Pastikan Controller Kegiatan index berfungsi. 
-            // Jika ingin ke form tambah, ganti jadi "/dashboard/kegiatan"
-            url: "/kegiatan", 
+            url: "/kegiatan",
             icon: CalendarDays,
         },
         {
             title: "Approval",
-            // PERBAIKAN: Mengarah ke approval tagihan karena route '/approval' biasa mati
-            url: "/tagihan-bulanan/approval", 
+            url: "/tagihan-bulanan/approval",
             icon: ClipboardCheck,
         },
         {
@@ -90,11 +87,6 @@ export default function AppLayout({ children }) {
             url: "/kategori-setting",
             icon: List,
         },
-        // {
-        //     title: "Bayar Iuran",  <-- INI DIHAPUS DARI DEFAULT
-        //     url: "/masuk-iuran",
-        //     icon: Wallet,
-        // },
     ];
 
     const adminItems = [
@@ -109,7 +101,6 @@ export default function AppLayout({ children }) {
     } else if (auth?.user?.role_id === 5) {
         items = wargaItems;
     } else {
-        // Ini akan dipakai oleh role 2, 3, 4 (Pengurus RT, dll)
         items = defaultItems;
     }
 
@@ -139,9 +130,14 @@ export default function AppLayout({ children }) {
                                 <SidebarGroupContent>
                                     <SidebarMenu className="mt-6 flex flex-col gap-3 px-4">
                                         {items.map((item) => {
-                                            const isActive = url.startsWith(
-                                                item.url
-                                            );
+                                            // --- PERBAIKAN LOGIKA ACTIVE DI SINI ---
+                                            // 1. Jika URL menu adalah "/dashboard", hanya aktif jika URL persis "/dashboard".
+                                            // 2. Untuk menu lain (seperti /kegiatan), aktif jika URL dimulai dengan path tersebut (menangani sub-halaman create/edit).
+                                            const isActive =
+                                                item.url === "/dashboard"
+                                                    ? url === "/dashboard"
+                                                    : url.startsWith(item.url);
+
                                             return (
                                                 <SidebarMenuItem
                                                     key={item.title}
@@ -177,7 +173,6 @@ export default function AppLayout({ children }) {
 
                         {/* Profil + Logout */}
                         <div className="border-t border-black/10 p-3 flex items-center gap-2 justify-between">
-                            {/* 🔗 Klik avatar atau nama = ke halaman profil */}
                             <Link
                                 href="/profil"
                                 className="flex items-center gap-2 hover:bg-gray-100 rounded-lg p-1 transition"
@@ -197,7 +192,6 @@ export default function AppLayout({ children }) {
                                 </div>
                             </Link>
 
-                            {/* Tombol Logout */}
                             <Button
                                 variant="ghost"
                                 size="icon"

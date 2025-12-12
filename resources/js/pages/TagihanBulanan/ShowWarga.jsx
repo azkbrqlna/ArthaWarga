@@ -1,110 +1,276 @@
-import React from 'react';
-import AppLayout from '../../Layouts/AppLayout';
-import { Head, useForm, Link } from '@inertiajs/react';
+import React, { useState, useRef } from "react";
+import { Head, useForm, Link } from "@inertiajs/react";
+import { route } from "ziggy-js";
+
+import AppLayout from "@/layouts/AppLayout";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function ShowWarga({ auth, tagihan }) {
+    const [preview, setPreview] = useState(null);
+
     const { data, setData, post, processing, errors } = useForm({
         id: tagihan.id,
         bkt_byr: null,
     });
 
+    // =============================
+    //   SUBMIT
+    // =============================
     const submit = (e) => {
-        e.preventDefault();
-        // Route ini mengarah ke function upload_bukti di controller
-        post(route('tagihan.upload'), { 
-            forceFormData: true, 
-        });
+    e.preventDefault();
+
+    if (!data.bkt_byr) {
+        alert("Silakan upload bukti transfer dulu.");
+        return;
+    }
+
+    console.log("DATA AKAN DIKIRIM:", data);
+
+    post(route("tagihan.upload"), {
+        forceFormData: true,
+
+        onError: (errors) => {
+            console.error("UPLOAD ERROR:", errors);
+        },
+
+        onSuccess: () => {
+            console.log("UPLOAD BERHASIL");
+        },
+
+        onFinish: () => {
+            console.log("SELESAI MENGIRIM REQUEST");
+        }
+    });
+};
+
+
+    // =============================
+    //   DRAG & DROP UPLOAD COMPONENT
+    // =============================
+    function UploadBox({ onFileChange, preview }) {
+        const [isDragging, setIsDragging] = useState(false);
+        const inputRef = useRef(null);
+
+        const handleDragOver = (e) => {
+            e.preventDefault();
+            setIsDragging(true);
+        };
+
+        const handleDragLeave = () => setIsDragging(false);
+
+        const handleDrop = (e) => {
+            e.preventDefault();
+            setIsDragging(false);
+            const file = e.dataTransfer.files[0];
+            if (file) onFileChange(file);
+        };
+
+        const handleFilePick = (e) => {
+            const file = e.target.files[0];
+            if (file) onFileChange(file);
+        };
+
+        return (
+            <div className="space-y-2 w-full">
+                <Label>
+                    Bukti Transfer <span className="text-red-500">*</span>
+                </Label>
+
+                <div
+                    className={`border-2 border-dashed rounded-xl p-6
+                        flex flex-col items-center justify-center text-center cursor-pointer transition
+                        ${isDragging ? "border-blue-500 bg-blue-50" : "border-gray-300"}
+                    `}
+                    onDragOver={handleDragOver}
+                    onDragLeave={handleDragLeave}
+                    onDrop={handleDrop}
+                    onClick={() => inputRef.current && inputRef.current.click()}
+                >
+                    {/* INPUT */}
+                    <input
+                        ref={inputRef}
+                        type="file"
+                        name="bkt_byr"              // <<< PENTING: nama harus ada
+                        accept="image/*,application/pdf"
+                        className="hidden"
+                        onChange={handleFilePick}
+                        
+                    />
+
+                    {!preview && (
+                        <>
+                            <p className="font-semibold text-gray-700">
+                                Klik untuk upload
+                            </p>
+                            <p className="text-sm text-gray-600">
+                                atau seret file ke sini
+                            </p>
+                            <p className="text-xs text-gray-500 mt-1">
+                                Format: JPG, PNG, PDF
+                            </p>
+                        </>
+                    )}
+
+                    {preview && (
+                        <img
+                            src={preview}
+                            className="max-h-72 mt-3 rounded-lg border shadow"
+                        />
+                    )}
+                </div>
+
+                {errors.bkt_byr && (
+                    <p className="text-red-500 text-xs">{errors.bkt_byr}</p>
+                )}
+            </div>
+        );
+    }
+
+    // =============================
+    //   HANDLE UPLOAD
+    // =============================
+    const handleUpload = (file) => {
+        setData("bkt_byr", file);
+
+        if (file) {
+            const url = URL.createObjectURL(file);
+            setPreview(url);
+        }
     };
 
-    const formatRupiah = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num);
+    // =============================
+    //   FORMAT RUPIAH
+    // =============================
+    const formatRupiah = (num) =>
+        new Intl.NumberFormat("id-ID", {
+            style: "currency",
+            currency: "IDR",
+            minimumFractionDigits: 0,
+        }).format(num);
 
+    // =============================
+    //   MAIN RENDER
+    // =============================
     return (
-        <AppLayout user={auth.user} header={<h2 className="font-semibold text-xl text-gray-800">Detail Pembayaran</h2>}>
-            <Head title="Upload Bukti Bayar" />
+        <AppLayout>
+            <Head title="Pembayaran Warga" />
 
-            <div className="py-12">
-                <div className="max-w-xl mx-auto sm:px-6 lg:px-8">
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
-                        
-                        {/* Rincian Tagihan (Read Only) */}
-                        <div className="mb-6 border-b pb-4">
-                            <h3 className="text-lg font-bold text-gray-700 mb-4">Rincian Tagihan</h3>
-                            
-                            <div className="space-y-2 text-sm">
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Periode</span>
-                                    <span className="font-semibold">{tagihan.bulan} / {tagihan.tahun}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Meteran Air</span>
-                                    <span>{tagihan.mtr_bln_lalu} ⮕ {tagihan.mtr_skrg}</span>
-                                </div>
-                                <div className="flex justify-between">
-                                    <span className="text-gray-600">Pemakaian</span>
-                                    <span className="font-semibold">{tagihan.mtr_skrg - tagihan.mtr_bln_lalu} m³</span>
-                                </div>
-                                
-                                <div className="border-t border-dashed my-2"></div>
+            <div className="w-full min-h-screen bg-white overflow-y-auto pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
+                <h1 className="text-3xl font-bold mb-8">Pembayaran Tagihan Air</h1>
 
-                                {/* Breakdown Harga */}
-                                <div className="flex justify-between text-gray-500">
-                                    <span>Biaya Air</span>
-                                    <span>{formatRupiah((tagihan.mtr_skrg - tagihan.mtr_bln_lalu) * tagihan.harga_meteran)}</span>
-                                </div>
-                                <div className="flex justify-between text-gray-500">
-                                    <span>Abonemen</span>
-                                    <span>{formatRupiah(tagihan.abonemen)}</span>
-                                </div>
-                                <div className="flex justify-between text-gray-500">
-                                    <span>Jimpitan</span>
-                                    <span>{formatRupiah(tagihan.jimpitan_air)}</span>
-                                </div>
-                                {tagihan.harga_sampah > 0 && (
-                                    <div className="flex justify-between text-gray-500">
-                                        <span>Iuran Sampah</span>
-                                        <span>{formatRupiah(tagihan.harga_sampah)}</span>
-                                    </div>
-                                )}
-                                
-                                <div className="border-t border-gray-300 my-2"></div>
-                                
-                                <div className="flex justify-between text-lg font-bold text-blue-600">
-                                    <span>TOTAL</span>
-                                    <span>{formatRupiah(tagihan.nominal)}</span>
-                                </div>
-                            </div>
+                <Breadcrumbs
+                    items={[
+                        { label: "Dashboard", href: route("tagihan.warga.index") },
+                        { label: "Detail Pembayaran" },
+                    ]}
+                />
+
+                <form onSubmit={submit} className="mt-8 space-y-6">
+                    <div className="grid grid-cols-1 gap-6">
+                        <div>
+                            <Label>Periode</Label>
+                            <Input
+                                readOnly
+                                value={`${tagihan.bulan} / ${tagihan.tahun}`}
+                                className="mt-1 bg-white text-gray-800 border-gray-300"
+                            />
                         </div>
 
-                        {/* Form Upload */}
-                        <form onSubmit={submit}>
-                            <div className="mb-6">
-                                <label className="block text-gray-700 text-sm font-bold mb-2">Upload Bukti Transfer</label>
-                                <input 
-                                    type="file" 
-                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                                    onChange={e => setData('bkt_byr', e.target.files[0])}
-                                    accept="image/*,application/pdf"
-                                    required
+                        <div>
+                            <Label>Meteran Air</Label>
+                            <Input
+                                readOnly
+                                value={`${tagihan.mtr_bln_lalu} → ${tagihan.mtr_skrg}`}
+                                className="mt-1 bg-white text-gray-800 border-gray-300"
+                            />
+                        </div>
+
+                        <div>
+                            <Label>Pemakaian</Label>
+                            <Input
+                                readOnly
+                                value={`${tagihan.mtr_skrg - tagihan.mtr_bln_lalu} m³`}
+                                className="mt-1 bg-white text-gray-800 border-gray-300"
+                            />
+                        </div>
+
+                        <div>
+                            <Label>Biaya Air</Label>
+                            <Input
+                                readOnly
+                                value={formatRupiah(
+                                    (tagihan.mtr_skrg - tagihan.mtr_bln_lalu) *
+                                        tagihan.harga_meteran
+                                )}
+                                className="mt-1 bg-white text-gray-800 border-gray-300"
+                            />
+                        </div>
+
+                        <div>
+                            <Label>Abonemen</Label>
+                            <Input
+                                readOnly
+                                value={formatRupiah(tagihan.abonemen)}
+                                className="mt-1 bg-white text-gray-800 border-gray-300"
+                            />
+                        </div>
+
+                        <div>
+                            <Label>Jimpitan Air</Label>
+                            <Input
+                                readOnly
+                                value={formatRupiah(tagihan.jimpitan_air)}
+                                className="mt-1 bg-white text-gray-800 border-gray-300"
+                            />
+                        </div>
+
+                        {tagihan.harga_sampah > 0 && (
+                            <div>
+                                <Label>Iuran Sampah</Label>
+                                <Input
+                                    readOnly
+                                    value={formatRupiah(tagihan.harga_sampah)}
+                                    className="mt-1 bg-white text-gray-800 border-gray-300"
                                 />
-                                {errors.bkt_byr && <p className="text-red-500 text-xs mt-1">{errors.bkt_byr}</p>}
                             </div>
+                        )}
 
-                            <div className="flex justify-end gap-2">
-                                <Link href={route('tagihan.warga.index')} className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md hover:bg-gray-400">
-                                    Kembali
-                                </Link>
-                                <button 
-                                    type="submit" 
-                                    disabled={processing} 
-                                    className="bg-blue-600 text-white px-6 py-2 rounded-md hover:bg-blue-700 disabled:opacity-50"
-                                >
-                                    {processing ? 'Uploading...' : 'Kirim Bukti'}
-                                </button>
-                            </div>
-                        </form>
-
+                        <div>
+                            <Label className="font-bold text-lg text-green-600">
+                                TOTAL
+                            </Label>
+                            <Input
+                                readOnly
+                                value={formatRupiah(tagihan.nominal)}
+                                className="bg-white text-green-600 border-green-400 font-bold"
+                            />
+                        </div>
                     </div>
-                </div>
+
+                    {/* Upload box */}
+                    <UploadBox onFileChange={handleUpload} preview={preview} />
+
+                    <div className="flex justify-end gap-4 pt-4">
+                        <Button
+                            type="button"
+                            onClick={() => history.back()}
+                            className="bg-gray-500 hover:bg-gray-600 text-white"
+                        >
+                            Kembali
+                        </Button>
+
+                        <Button
+                            type="submit"
+                            disabled={processing}
+                            className="bg-blue-600 hover:bg-blue-700 text-white"
+                        >
+                            {processing ? "Mengupload..." : "Kirim Bukti"}
+                        </Button>
+                    </div>
+                </form>
             </div>
         </AppLayout>
     );
