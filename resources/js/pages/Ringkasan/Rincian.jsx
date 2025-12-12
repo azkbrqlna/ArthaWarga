@@ -153,7 +153,7 @@ export default function Rincian() {
                                 </div>
 
                                 <div>
-                                    <p className="text-gray-500">Penerima</p>
+                                    <p className="text-gray-500">Penerima Kwitansi</p>
                                     <p className="font-medium">
                                         {rincian.penerima || "-"}
                                     </p>
