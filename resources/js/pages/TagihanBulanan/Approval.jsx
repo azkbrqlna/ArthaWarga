@@ -18,6 +18,8 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
+    DialogFooter, // Ditambahkan untuk footer modal decline
+    DialogDescription, // Ditambahkan untuk deskripsi modal decline
 } from "@/components/ui/dialog";
 
 import {
@@ -31,6 +33,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Textarea } from "@/components/ui/textarea"; // Ditambahkan untuk input alasan
 
 // --- ICONS ---
 import {
@@ -63,6 +66,11 @@ export default function IndexRT({
     // State Modal Bukti
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProofUrl, setSelectedProofUrl] = useState(null);
+
+    // --- STATE BARU: MODAL DECLINE ---
+    const [isDeclineModalOpen, setIsDeclineModalOpen] = useState(false);
+    const [selectedDeclineId, setSelectedDeclineId] = useState(null);
+    const [declineReason, setDeclineReason] = useState("");
 
     // --- HELPER NAMA BULAN ---
     const getNamaBulan = (bulan) => {
@@ -137,7 +145,7 @@ export default function IndexRT({
             minimumFractionDigits: 0,
         }).format(number || 0);
 
-    // --- ACTION HANDLERS WITH SWEETALERT2 ---
+    // --- ACTION HANDLERS ---
 
     const handleApprove = (id) => {
         Swal.fire({
@@ -171,36 +179,42 @@ export default function IndexRT({
         });
     };
 
+    // --- MODIFIED: HANDLE DECLINE CLICK (BUKA MODAL) ---
     const handleDecline = (id) => {
-        Swal.fire({
-            title: "Tolak Tagihan?",
-            text: "Status tagihan akan kembali menjadi belum bayar.",
-            icon: "warning",
-            showCancelButton: true,
-            confirmButtonColor: "#dc2626", // Red-600
-            cancelButtonColor: "#6b7280", // Gray-500
-            confirmButtonText: "Ya, Tolak!",
-            cancelButtonText: "Batal",
-            reverseButtons: true,
-        }).then((result) => {
-            if (result.isConfirmed) {
-                router.patch(
-                    route("tagihan.decline", id),
-                    {},
-                    {
-                        onSuccess: () => {
-                            Swal.fire({
-                                title: "Ditolak!",
-                                text: "Tagihan berhasil ditolak.",
-                                icon: "success", // Atau 'info'
-                                timer: 1500,
-                                showConfirmButton: false,
-                            });
-                        },
-                    }
-                );
+        // Reset state
+        setSelectedDeclineId(id);
+        setDeclineReason("");
+        // Buka modal
+        setIsDeclineModalOpen(true);
+    };
+
+    // --- NEW: SUBMIT DECLINE DENGAN ALASAN ---
+    const submitDecline = () => {
+        if (!declineReason.trim()) {
+            Swal.fire("Error", "Harap isi alasan penolakan!", "error");
+            return;
+        }
+
+        router.patch(
+            route("tagihan.decline", selectedDeclineId),
+            { alasan: declineReason }, // Kirim alasan ke controller
+            {
+                onSuccess: () => {
+                    setIsDeclineModalOpen(false); // Tutup modal
+                    Swal.fire({
+                        title: "Ditolak!",
+                        text: "Tagihan berhasil ditolak dengan alasan.",
+                        icon: "success",
+                        timer: 1500,
+                        showConfirmButton: false,
+                    });
+                },
+                onError: () => {
+                    setIsDeclineModalOpen(false);
+                    Swal.fire("Gagal", "Terjadi kesalahan.", "error");
+                },
             }
-        });
+        );
     };
 
     const handleViewProof = (url) => {
@@ -221,10 +235,10 @@ export default function IndexRT({
 
             <div className="space-y-6">
                 {/* --- HEADER --- */}
-                <div className="flex flex-col md:flex-row justify-between items-center w-full bg-white">
-                    <div className="w-full md:w-auto">
-                        <h1 className="text-2xl md:text-3xl font-semibold text-gray-800 text-center md:text-left">
-                            <span className="font-bold text-gray-900 md:pr-5">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full bg-white">
+                    <div>
+                        <h1 className="text-2xl md:text-3xl font-semibold text-gray-800">
+                            <span className="font-bold text-gray-900 pr-5">
                                 APPROVAL
                             </span>
                         </h1>
@@ -258,14 +272,17 @@ export default function IndexRT({
                                 <SelectItem value="all">
                                     Semua Status
                                 </SelectItem>
+                                <SelectItem value="ditagihkan">
+                                    Belum Bayar
+                                </SelectItem>
                                 <SelectItem value="pending">
                                     Menunggu Konfirmasi
                                 </SelectItem>
                                 <SelectItem value="approved">
                                     Disetujui
                                 </SelectItem>
-                                <SelectItem value="ditagihkan">
-                                    Belum Bayar / Ditolak
+                                <SelectItem value="declined">
+                                    Ditolak
                                 </SelectItem>
                             </SelectContent>
                         </Select>
@@ -279,7 +296,7 @@ export default function IndexRT({
                                 <SelectValue placeholder="Bulan" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Bulan</SelectItem>
+                                <SelectItem value="all">Semua Bulan</SelectItem>
                                 {Array.from(
                                     { length: 12 },
                                     (_, i) => i + 1
@@ -303,7 +320,7 @@ export default function IndexRT({
                                 <SelectValue placeholder="Tahun" />
                             </SelectTrigger>
                             <SelectContent>
-                                <SelectItem value="all">Tahun</SelectItem>
+                                <SelectItem value="all">Semua Tahun</SelectItem>
                                 {uniqueYears.map((thn) => (
                                     <SelectItem
                                         key={thn}
@@ -504,7 +521,13 @@ export default function IndexRT({
                                                     <div className="flex flex-col items-center gap-1">
                                                         <Badge
                                                             variant="outline"
-                                                            className="bg-gray-100 text-gray-600 border-gray-200"
+                                                            // GANTI DENGAN LOGIKA INI:
+                                                            className={
+                                                                item.status ===
+                                                                "ditagihkan"
+                                                                    ? "bg-gray-100 text-gray-600 border-gray-200"
+                                                                    : "bg-red-50 text-red-600 border-red-200"
+                                                            }
                                                         >
                                                             {item.status ===
                                                             "ditagihkan"
@@ -528,7 +551,7 @@ export default function IndexRT({
                                     <TableRow>
                                         <TableCell
                                             colSpan={6}
-                                            className="h-48 text-center"
+                                            className="h-48 text-center text-gray-500"
                                         >
                                             <div className="flex flex-col items-center justify-center text-gray-500">
                                                 <Filter className="w-10 h-10 text-gray-300 mb-2" />
@@ -615,6 +638,45 @@ export default function IndexRT({
                             Tutup
                         </Button>
                     </div>
+                </DialogContent>
+            </Dialog>
+
+            {/* --- MODAL DECLINE DENGAN ALASAN --- */}
+            <Dialog
+                open={isDeclineModalOpen}
+                onOpenChange={setIsDeclineModalOpen}
+            >
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle className="text-red-600 flex items-center gap-2">
+                            <X className="w-5 h-5" /> Tolak Pembayaran
+                        </DialogTitle>
+                        <DialogDescription>
+                            Mohon berikan alasan penolakan agar warga dapat
+                            memperbaikinya.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    <div className="py-4">
+                        <Textarea
+                            placeholder="Contoh: Foto bukti buram, nominal tidak sesuai, atau salah bulan..."
+                            value={declineReason}
+                            onChange={(e) => setDeclineReason(e.target.value)}
+                            className="min-h-[100px]"
+                        />
+                    </div>
+
+                    <DialogFooter>
+                        <Button
+                            variant="outline"
+                            onClick={() => setIsDeclineModalOpen(false)}
+                        >
+                            Batal
+                        </Button>
+                        <Button variant="destructive" onClick={submitDecline}>
+                            Kirim Penolakan
+                        </Button>
+                    </DialogFooter>
                 </DialogContent>
             </Dialog>
         </AppLayout>
