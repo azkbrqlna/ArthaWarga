@@ -26,7 +26,7 @@ class HargaIuranController extends Controller
             'harga_meteran' => 'nullable|integer|min:0', 
             'abonemen' => 'nullable|integer|min:0',      
             'harga_sampah' => 'nullable|integer|min:0',  
-            'jimpitan_air' => 'nullable|integer|min:0|max:100', 
+            'jimpitan_air' => 'nullable|integer|min:0', 
         ]);
         
         $harga_iuran->update($validated);

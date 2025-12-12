@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\KegiatanApiController;
 use App\Http\Controllers\Api\PengeluaranApiController;
 //use App\Http\Controllers\Api\PengumumanApiController; 
 use App\Http\Controllers\Api\SuperadminApiController;
+use App\Http\Controllers\Api\SpjApiController;
 use App\Http\Controllers\Api\HargaIuranApiController;
 
 // --- PUBLIC (Tanpa Login) ---
@@ -63,13 +64,14 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/kegiatan/update/{id}', [KegiatanApiController::class, 'update']);
     Route::delete('/kegiatan/{id}', [KegiatanApiController::class, 'destroy']);
 
-    // 5. Kegiatan 
-    Route::resource('kegiatan', KegiatanApiController::class)->except(['create', 'edit'])
-        ->parameters(['kegiatan' => 'id']);
-
     // 6. Pengeluaran 
-    Route::resource('pengeluaran', PengeluaranApiController::class)->except(['create', 'edit'])
-        ->parameters(['pengeluaran' => 'id']);
+
+        Route::get('/pengeluaran', [PengeluaranApiController::class, 'index']);
+    Route::post('/pengeluaran', [PengeluaranApiController::class, 'store']);
+    Route::get('/pengeluaran/{id}', [PengeluaranApiController::class, 'show']);
+    Route::post('/pengeluaran/update/{id}', [PengeluaranApiController::class, 'update']);
+    Route::delete('/pengeluaran/{id}', [PengeluaranApiController::class, 'destroy']);
+    Route::get('/spj/{id}/data', [SpjApiController::class, 'show']);
 
     // 7. Pengumuman
     // Route::resource('pengumuman', PengumumanApiController::class)->except(['create', 'edit'])

@@ -62,10 +62,10 @@ Route::middleware(['role.access'])->group(function () {
     Route::get('/dashboard/kegiatan', [KegiatanController::class, 'create'])->name('kegiatan.create');
     Route::post('/kegiatan', [KegiatanController::class, 'store'])->name('kegiatan.store');
     Route::get('/kegiatan', [KegiatanController::class, 'index'])->name('kegiatan.index'); 
-    Route::get('/kegiatan/{id}', [KegiatanController::class, 'show'])->name('kegiatan.show');
     Route::get('/kegiatan/{id}/edit', [KegiatanController::class, 'edit'])->name('kegiatan.edit');
     Route::put('/kegiatan/{id}', [KegiatanController::class, 'update'])->name('kegiatan.update');
     Route::delete('/kegiatan/{id}', [KegiatanController::class, 'destroy'])->name('kegiatan.destroy');
+    
 
     // PENGELUARAN & SPJ
     Route::get('/dashboard/pengeluaran', [PengeluaranController::class, 'index'])->name('pengeluaran');
@@ -97,7 +97,7 @@ Route::middleware(['role.access'])->group(function () {
     Route::patch('/tagihan-bulanan/{id}/approve', [TagihanBulananController::class, 'approve'])->name('tagihan.approve');
     Route::patch('/tagihan-bulanan/{id}/decline', [TagihanBulananController::class, 'decline'])->name('tagihan.decline');
     
-    Route::get('/tagihan-bulanan/index', [TagihanBulananController::class, 'index_rt'])->name('tagihan.rt.index');
+    Route::get('/tagihan-bulanan/monitoring', [TagihanBulananController::class, 'index_rt'])->name('tagihan.rt.index');
     Route::get('/tagihan-bulanan/{id}/edit', [TagihanBulananController::class, 'edit'])->name('tagihan.edit');
     Route::put('/tagihan-bulanan/{id}', [TagihanBulananController::class, 'update'])->name('tagihan.update');
     Route::delete('/tagihan-bulanan/{id}', [TagihanBulananController::class, 'destroy'])->name('tagihan.destroy');

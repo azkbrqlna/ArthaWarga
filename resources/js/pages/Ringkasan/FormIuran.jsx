@@ -137,7 +137,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
         }
     };
 
-    // ... (Fungsi handleAddKategori dan handleDeleteKategori tetap sama)
     const handleAddKategori = async () => {
         if (!namaKat.trim()) {
             notifyError("Input kosong", "Nama kategori tidak boleh kosong.");
@@ -212,47 +211,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                     <Label>
                         Jenis Iuran <span className="text-red-500">*</span>
                     </Label>
-                    <Dialog open={openAdd} onOpenChange={setOpenAdd}>
-                        <DialogTrigger asChild>
-                            <Button
-                                type="button"
-                                size="sm"
-                                className="bg-emerald-500 hover:bg-emerald-600 text-white flex items-center gap-1"
-                            >
-                                <Plus className="w-4 h-4" />
-                                Tambah
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="space-y-4">
-                            <DialogHeader>
-                                <DialogTitle>Tambah Jenis Iuran</DialogTitle>
-                            </DialogHeader>
-                            <div className="space-y-2">
-                                <Label>Nama Kategori</Label>
-                                <Input
-                                    value={namaKat}
-                                    onChange={(e) => setNamaKat(e.target.value)}
-                                    placeholder="Contoh: Kebersihan, Keamanan..."
-                                />
-                            </div>
-                            <DialogFooter className="flex justify-end gap-3">
-                                <Button
-                                    type="button"
-                                    variant="outline"
-                                    onClick={() => setOpenAdd(false)}
-                                >
-                                    Batal
-                                </Button>
-                                <Button
-                                    type="button"
-                                    className="bg-emerald-500 hover:bg-emerald-600 text-white"
-                                    onClick={handleAddKategori}
-                                >
-                                    Simpan
-                                </Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
                 </div>
 
                 <Select
@@ -275,17 +233,6 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                                     >
                                         {kat.nm_kat}
                                     </SelectItem>
-                                    <Button
-                                        type="button"
-                                        size="icon"
-                                        variant="ghost"
-                                        onClick={() => {
-                                            setSelectedDelete(kat.id);
-                                            setOpenDelete(true);
-                                        }}
-                                    >
-                                        <Minus className="w-4 h-4 text-red-500" />
-                                    </Button>
                                 </div>
                             ))
                         ) : (

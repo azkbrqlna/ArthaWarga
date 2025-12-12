@@ -11,7 +11,6 @@ class Pengeluaran extends Model
     protected $fillable = [
         'tgl',
         'keg_id',
-        'tipe',
         'nominal',
         'ket',
         'toko',

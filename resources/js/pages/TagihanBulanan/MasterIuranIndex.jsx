@@ -45,10 +45,6 @@ export default function MasterData({ auth, kategoriIurans }) {
         const cleanValue = value.replace(/[^0-9]/g, "");
         let numericValue = parseInt(cleanValue || "0", 10);
 
-        if (field === "jimpitan_air" && numericValue > 100) {
-            numericValue = 100;
-        }
-
         setData(field, numericValue);
     };
 
@@ -63,7 +59,7 @@ export default function MasterData({ auth, kategoriIurans }) {
         put(route("kat_iuran.update", data.id), {
             preserveScroll: true,
             onSuccess: () => {
-                notifySuccess("Berhasil", "Master data berhasil diperbarui!");
+                notifySuccess("Berhasil", "Tagihan air & sampah berhasil diperbarui!");
             },
             onError: (err) => {
                 notifyError("Gagal", "Terjadi kesalahan saat menyimpan.");
@@ -74,18 +70,16 @@ export default function MasterData({ auth, kategoriIurans }) {
     return (
         <AppLayout>
             <div className="w-full min-h-screen bg-white overflow-y-auto overflow-x-hidden pl-0 pr-8 pb-10 md:pr-12 md:pb-12">
-                
-                <h1 className="text-3xl font-bold mb-8">MASTER DATA</h1>
+                <h1 className="text-3xl font-bold mb-8">Edit Tagihan Air & Sampah</h1>
 
                 <Breadcrumbs
                     items={[
                         { label: "Dashboard", href: route("dashboard") },
-                        { label: "Master Data" },
+                        { label: "Edit Tagihan" },
                     ]}
                 />
 
                 <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-                    
                     {/* 1. INPUT KATEGORI (FIX TERANG, TANPA BINTANG MERAH) */}
                     <div className="space-y-2">
                         <Label>Kategori</Label>
@@ -100,13 +94,16 @@ export default function MasterData({ auth, kategoriIurans }) {
                     {/* 2. INPUT HARGA ABONEMEN */}
                     <div className="space-y-2">
                         <Label>
-                            Harga Abonemen <span className="text-red-500">*</span>
+                            Harga Abonemen{" "}
+                            <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             type="text"
                             placeholder="Rp 0"
                             value={formatRupiah(data.abonemen)}
-                            onChange={(e) => handleNumberChange("abonemen", e.target.value)}
+                            onChange={(e) =>
+                                handleNumberChange("abonemen", e.target.value)
+                            }
                             className="w-full border-gray-300"
                         />
                     </div>
@@ -114,13 +111,19 @@ export default function MasterData({ auth, kategoriIurans }) {
                     {/* 3. INPUT HARGA METERAN */}
                     <div className="space-y-2">
                         <Label>
-                            Harga/meter persegi <span className="text-red-500">*</span>
+                            Harga/meter persegi{" "}
+                            <span className="text-red-500">*</span>
                         </Label>
                         <Input
                             type="text"
                             placeholder="Rp 0"
                             value={formatRupiah(data.harga_meteran)}
-                            onChange={(e) => handleNumberChange("harga_meteran", e.target.value)}
+                            onChange={(e) =>
+                                handleNumberChange(
+                                    "harga_meteran",
+                                    e.target.value
+                                )
+                            }
                             className="w-full border-gray-300"
                         />
                     </div>
@@ -134,7 +137,12 @@ export default function MasterData({ auth, kategoriIurans }) {
                             type="text"
                             placeholder="Rp 0"
                             value={formatRupiah(data.harga_sampah)}
-                            onChange={(e) => handleNumberChange("harga_sampah", e.target.value)}
+                            onChange={(e) =>
+                                handleNumberChange(
+                                    "harga_sampah",
+                                    e.target.value
+                                )
+                            }
                             className="w-full border-gray-300"
                         />
                     </div>
@@ -142,20 +150,20 @@ export default function MasterData({ auth, kategoriIurans }) {
                     {/* 5. INPUT JIMPITAN AIR (PERSEN) */}
                     <div className="space-y-2">
                         <Label>
-                            Jimpitan Air (%) <span className="text-red-500">*</span>
+                            Jimpitan Air <span className="text-red-500">*</span>
                         </Label>
-                        <div className="relative">
-                            <Input
-                                type="text"
-                                placeholder="0 - 100" 
-                                value={data.jimpitan_air || ""} 
-                                onChange={(e) => handleNumberChange("jimpitan_air", e.target.value)}
-                                className="w-full border-gray-300 pr-8"
-                            />
-                            <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
-                                <span className="text-gray-500 font-semibold">%</span>
-                            </div>
-                        </div>
+                        <Input
+                            type="text"
+                            placeholder="Rp 0"
+                            value={formatRupiah(data.jimpitan_air)}
+                            onChange={(e) =>
+                                handleNumberChange(
+                                    "jimpitan_air",
+                                    e.target.value
+                                )
+                            }
+                            className="w-full border-gray-300"
+                        />
                     </div>
 
                     {/* TOMBOL ACTION */}
@@ -176,7 +184,6 @@ export default function MasterData({ auth, kategoriIurans }) {
                             {processing ? "Menyimpan..." : "Simpan"}
                         </Button>
                     </div>
-
                 </form>
             </div>
         </AppLayout>

@@ -92,6 +92,12 @@ class IuranController extends Controller
             'ket'          => 'nullable|string',
         ]);
         
+        // 🛑 REVISI 2 & 3: Tambahkan usr_id dan status
+        $validated['usr_id'] = Auth::id(); 
+        $validated['status'] = 'approved'; 
+
+        $validated['tgl_byr'] = null;
+
         try {
             PemasukanIuran::create($validated);
             
