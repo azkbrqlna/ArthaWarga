@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useCallback } from "react"; // Menambahkan useCallback
+import React, { useEffect, useState, useCallback } from "react";
 import { motion } from "framer-motion";
 import { usePage } from "@inertiajs/react";
 import heroImage from "../assets/hero.png";
@@ -29,8 +29,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@inertiajs/react";
-// --- Komponen Role Card (Tidak Berubah) ---
 
+// --- Komponen Role Card (Tidak Berubah) ---
 const RoleCard = ({ title, color, desc, image }) => (
     <motion.div
         initial={{ opacity: 0, y: 60 }}
@@ -90,20 +90,20 @@ const FeatureCard = ({ title, description, icon }) => (
 export default function Welcome() {
     const { auth } = usePage().props;
     const { notifySuccess, notifyError } = useNotify();
-    const { data, setData, post, processing, errors, reset } = useForm({
+    const { data, setData, post, processing, errors } = useForm({
         email: "",
         password: "",
     });
     const [isScrolled, setIsScrolled] = useState(false);
     const [menuOpen, setMenuOpen] = useState(false);
     const [open, setOpen] = useState(false);
+
     useEffect(() => {
         const handleScroll = () => setIsScrolled(window.scrollY > 50);
         window.addEventListener("scroll", handleScroll);
         return () => window.removeEventListener("scroll", handleScroll);
     }, []);
 
-    // --- FUNGSI BARU UNTUK SMOOTH SCROLLING ---
     const handleSmoothScroll = useCallback((e, targetId) => {
         e.preventDefault();
         const targetElement = document.getElementById(targetId);
@@ -115,6 +115,7 @@ export default function Welcome() {
             setMenuOpen(false); // Tutup menu mobile setelah klik
         }
     }, []);
+
     const handleLogin = (e) => {
         e.preventDefault();
         post(route("login.post"), {
@@ -125,7 +126,6 @@ export default function Welcome() {
                 }, 1200);
             },
             onError: (errors) => {
-                // ambil pesan error dari Laravel inertia
                 if (errors.email || errors.password) {
                     notifyError(errors.email || errors.password);
                 } else {
@@ -197,17 +197,14 @@ export default function Welcome() {
 
     return (
         <div className="font-['Poppins'] text-gray-900 overflow-x-hidden">
-            {/* NAVBAR (MODIFIKASI LINK) */}
+            {/* NAVBAR */}
             <nav
                 className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-                    // Hapus kelas 'bg-transparent py-6' di sini untuk kontrol warna yang lebih baik di mobile/desktop
-                    isScrolled
-                        ? "bg-white shadow-md py-4"
-                        : "bg-transparent py-6"
+                    isScrolled ? "bg-white shadow-md py-4" : "bg-transparent py-6"
                 }`}
             >
                 <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 md:px-10">
-                    {/* LOGO ARTHAWARGA (MODIFIKASI KRUSIAL PADA WARNA) */}
+                    {/* LOGO */}
                     <h1
                         className={`text-lg sm:text-xl font-bold uppercase border-r pr-4 sm:pr-5 transition-colors duration-300 ${
                             isScrolled
@@ -218,9 +215,8 @@ export default function Welcome() {
                         Arthawarga
                     </h1>
 
-                    {/* MENU DESKTOP (MODIFIKASI WARNA) */}
+                    {/* MENU DESKTOP */}
                     <ul className="hidden md:flex gap-6 text-sm font-medium uppercase">
-                        {/* Menggunakan ternary operator untuk warna teks berdasarkan scroll */}
                         <li
                             className={`cursor-pointer hover:text-blue-600 ${
                                 isScrolled ? "text-gray-900" : "text-gray-900"
@@ -247,18 +243,18 @@ export default function Welcome() {
                         </li>
                     </ul>
 
-                    {/* LOGIN BUTTON (Tidak Berubah) */}
+                    {/* LOGIN BUTTON (Hanya Tampil di Desktop 'md:block') */}
                     {auth?.user ? (
                         <a
                             href="/dashboard"
-                            className="bg-blue-700 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-800 transition"
+                            className="hidden md:block bg-blue-700 text-white px-5 py-2 rounded-full font-semibold hover:bg-blue-800 transition"
                         >
                             Dashboard
                         </a>
                     ) : (
                         <Dialog open={open} onOpenChange={setOpen}>
                             <DialogTrigger asChild>
-                                <button className="bg-white text-blue-700 px-5 py-2 rounded-full font-semibold hover:bg-blue-700 hover:text-white border border-blue-700">
+                                <button className="hidden md:block bg-white text-blue-700 px-5 py-2 rounded-full font-semibold hover:bg-blue-700 hover:text-white border border-blue-700">
                                     Login
                                 </button>
                             </DialogTrigger>
@@ -269,10 +265,7 @@ export default function Welcome() {
                                         Masuk ke Arthawarga
                                     </DialogTitle>
                                 </DialogHeader>
-                                <form
-                                    onSubmit={handleLogin}
-                                    className="space-y-4 "
-                                >
+                                <form onSubmit={handleLogin} className="space-y-4 ">
                                     <div>
                                         <Label className="pb-3">Email</Label>
                                         <Input
@@ -296,10 +289,7 @@ export default function Welcome() {
                                             type="password"
                                             value={data.password}
                                             onChange={(e) =>
-                                                setData(
-                                                    "password",
-                                                    e.target.value
-                                                )
+                                                setData("password", e.target.value)
                                             }
                                             required
                                         />
@@ -316,9 +306,7 @@ export default function Welcome() {
                                             className="w-full bg-blue-700 hover:bg-blue-800"
                                             disabled={processing}
                                         >
-                                            {processing
-                                                ? "Memproses..."
-                                                : "Login"}
+                                            {processing ? "Memproses..." : "Login"}
                                         </Button>
                                     </DialogFooter>
                                 </form>
@@ -326,6 +314,7 @@ export default function Welcome() {
                         </Dialog>
                     )}
 
+                    {/* Hamburger Button */}
                     <button
                         className={`md:hidden text-3xl transition-colors duration-300 ${
                             isScrolled ? "text-gray-900" : "text-gray-900"
@@ -336,7 +325,7 @@ export default function Welcome() {
                     </button>
                 </div>
 
-                {/* Menu Mobile (MODIFIKASI LINK) */}
+                {/* Menu Mobile */}
                 {menuOpen && (
                     <motion.div
                         initial={{ opacity: 0, y: -12 }}
@@ -346,36 +335,43 @@ export default function Welcome() {
                     >
                         <a
                             href="#home"
-                            onClick={(e) => handleSmoothScroll(e, "home")} // Mengubah link
+                            onClick={(e) => handleSmoothScroll(e, "home")}
                         >
                             Home
                         </a>
                         <a
                             href="#about"
-                            onClick={(e) => handleSmoothScroll(e, "about")} // Mengubah link
+                            onClick={(e) => handleSmoothScroll(e, "about")}
                         >
                             About
                         </a>
                         <a
                             href="#fitur"
-                            onClick={(e) => handleSmoothScroll(e, "fitur")} // Mengubah link
+                            onClick={(e) => handleSmoothScroll(e, "fitur")}
                         >
                             Fitur
                         </a>
-                        <a
-                            href="#kontak"
-                            onClick={(e) => handleSmoothScroll(e, "kontak")} // Mengubah link
-                        >
-                            Kontak
-                        </a>
-                        <button className="bg-blue-700 text-white px-4 py-2 rounded-full">
-                            Login
-                        </button>
+                        {/* Tombol Login Mobile: Membuka Dialog yang sama */}
+                        {auth?.user ? (
+                             <a href="/dashboard" className="bg-blue-700 text-white px-4 py-2 rounded-full">
+                                Dashboard
+                             </a>
+                        ) : (
+                            <button 
+                                className="bg-blue-700 text-white px-4 py-2 rounded-full"
+                                onClick={() => {
+                                    setMenuOpen(false);
+                                    setOpen(true);
+                                }}
+                            >
+                                Login
+                            </button>
+                        )}
                     </motion.div>
                 )}
             </nav>
 
-            {/* HERO (ID SUDAH ADA: id="home") */}
+            {/* HERO */}
             <section
                 id="home"
                 className="relative pt-32 md:pt-40 pb-20 md:pb-32 overflow-hidden bg-white"
@@ -402,7 +398,6 @@ export default function Welcome() {
                         </p>
                     </motion.div>
 
-                    {/* MODIFIKASI GAMBAR MODEL HERO: Menambahkan mx-auto dan memastikan w-full di mobile */}
                     <motion.img
                         initial={{ opacity: 0, x: 50 }}
                         whileInView={{ opacity: 1, x: 0 }}
@@ -410,7 +405,6 @@ export default function Welcome() {
                         viewport={{ once: true }}
                         src={modelheroImage}
                         alt="Model Hero"
-                        // Memastikan gambar mengambil lebar penuh di mobile, dibatasi max-w-xs, dan selalu di tengah
                         className="relative w-full max-w-xs md:max-w-md object-contain z-10 mx-auto mt-10 translate-x-20"
                     />
                 </div>
@@ -422,7 +416,7 @@ export default function Welcome() {
                 />
             </section>
 
-            {/* ABOUT (ID SUDAH ADA: id="about") */}
+            {/* ABOUT */}
             <section
                 id="about"
                 className="relative py-20 bg-gradient-to-r from-blue-600 to-blue-950 text-center px-6 overflow-hidden"
@@ -450,7 +444,7 @@ export default function Welcome() {
                 </motion.div>
             </section>
 
-            {/* ROLES (ID SUDAH ADA: id="roles") - Tidak digunakan di navbar, tapi biarkan ada */}
+            {/* ROLES */}
             <section id="roles" className="bg-white px-6 md:px-20 pb-20 pt-20">
                 <h2
                     className="text-4xl font-extrabold text-center mb-16 
@@ -465,7 +459,7 @@ export default function Welcome() {
                 </div>
             </section>
 
-            {/* FITUR (ID SUDAH ADA: id="fitur") */}
+            {/* FITUR */}
             <section
                 id="fitur"
                 className="relative pt-40 md:pt-10 pb-40 bg-white overflow-visible"
