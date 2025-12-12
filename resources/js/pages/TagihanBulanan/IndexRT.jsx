@@ -505,7 +505,6 @@ export default function IndexRT({ auth, tagihan }) {
                     </div>
                 </div>
             </div>
-            </div>
         </AppLayout>
     );
 }
