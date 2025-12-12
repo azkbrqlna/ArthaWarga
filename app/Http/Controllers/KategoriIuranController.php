@@ -35,8 +35,14 @@ class KategoriIuranController extends Controller
      */
     public function store(Request $request)
     {
+        // Tambahkan array kedua untuk pesan error custom
         $validated = $request->validate([
             'nm_kat' => 'required|string|max:100|unique:kat_iuran,nm_kat', 
+        ], [
+            // Custom pesan error di sini:
+            'nm_kat.required' => 'Nama Kategori wajib diisi.',
+            'nm_kat.unique'   => 'Nama Kategori ini sudah ada, gunakan nama lain.',
+            'nm_kat.max'      => 'Nama Kategori maksimal 100 karakter.',
         ]);
 
         $kategori = KategoriIuran::create($validated);

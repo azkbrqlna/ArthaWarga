@@ -57,13 +57,6 @@ class PengeluaranController extends Controller
             'toko' => $request->toko,
         ];
 
-        // Tentukan sumber dana
-        if ($request->tipe === 'bop') {
-            $data['masuk_bop_id'] = PemasukanBOP::latest()->value('id'); 
-        } elseif ($request->tipe === 'iuran') {
-            $data['masuk_iuran_id'] = PemasukanIuran::latest()->value('id');
-        }
-
         Pengeluaran::create($data);
 
         return back()->with('success', 'Pengeluaran berhasil ditambahkan.');

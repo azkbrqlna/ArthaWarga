@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // 6. Pengeluaran 
 
-        Route::get('/pengeluaran', [PengeluaranApiController::class, 'index']);
+    Route::get('/pengeluaran', [PengeluaranApiController::class, 'index']);
     Route::post('/pengeluaran', [PengeluaranApiController::class, 'store']);
     Route::get('/pengeluaran/{id}', [PengeluaranApiController::class, 'show']);
     Route::post('/pengeluaran/update/{id}', [PengeluaranApiController::class, 'update']);

@@ -16,7 +16,7 @@ class PengeluaranApiController extends Controller
     public function index()
     {
         $data = Pengeluaran::with('kegiatan')
-            ->select('id','tgl','keg_id','nominal','ket','tipe','bkt_nota')
+            ->select('id','tgl','keg_id','nominal','ket','bkt_nota')
             ->latest()
             ->get();
 
@@ -59,7 +59,6 @@ class PengeluaranApiController extends Controller
             'keg_id' => 'required|exists:keg,id',
             'nominal' => 'required|numeric|min:0',
             'ket' => 'required|string',
-            'tipe' => 'required|in:bop,iuran',
             'bkt_nota' => 'required|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
@@ -100,7 +99,6 @@ class PengeluaranApiController extends Controller
             'keg_id' => 'sometimes|exists:keg,id',
             'nominal' => 'sometimes|numeric|min:0',
             'ket' => 'sometimes|string',
-            'tipe' => 'sometimes|in:bop,iuran',
             'bkt_nota' => 'sometimes|required|file|mimes:jpg,jpeg,png|max:2048',
         ]);
 
