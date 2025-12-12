@@ -59,10 +59,16 @@ export default function MasterData({ auth, kategoriIurans }) {
         put(route("kat_iuran.update", data.id), {
             preserveScroll: true,
             onSuccess: () => {
+                // 1. Munculkan Notifikasi
                 notifySuccess(
                     "Berhasil",
                     "Tagihan air & sampah berhasil diperbarui!"
                 );
+
+                // 2. Beri jeda 1.5 detik agar notif terbaca, lalu kembali
+                setTimeout(() => {
+                    window.history.back();
+                }, 1500);
             },
             onError: (err) => {
                 notifyError("Gagal", "Terjadi kesalahan saat menyimpan.");

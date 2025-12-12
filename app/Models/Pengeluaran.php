@@ -17,6 +17,7 @@ class Pengeluaran extends Model
         'bkt_nota',
         'masuk_bop_id',
         'masuk_iuran_id',
+        'penerima',
     ];
 
 

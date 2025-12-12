@@ -196,7 +196,7 @@
                         
                         <div style="margin-top: 80px;"></div> 
 
-                        <p>(.............................................)</p>
+                        <p style="font-weight: bold;"> {{ $penerima }} </p>
                     </div>
                 </td>
             </tr>

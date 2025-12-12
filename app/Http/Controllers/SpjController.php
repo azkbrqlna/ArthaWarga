@@ -57,6 +57,7 @@ class SpjController extends Controller
             // KOTA & TANGGAL
             'kota'      => 'Semarang',
             'tanggal'   => $tanggalTransaksi->translatedFormat('d F Y'), // Contoh: 12 Oktober 2022
+            'penerima'  => $transaksi->penerima ?? '.............................................',
         ];
 
         // 5. LOAD VIEW PDF

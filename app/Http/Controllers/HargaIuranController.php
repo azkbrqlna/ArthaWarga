@@ -33,7 +33,6 @@ class HargaIuranController extends Controller
         
         $kategori_nama = $harga_iuran->kategori->nm_kat;
 
-        return redirect()->route('kat_iuran.index')
-                         ->with('success', 'Konfigurasi harga kategori ' . $kategori_nama . ' berhasil diperbarui.');
+        return back()->with('success', 'Konfigurasi harga kategori ' . $kategori_nama . ' berhasil diperbarui.');
     }
 }

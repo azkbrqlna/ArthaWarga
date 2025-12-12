@@ -6,6 +6,7 @@ use App\Models\Pengeluaran;
 use App\Models\PemasukanBOP;
 use App\Models\PemasukanIuran;
 use App\Models\Kegiatan;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage; // Tambahkan ini
 use Inertia\Inertia;
@@ -40,9 +41,14 @@ class PengeluaranController extends Controller
         // Data pendukung
         $kegiatans = Kegiatan::select('id', 'nm_keg')->get();
 
+        $listPenerima = User::whereIn('role_id', [2, 3])
+            ->orderBy('nm_lengkap', 'asc')
+            ->get(['id', 'nm_lengkap']);
+
         return Inertia::render('Ringkasan/Pengeluaran', [
             'pengeluarans' => $pengeluarans,
             'kegiatans' => $kegiatans,
+            'listPenerima' => $listPenerima,
             'sisaBop' => $sisaBop,
             'sisaIuran' => $sisaIuran,
         ]);
@@ -56,6 +62,7 @@ class PengeluaranController extends Controller
             'nominal' => 'required|numeric|min:1',
             'ket' => 'required|string',
             'toko' => 'nullable|string',
+            'penerima' => 'required|string',
             'tipe' => 'required|in:bop,iuran',
             'bkt_nota' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
@@ -66,6 +73,7 @@ class PengeluaranController extends Controller
             'nominal' => $request->nominal,
             'ket' => $request->ket,
             'toko' => $request->toko,
+            'penerima' => $request->penerima,
         ];
 
         // LOGIKA PENYIMPANAN FILE

@@ -18,7 +18,7 @@ import { useNotify } from "@/components/ToastNotification";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function Pengeluaran() {
-    const { kegiatans = [], sisaBop, sisaIuran } = usePage().props;
+    const { kegiatans = [], listPenerima = [], sisaBop, sisaIuran } = usePage().props;
     const { notifySuccess, notifyError } = useNotify();
     const fileInputRef = useRef(null);
 
@@ -29,6 +29,7 @@ export default function Pengeluaran() {
         nominal: 0,
         toko: "",
         ket: "",
+        penerima: "",
         bkt_nota: null,
     });
 
@@ -118,6 +119,8 @@ export default function Pengeluaran() {
         if (!data.keg_id) missingFields.push("Kegiatan");
         if (!data.nominal || data.nominal === 0) missingFields.push("Nominal");
         if (!data.ket || !data.ket.trim()) missingFields.push("Keterangan");
+        if (!data.penerima || !data.penerima.trim())
+            missingFields.push("Penerima");
 
         // TAMBAHAN: Cek Bukti Nota
         if (!data.bkt_nota) missingFields.push("Bukti Nota");
@@ -139,6 +142,7 @@ export default function Pengeluaran() {
         sendData.append("nominal", data.nominal);
         sendData.append("toko", data.toko);
         sendData.append("ket", data.ket);
+        sendData.append("penerima", data.penerima);
 
         // Karena sudah divalidasi wajib ada, kita bisa langsung append (atau tetap pakai if untuk safety)
         if (data.bkt_nota) sendData.append("bkt_nota", data.bkt_nota);
@@ -313,6 +317,32 @@ export default function Pengeluaran() {
                             value={data.ket}
                             onChange={(e) => setData("ket", e.target.value)}
                         />
+                    </div>
+
+                    <div className="space-y-2">
+                        <Label>
+                            Penerima Kwitansi <span className="text-red-500">*</span>
+                        </Label>
+                        <Select
+                            value={data.penerima}
+                            onValueChange={(val) => setData("penerima", val)}
+                        >
+                            <SelectTrigger className="w-full border border-gray-300">
+                                <SelectValue placeholder="Pilih Nama Penerima" />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {listPenerima.length > 0 ? (
+                                    listPenerima.map((user) => (
+                                        // Value menggunakan nm_lengkap karena database menyimpan string nama
+                                        <SelectItem key={user.id} value={user.nm_lengkap}>
+                                            {user.nm_lengkap}
+                                        </SelectItem>
+                                    ))
+                                ) : (
+                                    <SelectItem disabled>Data User Kosong</SelectItem>
+                                )}
+                            </SelectContent>
+                        </Select>
                     </div>
 
                     <div className="space-y-2">

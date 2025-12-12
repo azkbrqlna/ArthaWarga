@@ -234,7 +234,7 @@ class DashboardController extends Controller
 
         // Rincian BOP Keluar
         $bopKeluar = Pengeluaran::whereNotNull('masuk_bop_id')
-            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at', 'toko')
+            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at', 'toko', 'penerima')
             ->get()
             ->map(fn($row) => [
                 'id' => 'bop-out-'.$row->id,
@@ -247,6 +247,7 @@ class DashboardController extends Controller
                 'ket' => $row->ket,
                 'bkt_nota' => $row->bkt_nota,
                 'toko' => $row->toko,
+                'penerima' => $row->penerima,
             ]);
 
         // Rincian Iuran Masuk (Tanpa Status)
@@ -266,7 +267,7 @@ class DashboardController extends Controller
 
         // Rincian Iuran Keluar
         $iuranKeluar = Pengeluaran::whereNotNull('masuk_iuran_id')
-            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at', 'toko')
+            ->select('id', 'tgl', 'nominal', 'ket', 'bkt_nota', 'created_at', 'toko', 'penerima')
             ->get()
             ->map(fn($row) => [
                 'id' => 'iuran-out-'.$row->id,
@@ -279,6 +280,7 @@ class DashboardController extends Controller
                 'ket' => $row->ket,
                 'bkt_nota' => $row->bkt_nota,
                 'toko' => $row->toko,
+                'penerima' => $row->penerima,
             ]);
 
         $timeline = collect()
@@ -321,6 +323,7 @@ class DashboardController extends Controller
                     'ket' => $row['ket'],
                     'bkt_nota' => $row['bkt_nota'] ? url('storage/' . ltrim($row['bkt_nota'], '/')) : null,
                     'toko' => $row['toko'] ?? '-',
+                    'penerima' => $row['penerima'] ?? '-',
                 ];
             } else {
                 $jumlah_awal = $saldoIuran;
@@ -349,6 +352,7 @@ class DashboardController extends Controller
                     'ket' => $row['ket'],
                     'bkt_nota' => !empty($row['bkt_nota']) ? url('storage/' . ltrim($row['bkt_nota'], '/')) : null,
                     'toko' => $row['toko'] ?? '-',
+                    'penerima' => $row['penerima'] ?? '-',
                 ];
             }
         }
@@ -367,6 +371,10 @@ class DashboardController extends Controller
         
         if (!isset($rincian['toko'])) {
             $rincian['toko'] = '-';
+        }
+        
+        if (!isset($rincian['penerima'])) {
+            $rincian['penerima'] = '-';
         }
 
         $pemasukanBop = 0;

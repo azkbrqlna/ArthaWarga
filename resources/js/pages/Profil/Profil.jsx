@@ -410,7 +410,7 @@ export default function Profil() {
                                 name="nm_lengkap"
                                 value={formData.nm_lengkap}
                                 onChange={handleChange}
-                                disabled={!isEditing}
+                                disabled={true}
                             />
                             {isEditing && (
                                 <InputField
@@ -479,7 +479,7 @@ export default function Profil() {
                                 name="alamat"
                                 value={formData.alamat}
                                 onChange={handleChange}
-                                disabled={!isEditing}
+                                disabled={true}
                             />
                             <InputField
                                 label="Status"
