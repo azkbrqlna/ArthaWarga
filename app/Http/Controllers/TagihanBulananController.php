@@ -187,13 +187,22 @@ class TagihanBulananController extends Controller
         return back()->with('success', 'Tagihan disetujui. Dana Jimpitan masuk kas.');
     }
 
-    public function decline($id)
+    public function decline(Request $request, $id) // Tambahkan Request $request
     {
-        $tagihan = TagihanBulanan::findOrFail($id);
-        $tagihan->status = 'ditagihkan';
-        $tagihan->save();
+        $request->validate([
+            'alasan' => 'required|string|max:255', // Validasi alasan wajib diisi
+        ]);
 
-        return back()->with('success', 'Tagihan ditolak.');
+        $tagihan = TagihanBulanan::findOrFail($id);
+        
+        $tagihan->update([
+            'status' => 'declined', // Ubah ke declined, bukan ditagihkan (biar jelas historynya)
+            'alasan' => $request->alasan, // Simpan alasan
+            'tgl_byr' => null, // Reset tanggal bayar agar bisa bayar ulang
+            'bkt_byr' => null  // Opsional: Hapus bukti bayar lama jika mau
+        ]);
+
+        return back()->with('success', 'Tagihan ditolak dan alasan telah dikirim ke warga.');
     }
     
     public function edit($id)
