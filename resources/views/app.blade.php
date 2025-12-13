@@ -5,6 +5,8 @@
       <meta name="viewport" content="width=device-width, initial-scale=1">
       <title inertia>{{ config('app.name', 'Laravel') }}</title>
 
+      <link rel="icon" type="image/png" href="{{ asset('images/Favicon.png') }}">
+
       <meta name="csrf-token" content="{{ csrf_token() }}">
 
       {{-- Ziggy untuk route() di Inertia React --}}
