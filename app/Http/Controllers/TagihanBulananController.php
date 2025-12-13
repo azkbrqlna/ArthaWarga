@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\TagihanBulanan;
 use App\Models\KategoriIuran;
+use App\Models\HargaIuran; // Pastikan model ini di-import
 use App\Models\PemasukanIuran;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -21,13 +22,27 @@ class TagihanBulananController extends Controller
         // Pastikan hanya Admin/RT yang bisa akses
         if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
 
+        // 1. Ambil semua data tagihan
         $tagihan = TagihanBulanan::with(['user', 'kategori'])
             ->orderByDesc('tahun')
             ->orderByDesc('bulan')
             ->get();
 
+        // 2. HITUNG TOTAL KEUANGAN DARI TAGIHAN (di server)
+        // a. Total Ditagihkan (Masih hutang atau menunggu verifikasi)
+        $totalDitagihkan = $tagihan->whereIn('status', ['ditagihkan', 'pending'])->sum('nominal');
+
+        // b. Total Lunas (Uang sudah diverifikasi masuk)
+        $totalLunas = $tagihan->where('status', 'approved')->sum('nominal');
+
+        // c. Total Jimpitan Terkumpul (Akumulasi Jimpitan dari tagihan yang sudah approved)
+        $totalJimpitan = $tagihan->where('status', 'approved')->sum('jimpitan_air');
+
         return Inertia::render("TagihanBulanan/IndexRT", [
-            'tagihan' => $tagihan
+            'tagihan'         => $tagihan,
+            'totalDitagihkan' => $totalDitagihkan,
+            'totalLunas'      => $totalLunas,
+            'totalJimpitan'   => $totalJimpitan, // Tambahan Jimpitan
         ]);
     }
 
@@ -36,33 +51,36 @@ class TagihanBulananController extends Controller
      */
     public function create()
     {
-        // 1. Cek Hak Akses Admin
         if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
 
-        // 2. Ambil Master Harga Air (Untuk referensi hitungan di Frontend)
-        $masterHarga = KategoriIuran::where('nm_kat', 'LIKE', '%Air%')->first();
-        if (!$masterHarga) return back()->with('error', 'Master data harga Air belum disetting!');
+        $kategoriAir = KategoriIuran::where('nm_kat', 'LIKE', '%Air%')->first();
+        
+        if (!$kategoriAir) {
+            return back()->with('error', 'Kategori Air tidak ditemukan di master data!');
+        }
 
-        // 3. Ambil Data Warga + Info Meteran Terakhirnya (Logic Opsi A: Autofill Instan)
-        // Kita "tempelkan" data last_meter ke setiap user agar frontend bisa autofill
-        $wargaList = User::where('role_id', 5) // Mengambil warga (Role 5)
+        $masterHarga = HargaIuran::where('kat_iuran_id', $kategoriAir->id)->first();
+
+        if (!$masterHarga) {
+            return back()->with('error', 'Konfigurasi harga Air belum disetting!');
+        }
+
+        $wargaList = User::where('role_id', 5)
             ->select('id', 'nm_lengkap', 'alamat')
             ->get()
             ->map(function ($user) {
-                // Cari tagihan terakhir user ini
                 $lastTagihan = TagihanBulanan::where('usr_id', $user->id)
                     ->orderByDesc('tahun')
                     ->orderByDesc('bulan')
                     ->first();
                 
-                // Jika ada, ambil meteran sekarangnya sebagai meteran awal bulan ini. Jika tidak, 0.
                 $user->last_meter = $lastTagihan ? $lastTagihan->mtr_skrg : 0;
                 return $user;
             });
 
         return Inertia::render('TagihanBulanan/Create', [
             'wargaList'   => $wargaList,
-            'masterHarga' => $masterHarga
+            'masterHarga' => $masterHarga 
         ]);
     }
 
@@ -71,17 +89,15 @@ class TagihanBulananController extends Controller
      */
     public function store(Request $request)
     {
-        // 1. Validasi Input Admin
         $validated = $request->validate([
             'usr_id'       => 'required|exists:usr,id',
             'bulan'        => 'required|integer|min:1|max:12',
             'tahun'        => 'required|integer|min:2024',
             'mtr_bln_lalu' => 'required|integer|min:0',
             'mtr_skrg'     => 'required|integer|gte:mtr_bln_lalu',
-            'pakai_sampah' => 'required|boolean', // Dropdown Ya/Tidak
+            'pakai_sampah' => 'required|boolean',
         ]);
 
-        // 2. Cek Duplikat Tagihan
         $exists = TagihanBulanan::where('usr_id', $request->usr_id)
             ->where('bulan', $request->bulan)
             ->where('tahun', $request->tahun)
@@ -91,57 +107,43 @@ class TagihanBulananController extends Controller
             return back()->withErrors(['usr_id' => 'Tagihan untuk warga ini di periode tersebut sudah ada.']);
         }
 
-        // 3. Ambil Snapshot Harga (PENTING: Hitung di Server agar aman)
-        $kategori = KategoriIuran::where('nm_kat', 'LIKE', '%Air%')->first();
-        
-        $harga_meter = $kategori->harga_meteran ?? 0;
-        $abonemen    = $kategori->abonemen ?? 0;
-        $jimpitan    = $kategori->jimpitan_air ?? 0;
-        
-        // Cek apakah pakai sampah
-        $harga_sampah = $request->pakai_sampah ? ($kategori->harga_sampah ?? 0) : 0;
+        $kategoriAir = KategoriIuran::where('nm_kat', 'LIKE', '%Air%')->first();
+        $masterHarga = HargaIuran::where('kat_iuran_id', $kategoriAir->id)->first() ?? $kategoriAir;
 
-        // 4. Hitung Nominal Final
+        $harga_meter = $masterHarga->harga_meteran ?? 0;
+        $abonemen    = $masterHarga->abonemen ?? 0;
+        $jimpitan    = $masterHarga->jimpitan_air ?? 0;
+        $harga_sampah = $request->pakai_sampah ? ($masterHarga->harga_sampah ?? 0) : 0;
+
         $pemakaian = $validated['mtr_skrg'] - $validated['mtr_bln_lalu'];
         $nominal   = ($pemakaian * $harga_meter) + $abonemen + $jimpitan + $harga_sampah;
 
-        // 5. Simpan ke Database
         TagihanBulanan::create([
-            'kat_iuran_id'  => $kategori->id,
+            'kat_iuran_id'  => $kategoriAir->id,
             'usr_id'        => $validated['usr_id'],
             'bulan'         => $validated['bulan'],
             'tahun'         => $validated['tahun'],
             'mtr_bln_lalu'  => $validated['mtr_bln_lalu'],
             'mtr_skrg'      => $validated['mtr_skrg'],
             'status'        => 'ditagihkan',
-            
-            // Simpan Snapshot Harga
             'harga_meteran' => $harga_meter,
             'abonemen'      => $abonemen,
             'jimpitan_air'  => $jimpitan,
-            'harga_sampah'  => $harga_sampah, // 0 jika tidak pilih sampah, atau nominal jika pilih
+            'harga_sampah'  => $harga_sampah,
             'nominal'       => $nominal
         ]);
 
-        return redirect()->route('tagihan.create')->with('success', 'Tagihan berhasil dibuat!');
+        return redirect()->route('tagihan.rt.index')->with('success', 'Tagihan berhasil dibuat!');
     }
 
     /**
-     * MONITORING TAGIHAN (INDEX RT)
-     */
-    /**
-     * MONITORING TAGIHAN (INDEX RT)
+     * APPROVAL RT (Function ini TIDAK DIPAKAI di IndexRT, tapi logikanya dipindah ke IndexRT)
+     * Saya pertahankan fungsinya agar kode Anda tidak hilang, tapi tidak dipanggil oleh route monitoring utama.
      */
     public function approval_rt()
     {
         // Hitung Saldo Ditagihkan (Status: ditagihkan & pending)
         // Kita asumsikan 'pending' juga masih masuk kategori belum masuk kas (masih proses)
-        $totalDitagihkan = TagihanBulanan::whereIn('status', ['ditagihkan', 'pending'])
-            ->sum('nominal');
-
-        // Hitung Saldo Lunas (Status: approved)
-        $totalLunas = TagihanBulanan::where('status', 'approved')
-            ->sum('nominal');
 
         $tagihan = TagihanBulanan::with(['user', 'kategori'])
             ->orderByDesc('tahun')
@@ -150,14 +152,11 @@ class TagihanBulananController extends Controller
 
         return Inertia::render("TagihanBulanan/Approval", [
             'tagihan'         => $tagihan,
-            'totalDitagihkan' => $totalDitagihkan, // Kirim ke Frontend
-            'totalLunas'      => $totalLunas       // Kirim ke Frontend
         ]);
     }
 
     /**
      * APPROVE TAGIHAN (ADMIN)
-     * Logika: Update status & Masukkan Jimpitan ke Kas
      */
     public function approve($id)
     {
@@ -177,9 +176,9 @@ class TagihanBulananController extends Controller
         if ($jimpitan > 0) {
             PemasukanIuran::create([
                 'usr_id'       => $tagihan->usr_id,
-                'kat_iuran_id' => '5', // Asumsi ID Kategori Jimpitan adalah 3
+                'kat_iuran_id' => $tagihan->kat_iuran_id, 
                 'tgl'          => now(),
-                'nominal'      => $jimpitan, // Hanya nominal jimpitan yg masuk kas
+                'nominal'      => $jimpitan,
                 'ket'          => 'Jimpitan Air (Auto) - ' . $tagihan->bulan . '/' . $tagihan->tahun,
                 'status'       => 'approved',
             ]);
@@ -196,17 +195,23 @@ class TagihanBulananController extends Controller
 
         return back()->with('success', 'Tagihan ditolak.');
     }
-/**
-     * HALAMAN EDIT TAGIHAN
-     */
+    
     public function edit($id)
     {
         if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
 
         $tagihan = TagihanBulanan::findOrFail($id);
-        $masterHarga = KategoriIuran::where('nm_kat', 'LIKE', '%Air%')->first();
         
-        // Ambil list warga (sama seperti create)
+        $kategoriAir = KategoriIuran::where('nm_kat', 'LIKE', '%Air%')->first();
+        $masterHarga = null;
+        if ($kategoriAir) {
+            $masterHarga = HargaIuran::where('kat_iuran_id', $kategoriAir->id)->first();
+        }
+
+        if (!$masterHarga) {
+            return back()->with('error', 'Master harga iuran belum disetting di menu Master Data!');
+        }
+
         $wargaList = User::where('role_id', 5)->select('id', 'nm_lengkap', 'alamat')->get();
 
         return Inertia::render('TagihanBulanan/Edit', [
@@ -216,9 +221,6 @@ class TagihanBulananController extends Controller
         ]);
     }
 
-    /**
-     * PROSES UPDATE TAGIHAN
-     */
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
@@ -232,27 +234,24 @@ class TagihanBulananController extends Controller
 
         $tagihan = TagihanBulanan::findOrFail($id);
 
-        // Ambil harga dari snapshot lama (agar harga tidak berubah mengikuti master baru)
-        // ATAU ambil dari master jika ingin update harga mengikuti master saat ini.
-        // Di sini saya pakai logika: Update meteran, tapi harga satuan tetap pakai snapshot lama (fairness).
-        
         $h_meter    = $tagihan->harga_meteran;
         $h_abo      = $tagihan->abonemen;
         $h_jimpitan = $tagihan->jimpitan_air;
         
-        // Logic Sampah: Jika status berubah jadi pakai, ambil harga snapshot atau master
         if ($validated['pakai_sampah']) {
-            $h_sampah = $tagihan->harga_sampah > 0 ? $tagihan->harga_sampah : ($tagihan->kategori->harga_sampah ?? 15000);
+            $kategoriAir = KategoriIuran::where('nm_kat', 'LIKE', '%Air%')->first();
+            $masterNow = HargaIuran::where('kat_iuran_id', $kategoriAir->id)->first();
+            
+            $h_sampah = $tagihan->harga_sampah > 0 ? $tagihan->harga_sampah : ($masterNow->harga_sampah ?? 15000);
         } else {
             $h_sampah = 0;
         }
 
-        // Hitung Ulang Nominal
         $pemakaian = $validated['mtr_skrg'] - $validated['mtr_bln_lalu'];
         $nominal   = ($pemakaian * $h_meter) + $h_abo + $h_jimpitan + $h_sampah;
 
         $tagihan->update([
-            'usr_id'       => $validated['usr_id'], // In case admin salah pilih orang
+            'usr_id'       => $validated['usr_id'],
             'bulan'        => $validated['bulan'],
             'tahun'        => $validated['tahun'],
             'mtr_bln_lalu' => $validated['mtr_bln_lalu'],
@@ -261,21 +260,24 @@ class TagihanBulananController extends Controller
             'nominal'      => $nominal
         ]);
 
-        return redirect()->route('tagihan.create')->with('success', 'Data tagihan berhasil diperbarui.');
+        return redirect()->route('tagihan.rt.index')->with('success', 'Data tagihan berhasil diperbarui.');
     }
 
-    /**
-     * HAPUS TAGIHAN
-     */
     public function destroy($id)
     {
         if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
         
-        $tagihan = TagihanBulanan::findOrFail($id);
-        $tagihan->delete();
-
-        return redirect()->back()->with('success', 'Tagihan berhasil dihapus.');
+        try {
+            $tagihan = TagihanBulanan::findOrFail($id);
+            $tagihan->delete();
+            return redirect()->route('tagihan.rt.index')->with('success', 'Tagihan berhasil dihapus.');
+        } catch (\Exception $e) {
+            return redirect()->route('tagihan.rt.index')->with('error', 'Gagal menghapus tagihan: ' . $e->getMessage());
+        }
     }
+
+    // ... Function Warga (index_warga, show_warga, upload_bukti) tetap sama ...
+    
 
     // =========================================================================
     // AREA WARGA - LIHAT & UPLOAD BUKTI
@@ -337,7 +339,6 @@ class TagihanBulananController extends Controller
         $targetTagihan->status  = 'pending';
         $targetTagihan->save();
 
-        return redirect()->back()
-            ->with('success', 'Bukti pembayaran berhasil diupload. Menunggu persetujuan admin.');
+        return redirect()->route('tagihan.warga.index')->with('success', 'Bukti pembayaran berhasil diupload. Menunggu persetujuan admin.');
     }
 }
