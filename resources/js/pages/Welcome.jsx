@@ -29,6 +29,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { useForm } from "@inertiajs/react";
+import iconArthaWarga from "../assets/iconArthaWarga.png";
 
 // --- Komponen Role Card (Tidak Berubah) ---
 const RoleCard = ({ title, color, desc, image }) => (
@@ -200,20 +201,27 @@ export default function Welcome() {
             {/* NAVBAR */}
             <nav
                 className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
-                    isScrolled ? "bg-white shadow-md py-4" : "bg-transparent py-6"
+                    isScrolled
+                        ? "bg-white shadow-md py-4"
+                        : "bg-transparent py-6"
                 }`}
             >
                 <div className="max-w-7xl mx-auto flex justify-between items-center px-4 sm:px-6 md:px-10">
-                    {/* LOGO */}
-                    <h1
-                        className={`text-lg sm:text-xl font-bold uppercase border-r pr-4 sm:pr-5 transition-colors duration-300 ${
-                            isScrolled
-                                ? "text-gray-900 border-gray-400"
-                                : "text-gray-900 border-transparent md:border-white/70"
-                        }`}
-                    >
-                        Arthawarga
-                    </h1>
+                    <div className="flex items-center gap-3">
+                        <img
+                            src={iconArthaWarga}
+                            alt="Logo"
+                            className="w-10 h-10 object-contain"
+                        />
+
+                        <h1
+                            className={`text-lg sm:text-xl font-bold uppercase transition-colors duration-300 ${
+                                isScrolled ? "text-gray-900" : "text-gray-900"
+                            }`}
+                        >
+                            Arthawarga
+                        </h1>
+                    </div>
 
                     {/* MENU DESKTOP */}
                     <ul className="hidden md:flex gap-6 text-sm font-medium uppercase">
@@ -265,7 +273,10 @@ export default function Welcome() {
                                         Masuk ke Arthawarga
                                     </DialogTitle>
                                 </DialogHeader>
-                                <form onSubmit={handleLogin} className="space-y-4 ">
+                                <form
+                                    onSubmit={handleLogin}
+                                    className="space-y-4 "
+                                >
                                     <div>
                                         <Label className="pb-3">Email</Label>
                                         <Input
@@ -289,7 +300,10 @@ export default function Welcome() {
                                             type="password"
                                             value={data.password}
                                             onChange={(e) =>
-                                                setData("password", e.target.value)
+                                                setData(
+                                                    "password",
+                                                    e.target.value
+                                                )
                                             }
                                             required
                                         />
@@ -306,7 +320,9 @@ export default function Welcome() {
                                             className="w-full bg-blue-700 hover:bg-blue-800"
                                             disabled={processing}
                                         >
-                                            {processing ? "Memproses..." : "Login"}
+                                            {processing
+                                                ? "Memproses..."
+                                                : "Login"}
                                         </Button>
                                     </DialogFooter>
                                 </form>
@@ -353,11 +369,14 @@ export default function Welcome() {
                         </a>
                         {/* Tombol Login Mobile: Membuka Dialog yang sama */}
                         {auth?.user ? (
-                             <a href="/dashboard" className="bg-blue-700 text-white px-4 py-2 rounded-full">
+                            <a
+                                href="/dashboard"
+                                className="bg-blue-700 text-white px-4 py-2 rounded-full"
+                            >
                                 Dashboard
-                             </a>
+                            </a>
                         ) : (
-                            <button 
+                            <button
                                 className="bg-blue-700 text-white px-4 py-2 rounded-full"
                                 onClick={() => {
                                     setMenuOpen(false);

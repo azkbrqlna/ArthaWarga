@@ -16,43 +16,110 @@ class RoleMiddleware
             return redirect('/');
         }
 
+        $routeName = $request->route()->getName();
+        $role = $user->role_id;
+
+        // ===============================
+        // ROUTE BERSAMA (Kategori Iuran)
+        // ===============================
         $kategoriIuranRoutes = [
-            'kat_iuran.index',    
-            'kat_iuran.store',     
-            'kat_iuran.update',   
+            'kat_iuran.index',
+            'kat_iuran.store',
+            'kat_iuran.update',
             'kat_iuran.destroy',
-            'kategori.index',   
+            'kategori.index',
         ];
 
-        $role = $user->role_id; 
+        // ===============================
+        // KETUA RT (DAN SEKRETARIS)
+        // ===============================
+        $ketuaRtAccess = array_merge([
+            'dashboard',
+            'pemasukan.index',
+            'bop.create',
+            'iuran.create',
+            'pengeluaran',
+            'pengeluaran.store',
+            'rincian.show',
+            'profil.index',
+            'profil.update',
+            'profil.updatePhoto',
+            'profil.deletePhoto',
 
+            // KEGIATAN
+            'kegiatan.create',
+            'kegiatan.store',
+            'kegiatan.index',
+            'kegiatan.show',
+            'kegiatan.edit',
+            'kegiatan.update',
+            'kegiatan.destroy',
+            'kegiatan.generateSpjPdf',
+
+            // TAGIHAN
+            'tagihan.create',
+            'tagihan.store',
+            'tagihan.generate',
+            'tagihan.approval',
+            'tagihan.approve',
+            'tagihan.decline',
+            'tagihan.rt.index',
+            'tagihan.edit',
+            'tagihan.update',
+            'tagihan.destroy',
+
+            // APPROVAL & SPJ
+            'approval',
+            'approval.patch',
+            'spj.download',
+        ], $kategoriIuranRoutes);
+
+        // ===============================
+        // AKSES BERDASARKAN ROLE
+        // ===============================
         $access = [
-            // ID 1: Superadmin
-            1 => array_merge(
-                ['dashboard', 'profil.index', 'profil.update', 'profil.updatePhoto', 'profil.deletePhoto', 'superadmin.users', 'superadmin.createUser', 'superadmin.storeUser', 'superadmin.editUser', 'superadmin.updateUser', 'superadmin.deleteUser', 'kegiatan.show'], 
-                $kategoriIuranRoutes
-            ), 
-            
-            // ID 2: Ketua RT
-            2 => array_merge([
+
+            // 1️⃣ SUPERADMIN
+            1 => array_merge([
+                'dashboard',
+                'profil.index',
+                'profil.update',
+                'profil.updatePhoto',
+                'profil.deletePhoto',
+
+                // MANAJEMEN USER
+                'superadmin.users',
+                'superadmin.createUser',
+                'superadmin.storeUser',
+                'superadmin.editUser',
+                'superadmin.updateUser',
+                'superadmin.deleteUser',
+
+                'kegiatan.show',
+            ], $kategoriIuranRoutes),
+
+            // 2️⃣ KETUA RT
+            2 => $ketuaRtAccess,
+
+            // 3️⃣ BENDAHARA
+            3 => array_merge([
                 'dashboard',
                 'pemasukan.index',
-                'bop.create',
-                'iuran.create',
                 'pengeluaran',
                 'pengeluaran.store',
                 'rincian.show',
                 'profil.index',
                 'profil.update',
-                'kegiatan.create',
-                'kegiatan.store',
+                'profil.updatePhoto',
+                'profil.deletePhoto',
+
+                'bop.create',
+                'iuran.create',
+
                 'kegiatan.index',
                 'kegiatan.show',
-                'kegiatan.edit',    
-                'kegiatan.update', 
-                'kegiatan.destroy',
-                'approval',
-                'approval.patch',
+                'kegiatan.generateSpjPdf',
+
                 'tagihan.create',
                 'tagihan.store',
                 'tagihan.generate',
@@ -63,100 +130,44 @@ class RoleMiddleware
                 'tagihan.edit',
                 'tagihan.update',
                 'tagihan.destroy',
-                'profil.updatePhoto',
-                'profil.deletePhoto',
+
                 'spj.download',
-                'kegiatan.generateSpjPdf',
-            ], $kategoriIuranRoutes), // Ketua RT
-            
-            // ID 3: Bendahara
-            3 => array_merge([ 
-                'dashboard', 
-                'pemasukan.index', 
-                'pengeluaran', 
-                'rincian.show', 
-                'profil.index', 
-                'profil.update', 
-                'bop.create', 
-                'iuran.create', 
-                'pengumuman.create', 
-                'pengeluaran.store',
-                'kegiatan.index',
-                'kegiatan.show',
-                'tagihan.create',
-                'tagihan.store',
-                'tagihan.generate',
-                'tagihan.approval',
-                'tagihan.approve',
-                'tagihan.decline',
-                'tagihan.rt.index',
-                'tagihan.edit',
-                'tagihan.update',
-                'tagihan.destroy',
-                'profil.updatePhoto',
-                'profil.deletePhoto',
-                'spj.download',
-                'kegiatan.generateSpjPdf',
-            ], $kategoriIuranRoutes), 
-            
-            // ID 4: Sekretaris
-            4 => [ 
-                'dashboard', 
-                'kegiatan.create',
-                'kegiatan.store',
-                'kegiatan.index', 
-                'kegiatan.show',
-                'kegiatan.edit',
-                'rincian.show', 
-                'profil.index', 
-                'profil.update',
-                'kegiatan.create',
-                'kegiatan.store',
-                'kegiatan.index',
-                'kegiatan.edit',    
-                'kegiatan.update', 
-                'kegiatan.destroy',
-                'tagihan.create',
-                'tagihan.store',
-                'tagihan.generate',
-                'tagihan.approval',
-                'tagihan.approve',
-                'tagihan.decline',
-                'tagihan.rt.index',
-                'tagihan.edit',
-                'tagihan.update',
-                'tagihan.destroy',
-                'profil.updatePhoto',
-                'profil.deletePhoto',
-                'spj.download',
-                'kegiatan.generateSpjPdf',
-            ], 
-            
-            // ID 5: Warga
-            5 => [ 
+            ], $kategoriIuranRoutes),
+
+            // 4️⃣ SEKRETARIS (SAMA DENGAN KETUA RT)
+            4 => $ketuaRtAccess,
+
+            // 5️⃣ WARGA
+            5 => [
                 'dashboard',
-                'rincian.show', 
-                'profil.index', 
+                'rincian.show',
+                'profil.index',
                 'profil.update',
-                'masuk-iuran.index', 
-                'masuk-iuran.show', 
+                'profil.updatePhoto',
+                'profil.deletePhoto',
+
+                'masuk-iuran.index',
+                'masuk-iuran.show',
                 'masuk-iuran.store',
+
                 'tagihan.upload',
                 'tagihan.warga.index',
                 'tagihan.warga.show',
                 'tagihan.bayar',
-                'profil.updatePhoto',
-                'profil.deletePhoto',
+
                 'kegiatan.index',
                 'kegiatan.show',
-            ], 
+            ],
         ];
 
-        $routeName = $request->route()->getName();
-
+        // ===============================
+        // VALIDASI AKSES
+        // ===============================
         if (!isset($access[$role]) || !in_array($routeName, $access[$role])) {
             return redirect('/dashboard');
         }
+ 
+
 
         return $next($request);
     }

@@ -98,7 +98,7 @@ export default function ShowWarga({ auth, tagihan }) {
                         ref={inputRef}
                         type="file"
                         name="bkt_byr" // <<< PENTING: nama harus ada
-                        accept="image/*,application/pdf"
+                        accept="image/*"
                         className="hidden"
                         onChange={handleFilePick}
                     />

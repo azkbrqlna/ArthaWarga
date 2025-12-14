@@ -19,8 +19,6 @@ class TagihanBulananController extends Controller
 
     public function index_rt()
     {
-        // Pastikan hanya Admin/RT yang bisa akses
-        if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
 
         // 1. Ambil semua data tagihan
         $tagihan = TagihanBulanan::with(['user', 'kategori'])
@@ -51,7 +49,6 @@ class TagihanBulananController extends Controller
      */
     public function create()
     {
-        if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
 
         $kategoriAir = KategoriIuran::where('nm_kat', 'LIKE', '%Air%')->first();
         
@@ -207,7 +204,6 @@ class TagihanBulananController extends Controller
     
     public function edit($id)
     {
-        if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
 
         $tagihan = TagihanBulanan::findOrFail($id);
         
@@ -274,7 +270,6 @@ class TagihanBulananController extends Controller
 
     public function destroy($id)
     {
-        if (!in_array(Auth::user()->role_id, [1, 2])) abort(403);
         
         try {
             $tagihan = TagihanBulanan::findOrFail($id);
