@@ -20,7 +20,7 @@ class PengeluaranApiController extends Controller
     public function getListPenerima()
     {
         // Ambil user dengan role 2 (Pengurus) dan 3 (Anggota)
-        $users = User::whereIn('role_id', [2, 3])
+        $users = User::whereIn('role_id', [2, 3, 4])
             ->orderBy('nm_lengkap', 'asc')
             ->get(['id', 'nm_lengkap']);
 

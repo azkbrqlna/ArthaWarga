@@ -41,7 +41,7 @@ class PengeluaranController extends Controller
         // Data pendukung
         $kegiatans = Kegiatan::select('id', 'nm_keg')->get();
 
-        $listPenerima = User::whereIn('role_id', [2, 3])
+        $listPenerima = User::whereIn('role_id', [2, 3, 4])
             ->orderBy('nm_lengkap', 'asc')
             ->get(['id', 'nm_lengkap']);
 
