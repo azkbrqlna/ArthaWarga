@@ -50,59 +50,121 @@ export default function AppLayout({ children }) {
         displayName
     )}`;
 
-    // 🔹 menu untuk user role 5 (Warga)
-    const wargaItems = [
-        {
-            title: "Ringkasan Keuangan",
-            url: "/dashboard",
-            icon: LayoutTemplate,
-        },
-        { title: "Tagihan Bulanan", url: "/tagihan-bulanan", icon: WalletIcon },
-    ];
+    // 🔹 LOGIKA MENU BERDASARKAN ROLE ID
+    const getMenuItems = (roleId) => {
+        // 1. Admin: /dashboard, /manajemen-data
+        if (roleId === 1) {
+            return [
+                { title: "Dashboard", url: "/dashboard", icon: Grid2x2Plus },
+                {
+                    title: "Manajemen Data",
+                    url: "/manajemen-data",
+                    icon: Inbox,
+                },
+            ];
+        }
 
-    // 🔹 menu normal untuk non-admin dan non-warga (misal: Pengurus RT)
-    const defaultItems = [
-        {
-            title: "Ringkasan Keuangan",
-            url: "/dashboard",
-            icon: LayoutTemplate,
-        },
-        {
-            title: "Tagihan Bulanan",
-            url: "/tagihan-bulanan/monitoring",
-            icon: WalletIcon,
-        },
-        {
-            title: "Kegiatan",
-            url: "/kegiatan",
-            icon: CalendarDays,
-        },
-        {
-            title: "Approval",
-            url: "/tagihan-bulanan/approval",
-            icon: ClipboardCheck,
-        },
-        {
-            title: "Kategori Iuran",
-            url: "/kategori-setting",
-            icon: List,
-        },
-    ];
+        // 2. Pengurus (A): /dashboard, /kegiatan, /approval, /monitoring, /kategori
+        if (roleId === 2) {
+            return [
+                {
+                    title: "Ringkasan Keuangan",
+                    url: "/dashboard",
+                    icon: LayoutTemplate,
+                },
+                { title: "Kegiatan", url: "/kegiatan", icon: CalendarDays },
+                {
+                    title: "Approval",
+                    url: "/tagihan-bulanan/approval",
+                    icon: ClipboardCheck,
+                },
+                {
+                    title: "Tagihan Bulanan",
+                    url: "/tagihan-bulanan/monitoring",
+                    icon: WalletIcon,
+                },
+                {
+                    title: "Kategori Iuran",
+                    url: "/kategori-setting",
+                    icon: List,
+                },
+            ];
+        }
 
-    const adminItems = [
-        { title: "Dashboard", url: "/dashboard", icon: Grid2x2Plus },
-        { title: "Manajemen Data", url: "/manajemen-data", icon: Inbox },
-    ];
+        // 3. Bendahara: /dashboard, /approval, /monitoring, /kategori
+        if (roleId === 3) {
+            return [
+                {
+                    title: "Ringkasan Keuangan",
+                    url: "/dashboard",
+                    icon: LayoutTemplate,
+                },
+                {
+                    title: "Approval",
+                    url: "/tagihan-bulanan/approval",
+                    icon: ClipboardCheck,
+                },
+                {
+                    title: "Tagihan Bulanan",
+                    url: "/tagihan-bulanan/monitoring",
+                    icon: WalletIcon,
+                },
+                {
+                    title: "Kategori Iuran",
+                    url: "/kategori-setting",
+                    icon: List,
+                },
+            ];
+        }
 
-    // 🔹 pilih menu berdasarkan role
-    let items;
-    if (auth?.user?.role_id === 1) {
-        items = adminItems;
-    } else if (auth?.user?.role_id === 5) {
-        items = wargaItems;
-    } else {
-        items = defaultItems;
-    }
+        // 4. Pengurus (B): Sama persis dengan Role 2
+        if (roleId === 4) {
+            return [
+                {
+                    title: "Ringkasan Keuangan",
+                    url: "/dashboard",
+                    icon: LayoutTemplate,
+                },
+                { title: "Kegiatan", url: "/kegiatan", icon: CalendarDays },
+                {
+                    title: "Approval",
+                    url: "/tagihan-bulanan/approval",
+                    icon: ClipboardCheck,
+                },
+                {
+                    title: "Tagihan Bulanan",
+                    url: "/tagihan-bulanan/monitoring",
+                    icon: WalletIcon,
+                },
+                {
+                    title: "Kategori Iuran",
+                    url: "/kategori-setting",
+                    icon: List,
+                },
+            ];
+        }
+
+        // 5. Warga: /dashboard, /tagihan-bulanan
+        if (roleId === 5) {
+            return [
+                {
+                    title: "Ringkasan Keuangan",
+                    url: "/dashboard",
+                    icon: LayoutTemplate,
+                },
+                {
+                    title: "Tagihan Bulanan",
+                    url: "/tagihan-bulanan",
+                    icon: WalletIcon,
+                },
+            ];
+        }
+
+        // Default jika role tidak dikenali (kosong atau fallback)
+        return [];
+    };
+
+    const items = getMenuItems(auth?.user?.role_id);
 
     return (
         <SidebarProvider>
@@ -130,9 +192,6 @@ export default function AppLayout({ children }) {
                                 <SidebarGroupContent>
                                     <SidebarMenu className="mt-6 flex flex-col gap-3 px-4">
                                         {items.map((item) => {
-                                            // --- PERBAIKAN LOGIKA ACTIVE DI SINI ---
-                                            // 1. Jika URL menu adalah "/dashboard", hanya aktif jika URL persis "/dashboard".
-                                            // 2. Untuk menu lain (seperti /kegiatan), aktif jika URL dimulai dengan path tersebut (menangani sub-halaman create/edit).
                                             const isActive =
                                                 item.url === "/dashboard"
                                                     ? url === "/dashboard"
@@ -140,7 +199,7 @@ export default function AppLayout({ children }) {
 
                                             return (
                                                 <SidebarMenuItem
-                                                    key={item.title}
+                                                    key={item.title + item.url} // Key unik kombinasi title & url
                                                 >
                                                     <SidebarMenuButton asChild>
                                                         <a

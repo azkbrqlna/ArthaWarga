@@ -24,6 +24,7 @@ class TagihanBulanan extends Model
         'bkt_byr',
         'tgl_approved',
         'nominal',
+        'alasan',
     ];
 
    public function user()
