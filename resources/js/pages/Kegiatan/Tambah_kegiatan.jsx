@@ -12,14 +12,12 @@ import {
     SelectValue,
 } from "@/components/ui/select";
 import { Upload } from "lucide-react";
-import { Upload } from "lucide-react";
 import { useNotify } from "@/components/ToastNotification";
 import axios from "axios";
 import AppLayout from "@/layouts/AppLayout";
 import Breadcrumbs from "@/components/Breadcrumbs";
 
 export default function TambahKegiatan({ kategoris = [], kegiatan = null }) {
-export default function TambahKegiatan({ listKategori = [], kegiatan = null }) {
     const { notifySuccess, notifyError } = useNotify();
     const isEdit = !!kegiatan;
 
@@ -199,17 +197,6 @@ export default function TambahKegiatan({ listKategori = [], kegiatan = null }) {
                                     setData("tgl_mulai", e.target.value)
                                 }
                             />
-                            <Label>
-                                Tanggal Mulai{" "}
-                                <span className="text-red-500">*</span>
-                            </Label>
-                            <Input
-                                type="date"
-                                value={data.tgl_mulai}
-                                onChange={(e) =>
-                                    setData("tgl_mulai", e.target.value)
-                                }
-                            />
                         </div>
                         <div className="space-y-2">
                             <Label>
@@ -250,7 +237,7 @@ export default function TambahKegiatan({ listKategori = [], kegiatan = null }) {
                                 <SelectValue placeholder="Pilih kategori" />
                             </SelectTrigger>
                             <SelectContent>
-                                {listKategori.map((kat) => (
+                                {kategoris.map((kat) => (
                                     <SelectItem
                                         key={kat.id}
                                         value={String(kat.id)}
