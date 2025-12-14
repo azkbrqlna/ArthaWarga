@@ -176,6 +176,7 @@ class KegiatanController extends Controller
      * Update kegiatan.
      */
     public function update(Request $request, $id)
+    public function update(Request $request, $id)
     {
         $kegiatan = Kegiatan::findOrFail($id);
 
@@ -223,6 +224,7 @@ class KegiatanController extends Controller
         return redirect()->route('kegiatan.index')->with('success', 'Kegiatan berhasil diupdate.');
     }
 
+    /**
     /**
      * Hapus kegiatan.
      */

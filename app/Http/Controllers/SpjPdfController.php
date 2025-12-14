@@ -80,8 +80,7 @@ class SpjPdfController extends Controller
     }
 
     /**
-     * BARU: Helper Fungsi Terbilang
-     * (Dipindahkan dari SpjController lama agar bisa dipakai di PDF gabungan)
+     * Helper Fungsi Terbilang
      */
     private function terbilang($nilai) {
         $nilai = abs($nilai);
@@ -111,13 +110,12 @@ class SpjPdfController extends Controller
     {
         if (!Auth::check()) abort(403);
 
-        // Set Locale ke Indonesia untuk tanggal (Carbon)
         Carbon::setLocale('id');
 
         $kegiatanData = Kegiatan::findOrFail($id); 
         $pengeluaranKoleksi = Pengeluaran::where('keg_id', $kegiatanData->id)->get();
 
-        // 1. LOGIKA SUMBER DANA
+        // 1. LOGIKA SUMBER DANA (Tidak Berubah)
         $totalPakaiBop = $pengeluaranKoleksi->whereNotNull('masuk_bop_id')->sum('nominal');
         $totalPakaiIuran = $pengeluaranKoleksi->whereNotNull('masuk_iuran_id')->sum('nominal');
 
@@ -126,7 +124,7 @@ class SpjPdfController extends Controller
         elseif ($totalPakaiIuran > 0) $sumberDanaLabel = "Kas Iuran";
         else $sumberDanaLabel = "-";
 
-        // 2. LOGIKA REKAPITULASI
+        // 2. LOGIKA REKAPITULASI (Tidak Berubah)
         $totalMasukGlobal = PemasukanBOP::sum('nominal') + PemasukanIuran::sum('nominal');
         $totalKeluarGlobal = Pengeluaran::sum('nominal');
         
@@ -135,11 +133,10 @@ class SpjPdfController extends Controller
         $saldoAwalSnapshot = $saldoKasSaatIni + $totalPengeluaranKegiatan;
         $sisaAkhir = $saldoKasSaatIni; 
 
-        // 3. PROSES GAMBAR
+        // 3. PROSES GAMBAR (Tidak Berubah)
         $dokumentasiBase64Array = $this->processDokumentasiArray($kegiatanData->dok_keg);
 
         // 4. MAPPING DATA (TERMASUK KUITANSI SERAGAM)
-        // Kita gunakan 'use ($kegiatanData)' agar bisa akses data kota kegiatan di dalam loop
         $pengeluaranFormatted = $pengeluaranKoleksi->map(function ($item) use ($kegiatanData) {
             $row = clone $item;
             
@@ -155,15 +152,15 @@ class SpjPdfController extends Controller
             elseif ($row->masuk_iuran_id) $row->sumber_dana_item = 'Iuran';
             else $row->sumber_dana_item = '-';
             
-            // --- BAGIAN BARU: SIAPKAN DATA KUITANSI SERAGAM ---
-            // Data ini akan dipanggil oleh @include di Blade
+            // --- BAGIAN INI SUDAH REVISI AKHIR: MAPPING TOKO dan PENERIMA RT ---
             $row->kuitansi_data = [
-                'pemberi'   => $row->toko ?? '.....................', // Nama Toko
-                'terbilang' => strtoupper($this->terbilang($row->nominal) . ' RUPIAH'), // Fungsi Terbilang
-                'deskripsi' => $row->ket ?? 'Pengeluaran Kegiatan',
-                'total'     => $row->nominal,
-                'kota'      => $kegiatanData->kota ?? 'Semarang', // Kota dari Kegiatan atau Default
-                'tanggal'   => Carbon::parse($row->tgl)->isoFormat('D MMMM Y') // Tanggal Indonesia (misal: 12 Desember 2025)
+                'pemberi'      => $row->toko ?? '.....................', // Nama Toko/Vendor (untuk baris 'Sudah terima dari')
+                'penerima_ttd' => $row->penerima ?? '.....................', // Nama Pengurus RT (untuk Tanda Tangan)
+                'terbilang'    => strtoupper($this->terbilang($row->nominal) . ' RUPIAH'),
+                'deskripsi'    => $row->ket ?? 'Pengeluaran Kegiatan',
+                'total'        => $row->nominal,
+                'kota'         => $kegiatanData->kota ?? 'Semarang',
+                'tanggal'      => Carbon::parse($row->tgl)->isoFormat('D MMMM Y') 
             ];
 
             return $row;

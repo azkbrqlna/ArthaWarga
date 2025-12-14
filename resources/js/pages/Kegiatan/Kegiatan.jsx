@@ -209,13 +209,10 @@ export default function Kegiatan() {
                                         <TableHead
                                             key={col.key}
                                             onClick={() =>
-                                                col.key !== "aksi" &&
-                                                toggleSort(col.key)
+                                                col.key !== "aksi" && toggleSort(col.key)
                                             }
                                             className={`font-semibold select-none ${
-                                                col.key !== "aksi"
-                                                    ? "cursor-pointer"
-                                                    : ""
+                                                col.key !== "aksi" ? "cursor-pointer" : ""
                                             }`}
                                         >
                                             <div className="flex items-center gap-2">
@@ -250,17 +247,14 @@ export default function Kegiatan() {
                                             </TableCell>
                                             <TableCell>{keg.pj_keg}</TableCell>
                                             <TableCell>{keg.panitia}</TableCell>
-
+                                            
                                             {/* Kolom Dokumen (Tombol Lihat) */}
                                             <TableCell>
                                                 {keg.dok_keg ? (
                                                     <button
                                                         onClick={(e) => {
                                                             e.stopPropagation(); // ⛔ PENTING: Agar tidak trigger klik row
-                                                            openDialog(
-                                                                keg.dok_keg,
-                                                                keg.nm_keg
-                                                            );
+                                                            openDialog(keg.dok_keg, keg.nm_keg);
                                                         }}
                                                         className="text-blue-500 flex items-center gap-1 hover:underline z-10 relative"
                                                     >
@@ -277,20 +271,14 @@ export default function Kegiatan() {
                                             {/* Kolom Aksi (Edit/Hapus) */}
                                             <TableCell className="text-right">
                                                 <DropdownMenu>
-                                                    <DropdownMenuTrigger
-                                                        asChild
-                                                    >
+                                                    <DropdownMenuTrigger asChild>
                                                         <Button
                                                             variant="ghost"
                                                             className="h-8 w-8 p-0"
                                                             // ⛔ PENTING: Stop Propagation di Trigger Menu
-                                                            onClick={(e) =>
-                                                                e.stopPropagation()
-                                                            }
+                                                            onClick={(e) => e.stopPropagation()}
                                                         >
-                                                            <span className="sr-only">
-                                                                Open menu
-                                                            </span>
+                                                            <span className="sr-only">Open menu</span>
                                                             <MoreVertical className="h-4 w-4" />
                                                         </Button>
                                                     </DropdownMenuTrigger>
@@ -298,12 +286,7 @@ export default function Kegiatan() {
                                                         <DropdownMenuItem
                                                             onClick={(e) => {
                                                                 e.stopPropagation(); // Stop propagation
-                                                                router.visit(
-                                                                    route(
-                                                                        "kegiatan.edit",
-                                                                        keg.id
-                                                                    )
-                                                                );
+                                                                router.visit(route("kegiatan.edit", keg.id));
                                                             }}
                                                         >
                                                             <Edit className="mr-2 h-4 w-4" />
@@ -352,22 +335,21 @@ export default function Kegiatan() {
                             >
                                 <ChevronLeft className="h-4 w-4" />
                             </Button>
-                            {Array.from(
-                                { length: totalPages },
-                                (_, i) => i + 1
-                            ).map((num) => (
-                                <Button
-                                    key={num}
-                                    onClick={() => setCurrentPage(num)}
-                                    className={`${
-                                        num === currentPage
-                                            ? "bg-blue-500 text-white"
-                                            : "bg-white border text-blue-500"
-                                    } hover:bg-blue-300 transition`}
-                                >
-                                    {num}
-                                </Button>
-                            ))}
+                            {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                                (num) => (
+                                    <Button
+                                        key={num}
+                                        onClick={() => setCurrentPage(num)}
+                                        className={`${
+                                            num === currentPage
+                                                ? "bg-blue-500 text-white"
+                                                : "bg-white border text-blue-500"
+                                        } hover:bg-blue-300 transition`}
+                                    >
+                                        {num}
+                                    </Button>
+                                )
+                            )}
                             <Button
                                 variant="outline"
                                 disabled={currentPage === totalPages}
@@ -433,10 +415,7 @@ export default function Kegiatan() {
                                     {totalDokumen > 1 && (
                                         <Button
                                             onClick={nextImage}
-                                            disabled={
-                                                currentImageIndex ===
-                                                totalDokumen - 1
-                                            }
+                                            disabled={currentImageIndex === totalDokumen - 1}
                                             className="absolute right-4 z-10 bg-black/50 hover:bg-black/70 text-white rounded-full p-2"
                                             size="icon"
                                         >
