@@ -14,7 +14,7 @@ import iconDetail from "../assets/iconDetail.png";
 import iconCetak from "../assets/iconCetak.png";
 import iconLaporan from "../assets/iconLaporan.png";
 import iconAkses from "../assets/iconAkses.png";
-import iconNotifikasi from "../assets/iconNotifikasi.png";
+import iconCalender from "../assets/iconCalender.png";
 import Footer from "@/components/ui/Footer";
 import { useNotify } from "@/components/ToastNotification";
 import {
@@ -190,9 +190,9 @@ export default function Welcome() {
             icon: iconAkses,
         },
         {
-            title: "Notifikasi Iuran",
-            description: "Mengirimkan pengingat iuran secara otomatis.",
-            icon: iconNotifikasi,
+            title: "Tagihan Bulanan",
+            description: "Mengirimkan pengingat taginan air dan sampah secara otomatis.",
+            icon: iconCalender,
         },
     ];
 
