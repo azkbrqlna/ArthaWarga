@@ -115,11 +115,16 @@ export default function IndexRT({ auth, tagihan }) {
 
     const getStatusBadgeClass = (status) => {
         switch (status) {
-            case 'approved': return 'bg-emerald-100 text-emerald-800 border border-emerald-200';
-            case 'pending': return 'bg-yellow-100 text-yellow-800 border border-yellow-200';
-            case 'ditagihkan': return 'bg-red-100 text-red-800 border border-red-200'; // Merah soft
-            case 'declined': return 'bg-red-200 text-red-900 border border-red-300';
-            default: return 'bg-gray-100 text-gray-800 border border-gray-200';
+            case "approved":
+                return "bg-emerald-100 text-emerald-800 border border-emerald-200";
+            case "pending":
+                return "bg-yellow-100 text-yellow-800 border border-yellow-200";
+            case "ditagihkan":
+                return "bg-red-100 text-red-800 border border-red-200"; // Merah soft
+            case "declined":
+                return "bg-red-200 text-red-900 border border-red-300";
+            default:
+                return "bg-gray-100 text-gray-800 border border-gray-200";
         }
     };
 
@@ -142,7 +147,7 @@ export default function IndexRT({ auth, tagihan }) {
                             >
                                 <Link href={route("kat_iuran.index")}>
                                     <Settings className="w-4 h-4 mr-2" />
-                                    Edit Tarif Air
+                                    Edit Tarif
                                 </Link>
                             </Button>
 
@@ -164,7 +169,7 @@ export default function IndexRT({ auth, tagihan }) {
                         {/* Card 1: Saldo Ditagihkan */}
                         <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-5 shadow-sm">
                             <div className="flex items-center">
-                                    <CircleAlert className="text-yellow-600 w-10  mr-4" />
+                                <CircleAlert className="text-yellow-600 w-10  mr-4" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">
                                         Saldo Ditagihkan
@@ -179,7 +184,7 @@ export default function IndexRT({ auth, tagihan }) {
                         {/* Card 2: Saldo Lunas */}
                         <div className="bg-green-100 border border-green-300 rounded-xl p-5 shadow-sm">
                             <div className="flex items-center">
-                                    <CircleCheck className="text-green-600 w-10 mr-4" />
+                                <CircleCheck className="text-green-600 w-10 mr-4" />
                                 <div>
                                     <p className="text-sm font-medium text-gray-600">
                                         Saldo Lunas

@@ -193,7 +193,7 @@ export default function MasterData({ auth, kategoriIurans }) {
                         <Button
                             type="submit"
                             disabled={processing}
-                            className="bg-rose-500 hover:bg-rose-600 text-white"
+                            className="bg-blue-500 hover:bg-blue-600 text-white"
                         >
                             {processing ? "Menyimpan..." : "Simpan"}
                         </Button>
