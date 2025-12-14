@@ -200,7 +200,9 @@ export default function Dashboard() {
                         {/* Action Buttons */}
                         {userRole !== 5 && (
                             <div className="flex gap-3">
-                                {(userRole === 2 || userRole === 3) && (
+                                {(userRole === 2 ||
+                                    userRole === 3 ||
+                                    userRole === 4) && (
                                     <>
                                         <Button
                                             className="bg-emerald-600 hover:bg-emerald-700 text-white shadow-sm"

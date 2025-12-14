@@ -99,7 +99,7 @@ class KegiatanController extends Controller
 
         // 6. Cek Izin Akses
         $userRole = Auth::user()->role_id;
-        $canAddExpense = in_array($userRole, [2, 3]);
+        $canAddExpense = in_array($userRole, [2, 3, 4]);
 
         return Inertia::render('Kegiatan/Detail', [
             'kegiatan' => $kegiatan,
