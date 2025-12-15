@@ -113,7 +113,7 @@ class DownloaderController extends Controller
         
         foreach ($timeline as $row) {
             // Label Kategori
-            $kategori = ($row['tipe_dana'] === 'bop') ? 'BOP' : 'Kas/Iuran';
+            $kategori = ($row['tipe_dana'] === 'bop') ? 'BOP' : 'Iuran';
             
             // Tentukan saldo mana yang dipakai/diupdate
             $currentSaldo = ($row['tipe_dana'] === 'bop') ? $saldoBop : $saldoIuran;
