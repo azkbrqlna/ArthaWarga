@@ -421,33 +421,61 @@ export default function IndexRT({ auth, tagihan }) {
                                                 </TableCell>
                                                 <TableCell>
                                                     <div className="flex justify-center items-center gap-1">
-                                                        <Button
-                                                            variant="ghost"
-                                                            size="icon"
-                                                            asChild
-                                                            className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg"
-                                                        >
-                                                            <Link
-                                                                href={route(
-                                                                    "tagihan.edit",
-                                                                    item.id
-                                                                )}
+                                                        {/* --- TOMBOL EDIT --- */}
+                                                        {item.status === "approved" ? (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                disabled
+                                                                className="h-8 w-8 text-gray-300 cursor-not-allowed"
                                                             >
                                                                 <Pencil className="h-4 w-4" />
-                                                            </Link>
-                                                        </Button>
+                                                            </Button>
+                                                        ) : (
+                                                            <Button
+                                                                variant="ghost"
+                                                                size="icon"
+                                                                asChild
+                                                                className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg"
+                                                            >
+                                                                <Link
+                                                                    href={route(
+                                                                        "tagihan.edit",
+                                                                        item.id
+                                                                    )}
+                                                                >
+                                                                    <Pencil className="h-4 w-4" />
+                                                                </Link>
+                                                            </Button>
+                                                        )}
 
+                                                        {/* --- TOMBOL HAPUS --- */}
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
-                                                            onClick={() =>
-                                                                handleDelete(
-                                                                    item.id,
-                                                                    item.user
-                                                                        ?.nm_lengkap
-                                                                )
+                                                            disabled={
+                                                                item.status ===
+                                                                "approved"
                                                             }
-                                                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg"
+                                                            onClick={() => {
+                                                                if (
+                                                                    item.status !==
+                                                                    "approved"
+                                                                ) {
+                                                                    handleDelete(
+                                                                        item.id,
+                                                                        item
+                                                                            .user
+                                                                            ?.nm_lengkap
+                                                                    );
+                                                                }
+                                                            }}
+                                                            className={`h-8 w-8 rounded-lg ${
+                                                                item.status ===
+                                                                "approved"
+                                                                    ? "text-gray-300 cursor-not-allowed"
+                                                                    : "text-red-600 hover:text-red-700 hover:bg-red-50"
+                                                            }`}
                                                         >
                                                             <Trash2 className="h-4 w-4" />
                                                         </Button>
