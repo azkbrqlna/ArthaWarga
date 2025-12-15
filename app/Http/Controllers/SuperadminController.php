@@ -110,7 +110,7 @@ class SuperadminController extends Controller
             'kelurahan_id' => $request->kelurahan_id,
         ]);
 
-        return redirect()->route('superadmin.users')->with('success', 'User berhasil ditambahkan');
+        return redirect()->back();
     }
 
     public function editUser($id)

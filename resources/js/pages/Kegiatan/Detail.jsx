@@ -104,15 +104,11 @@ export default function Detail({ kegiatan, totalPengeluaran, listPengeluaran = [
                 {/* ✅ HEADER & BREADCRUMBS */}
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                        <h1 className="text-3xl font-bold text-gray-900 mb-8">
                             RINCIAN KEGIATAN
                         </h1>
                         <Breadcrumbs
                             items={[
-                                {
-                                    label: "Dashboard",
-                                    href: route("dashboard"),
-                                },
                                 {
                                     label: "Kegiatan",
                                     href: route("kegiatan.index"),

@@ -3,7 +3,7 @@ import AppLayout from "@/layouts/AppLayout";
 import { Link, useForm, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useNotify } from "@/Components/toastNotification";
+import { useNotify } from "@/components/ToastNotification";
 import {
     Select,
     SelectContent,
@@ -147,8 +147,9 @@ export default function EditData({ user, roles, wilayah = [] }) {
                             </label>
                             <Input
                                 value={data.no_kk}
+                                // UPDATE: Hanya menerima angka
                                 onChange={(e) =>
-                                    setData("no_kk", e.target.value)
+                                    setData("no_kk", e.target.value.replace(/\D/g, ""))
                                 }
                                 maxLength={16}
                             />
@@ -194,8 +195,9 @@ export default function EditData({ user, roles, wilayah = [] }) {
                             </label>
                             <Input
                                 value={data.no_hp}
+                                // UPDATE: Hanya menerima angka
                                 onChange={(e) =>
-                                    setData("no_hp", e.target.value)
+                                    setData("no_hp", e.target.value.replace(/\D/g, ""))
                                 }
                             />
                         </div>
@@ -303,8 +305,9 @@ export default function EditData({ user, roles, wilayah = [] }) {
                                 </label>
                                 <Input
                                     value={data.rw}
+                                    // UPDATE: Hanya menerima angka
                                     onChange={(e) =>
-                                        setData("rw", e.target.value)
+                                        setData("rw", e.target.value.replace(/\D/g, ""))
                                     }
                                     placeholder="Contoh: 005"
                                 />
@@ -322,8 +325,9 @@ export default function EditData({ user, roles, wilayah = [] }) {
                                 </label>
                                 <Input
                                     value={data.rt}
+                                    // UPDATE: Hanya menerima angka
                                     onChange={(e) =>
-                                        setData("rt", e.target.value)
+                                        setData("rt", e.target.value.replace(/\D/g, ""))
                                     }
                                     placeholder="Contoh: 002"
                                 />
@@ -341,8 +345,9 @@ export default function EditData({ user, roles, wilayah = [] }) {
                                 </label>
                                 <Input
                                     value={data.kode_pos}
+                                    // UPDATE: Hanya menerima angka
                                     onChange={(e) =>
-                                        setData("kode_pos", e.target.value)
+                                        setData("kode_pos", e.target.value.replace(/\D/g, ""))
                                     }
                                 />
                             </div>
@@ -398,7 +403,7 @@ export default function EditData({ user, roles, wilayah = [] }) {
                     {/* Action Buttons */}
                     <div className="flex justify-end gap-3 pt-4">
                         <Link href="/manajemen-data">
-                            <Button className="bg-red-500 hover:bg-red-600 text-white">
+                            <Button className="bg-gray-500 hover:bg-gray-600 text-white">
                                 Batal
                             </Button>
                         </Link>

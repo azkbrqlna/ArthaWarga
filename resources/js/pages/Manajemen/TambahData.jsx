@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import AppLayout from "@/layouts/AppLayout";
-import { Link, useForm } from "@inertiajs/react";
+// TAMBAH: import router di sini
+import { Link, useForm, router } from "@inertiajs/react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
@@ -10,7 +11,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { useNotify } from "@/components/ToastNotification"; // Pastikan path sesuai
+import { useNotify } from "@/components/ToastNotification"; 
 
 export default function TambahData({ roles, wilayah = [] }) {
     const { notifySuccess, notifyError } = useNotify();
@@ -66,8 +67,14 @@ export default function TambahData({ roles, wilayah = [] }) {
         post(route("superadmin.storeUser"), {
             preserveScroll: true,
             onSuccess: () => {
-                notifySuccess("Berhasil", "Data berhasil disimpan!");
+                // 1. Munculkan pesan sukses
+                notifySuccess("Berhasil", "Data disimpan! Mengalihkan...");
                 reset();
+
+                // 2. Beri jeda 1.5 detik sebelum pindah halaman manual
+                setTimeout(() => {
+                    router.get('/manajemen-data');
+                }, 1500);
             },
             onError: () => {
                 notifyError("Gagal", "Terjadi kesalahan, cek form.");
@@ -120,7 +127,7 @@ export default function TambahData({ roles, wilayah = [] }) {
                             <Input
                                 value={data.no_kk}
                                 onChange={(e) =>
-                                    setData("no_kk", e.target.value)
+                                    setData("no_kk", e.target.value.replace(/\D/g, ""))
                                 }
                                 maxLength={16}
                                 placeholder="16 Digit KK"
@@ -174,7 +181,7 @@ export default function TambahData({ roles, wilayah = [] }) {
                             <Input
                                 value={data.no_hp}
                                 onChange={(e) =>
-                                    setData("no_hp", e.target.value)
+                                    setData("no_hp", e.target.value.replace(/\D/g, ""))
                                 }
                                 placeholder="08xxxxxxxxxx"
                             />
@@ -295,7 +302,7 @@ export default function TambahData({ roles, wilayah = [] }) {
                                 <Input
                                     value={data.rw}
                                     onChange={(e) =>
-                                        setData("rw", e.target.value)
+                                        setData("rw", e.target.value.replace(/\D/g, ""))
                                     }
                                     placeholder="005"
                                 />
@@ -314,7 +321,7 @@ export default function TambahData({ roles, wilayah = [] }) {
                                 <Input
                                     value={data.rt}
                                     onChange={(e) =>
-                                        setData("rt", e.target.value)
+                                        setData("rt", e.target.value.replace(/\D/g, ""))
                                     }
                                     placeholder="001"
                                 />
@@ -333,7 +340,7 @@ export default function TambahData({ roles, wilayah = [] }) {
                                 <Input
                                     value={data.kode_pos}
                                     onChange={(e) =>
-                                        setData("kode_pos", e.target.value)
+                                        setData("kode_pos", e.target.value.replace(/\D/g, ""))
                                     }
                                     placeholder="50xxx"
                                 />
@@ -400,7 +407,7 @@ export default function TambahData({ roles, wilayah = [] }) {
                     {/* Action Buttons */}
                     <div className="flex justify-end gap-3 pt-4">
                         <Link href="/manajemen-data">
-                            <Button className="bg-red-500 hover:bg-red-600 text-white">
+                            <Button className="bg-gray-500 hover:bg-gray-600 text-white">
                                 Batal
                             </Button>
                         </Link>
