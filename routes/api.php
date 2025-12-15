@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\SpjPdfApiController;
 use App\Http\Controllers\Api\HargaIuranApiController;
 use App\Http\Controllers\Api\TagihanBulananApiController;
 use App\Http\Controllers\Api\LaporanController;
+Use App\Http\Controllers\Api\ProfileWargaApiController;
 // --- PUBLIC (Tanpa Login) ---
 
 Route::get('/check', function () {
@@ -35,19 +36,32 @@ Route::middleware('auth:sanctum')->group(function () {
         return $request->user();
     });
 
-    // 2. BOP
+    // 2. Dashboard
+    Route::get('dashboard/summary', [DashboardApiController::class, 'getSummary']);
+    Route::get('dashboard/timeline', [DashboardApiController::class, 'getTimeline']);
+    Route::get('dashboard/rincian/{id}', [DashboardApiController::class, 'getRincian']);
+
+    // 3. Prorile Warga
+    Route::prefix('warga/profile')->group(function () {
+        Route::get('/', [ProfileWargaApiController::class, 'getProfile']);
+        Route::post('/update', [ProfileWargaApiController::class, 'update']);
+        Route::post('/update-photo', [ProfileWargaApiController::class, 'updatePhoto']);
+        Route::delete('/delete-photo', [ProfileWargaApiController::class, 'deletePhoto']);
+    });
+
+    // 4. BOP
     Route::resource('bop', BopApiController::class)->only(['index', 'destroy'])
         ->parameters(['bop' => 'id']);
     Route::post('/bop', [BopApiController::class, 'bop_create']); 
     Route::patch('/bop/{id}', [BopApiController::class, 'update']); 
     
-    // 3. Iuran
+    // 5. Iuran
     Route::get('/iuran', [IuranApiController::class, 'index']);      
     Route::post('/iuran/create', [IuranApiController::class, 'iuran_create']); 
     Route::patch('/iuran/update/{id}', [IuranApiController::class, 'iuran_update']);
     Route::delete('/iuran/{id}', [IuranApiController::class, 'iuran_delete']);
 
-   // 4. Kategori Iuran (MASTER NAMA & KONFIGURASI HARGA)
+   // 6. Kategori Iuran (MASTER NAMA & KONFIGURASI HARGA)
     
     // A. Master Nama Kategori (CRUD Dasar)
     Route::resource('kat_iuran', KategoriIuranApiController::class)->only(['index', 'store', 'show', 'destroy']);
@@ -58,7 +72,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::patch('/harga/{id}', [HargaIuranApiController::class, 'update'])->name('kat_iuran.harga.update');
     });
 
-    // 5. Kegiatan
+    // 7. Kegiatan
     Route::get('/kegiatan', [KegiatanApiController::class, 'index']);
     Route::get('/kegiatan/{id}', [KegiatanApiController::class, 'show']);
     Route::post('/kegiatan', [KegiatanApiController::class, 'store']);
@@ -67,7 +81,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // route untuk melihat spj pdf yang ada di rincian kegiatan
     Route::get('/spj/pdf/{id}', [SpjPdfApiController::class, 'generate'])->name('api.spj.download');
 
-    // 6. Pengeluaran 
+    // 8. Pengeluaran 
     Route::get('/pengeluaran', [PengeluaranApiController::class, 'index']);
     Route::post('/pengeluaran', [PengeluaranApiController::class, 'store']);
     Route::get('/pengeluaran/{id}', [PengeluaranApiController::class, 'show']);
@@ -77,18 +91,18 @@ Route::middleware('auth:sanctum')->group(function () {
     // Route untuk mengambil list penerima (dropdown)
     Route::get('/list-penerima', [App\Http\Controllers\Api\PengeluaranApiController::class, 'getListPenerima']);
 
-    // 7. Pengumuman (Dikomenter di kode asli)
+    // 9. Pengumuman (Dikomenter di kode asli)
     // Route::resource('pengumuman', PengumumanApiController::class)->except(['create', 'edit'])
     //  ->parameters(['pengumuman' => 'id']);
 
-    // 8. Superadmin (User Management)
+    // 10. Superadmin (User Management)
     Route::prefix('admin')->group(function () {
         Route::resource('users', SuperadminApiController::class)->only(['index', 'store', 'show', 'update', 'destroy'])
             ->parameters(['users' => 'id']);
     }); 
     
     // =========================================================================
-    // 9. TAGIHAN BULANAN (API)
+    // 11. TAGIHAN BULANAN (API)
     // =========================================================================
 
     // API WARGA (Semua user terautentikasi bisa akses)
