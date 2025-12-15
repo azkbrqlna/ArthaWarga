@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\KegiatanApiController;
 use App\Http\Controllers\Api\PengeluaranApiController;
 use App\Http\Controllers\Api\SuperadminApiController;
 use App\Http\Controllers\Api\SpjApiController;
+use App\Http\Controllers\Api\SpjPdfApiController;
 use App\Http\Controllers\Api\HargaIuranApiController;
 use App\Http\Controllers\Api\TagihanBulananApiController;
 use App\Http\Controllers\Api\LaporanController;
@@ -63,6 +64,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/kegiatan', [KegiatanApiController::class, 'store']);
     Route::post('/kegiatan/update/{id}', [KegiatanApiController::class, 'update']);
     Route::delete('/kegiatan/{id}', [KegiatanApiController::class, 'destroy']);
+    // route untuk melihat spj pdf yang ada di rincian kegiatan
+    Route::get('/spj/pdf/{id}', [SpjPdfApiController::class, 'generate'])->name('api.spj.download');
 
     // 6. Pengeluaran 
     Route::get('/pengeluaran', [PengeluaranApiController::class, 'index']);
