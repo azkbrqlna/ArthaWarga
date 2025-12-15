@@ -9,13 +9,24 @@ import {
     Plus,
     Settings,
     RotateCcw,
-    CircleAlert,
     CircleCheck,
-    TrendingUp,
+    Wallet,
+    Banknote,
+    Receipt,
 } from "lucide-react";
 import Swal from "sweetalert2";
-// Pastikan path ini sesuai dengan lokasi komponen Button Shadcn Anda
+
+// Import komponen UI Shadcn (pastikan sudah ada di folder components/ui)
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 
 export default function IndexRT({ auth, tagihan }) {
     // --- 1. SETUP TANGGAL DEFAULT (HARI INI) ---
@@ -113,19 +124,64 @@ export default function IndexRT({ auth, tagihan }) {
         setCurrentPage(1);
     }, [selectedMonth, selectedYear]);
 
-    const getStatusBadgeClass = (status) => {
-        switch (status) {
-            case "approved":
-                return "bg-emerald-100 text-emerald-800 border border-emerald-200";
-            case "pending":
-                return "bg-yellow-100 text-yellow-800 border border-yellow-200";
-            case "ditagihkan":
-                return "bg-red-100 text-red-800 border border-red-200"; // Merah soft
-            case "declined":
-                return "bg-red-200 text-red-900 border border-red-300";
-            default:
-                return "bg-gray-100 text-gray-800 border border-gray-200";
-        }
+    // --- COMPONENT: INFO CARD (REUSABLE) ---
+    const InfoCard = ({
+        title,
+        value,
+        icon: Icon,
+        variant = "blue",
+        subtitle,
+    }) => {
+        const themes = {
+            blue: {
+                bar: "bg-blue-600",
+                iconBg: "bg-blue-50",
+                iconColor: "text-blue-600",
+            },
+            orange: {
+                bar: "bg-orange-500",
+                iconBg: "bg-orange-50",
+                iconColor: "text-orange-500",
+            },
+            green: {
+                bar: "bg-emerald-600",
+                iconBg: "bg-emerald-50",
+                iconColor: "text-emerald-600",
+            },
+        };
+
+        const theme = themes[variant] || themes.blue;
+
+        return (
+            <div className="relative bg-white rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-5 h-full overflow-hidden hover:shadow-md transition-shadow duration-200">
+                <div
+                    className={`absolute left-0 top-0 bottom-0 w-[6px] rounded-l-xl ${theme.bar}`}
+                />
+                <div className="flex flex-col h-full pl-3">
+                    <div
+                        className={`w-12 h-12 rounded-2xl ${theme.iconBg} flex items-center justify-center mb-4`}
+                    >
+                        <Icon
+                            className={`w-6 h-6 ${theme.iconColor}`}
+                            strokeWidth={2}
+                        />
+                    </div>
+                    <div className="mt-auto">
+                        <p className="text-gray-500 text-sm font-medium mb-1 tracking-wide">
+                            {title}
+                        </p>
+                        <h3 className="text-2xl font-bold text-gray-800 tracking-tight">
+                            {value}
+                        </h3>
+                        {subtitle && (
+                            <p className="text-xs text-gray-400 mt-2 font-medium">
+                                {subtitle}
+                            </p>
+                        )}
+                    </div>
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -134,86 +190,66 @@ export default function IndexRT({ auth, tagihan }) {
 
             <div className="py-1">
                 <div className="w-full px-1">
-                    {/* Header & Buttons */}
-                    <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 text-center">
-                            MONITORING TAGIHAN BULANAN
-                        </h1>
+                    {/* --- HEADER & BUTTONS --- */}
+                    <div className="flex flex-col md:flex-row justify-between items-center mb-8 gap-4 pt-4">
+                        <div>
+                            <h1 className="text-2xl md:text-3xl font-bold text-gray-900 tracking-tight">
+                                Monitoring Tagihan
+                            </h1>
+                            <p className="text-gray-500 text-sm mt-1">
+                                Kelola data tagihan air dan iuran warga.
+                            </p>
+                        </div>
                         <div className="flex gap-3">
-                            {/* Tombol Edit Tarif Air */}
                             <Button
                                 asChild
-                                className="bg-yellow-500 hover:bg-yellow-600 text-white shadow-sm"
+                                variant="outline"
+                                className="bg-yellow-500 text-white hover:bg-yellow-600 hover:text-white shadow-sm"
                             >
                                 <Link href={route("kat_iuran.index")}>
                                     <Settings className="w-4 h-4 mr-2" />
                                     Edit Tarif
                                 </Link>
                             </Button>
-
-                            {/* Tombol Tambah Tagihan */}
                             <Button
                                 asChild
                                 className="bg-blue-600 hover:bg-blue-700 text-white shadow-sm"
                             >
                                 <Link href={route("tagihan.create")}>
                                     <Plus className="w-4 h-4 mr-2" />
-                                    Tambah Tagihan
+                                    Buat Tagihan
                                 </Link>
                             </Button>
                         </div>
                     </div>
 
                     {/* --- CARDS SECTION --- */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-                        {/* Card 1: Saldo Ditagihkan */}
-                        <div className="bg-yellow-100 border border-yellow-300 rounded-xl p-5 shadow-sm">
-                            <div className="flex items-center">
-                                <CircleAlert className="text-yellow-600 w-10  mr-4" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-600">
-                                        Saldo Ditagihkan
-                                    </p>
-                                    <p className="font-bold text-gray-800">
-                                        {formatRupiah(dynamicTotals.ditagihkan)}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Card 2: Saldo Lunas */}
-                        <div className="bg-green-100 border border-green-300 rounded-xl p-5 shadow-sm">
-                            <div className="flex items-center">
-                                <CircleCheck className="text-green-600 w-10 mr-4" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-600">
-                                        Saldo Lunas
-                                    </p>
-                                    <p className=" font-bold text-gray-800">
-                                        {formatRupiah(dynamicTotals.lunas)}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Card 3: Total Jimpitan */}
-                        <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 shadow-sm">
-                            <div className="flex items-center">
-                                <TrendingUp className="text-blue-600 w-10 mr-4" />
-                                <div>
-                                    <p className="text-sm font-medium text-gray-600">
-                                        Total Jimpitan
-                                    </p>
-                                    <p className="font-bold text-gray-800">
-                                        {formatRupiah(dynamicTotals.jimpitan)}
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-5 mb-8">
+                        <InfoCard
+                            title="Saldo Ditagihkan"
+                            value={formatRupiah(dynamicTotals.ditagihkan)}
+                            icon={Receipt}
+                            variant="orange"
+                            subtitle="Menunggu pembayaran"
+                        />
+                        <InfoCard
+                            title="Saldo Lunas"
+                            value={formatRupiah(dynamicTotals.lunas)}
+                            icon={CircleCheck}
+                            variant="green"
+                            subtitle="Pembayaran diterima"
+                        />
+                        <InfoCard
+                            title="Total Jimpitan"
+                            value={formatRupiah(dynamicTotals.jimpitan)}
+                            icon={Wallet}
+                            variant="blue"
+                            subtitle="Akumulasi dana jimpitan"
+                        />
                     </div>
 
-                    {/* Table Container */}
-                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-lg border border-gray-200">
+                    {/* --- TABLE CONTAINER --- */}
+                    <div className="bg-white overflow-hidden shadow-sm sm:rounded-xl border border-gray-200">
                         {/* Filter Bar */}
                         <div className="p-4 border-b border-gray-100 flex flex-wrap gap-2 items-center justify-end bg-gray-50/50">
                             <span className="text-sm text-gray-600 font-medium mr-1">
@@ -224,24 +260,14 @@ export default function IndexRT({ auth, tagihan }) {
                                 onChange={(e) =>
                                     setSelectedMonth(e.target.value)
                                 }
-                                className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500 h-9"
+                                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500 h-9 bg-white"
                             >
                                 <option value="">Semua Bulan</option>
-                                {[
-                                    "01",
-                                    "02",
-                                    "03",
-                                    "04",
-                                    "05",
-                                    "06",
-                                    "07",
-                                    "08",
-                                    "09",
-                                    "10",
-                                    "11",
-                                    "12",
-                                ].map((m, i) => (
-                                    <option key={m} value={m}>
+                                {[...Array(12)].map((_, i) => (
+                                    <option
+                                        key={i}
+                                        value={String(i + 1).padStart(2, "0")}
+                                    >
                                         {new Date(0, i).toLocaleString(
                                             "id-ID",
                                             { month: "long" }
@@ -254,7 +280,7 @@ export default function IndexRT({ auth, tagihan }) {
                                 onChange={(e) =>
                                     setSelectedYear(e.target.value)
                                 }
-                                className="border border-gray-300 rounded-md px-3 py-1.5 text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500 h-9"
+                                className="border border-gray-300 rounded-lg px-3 py-1.5 text-sm text-gray-700 focus:ring-blue-500 focus:border-blue-500 h-9 bg-white"
                             >
                                 <option value="">Semua Tahun</option>
                                 {Array.from({ length: 5 }).map((_, i) => {
@@ -273,118 +299,133 @@ export default function IndexRT({ auth, tagihan }) {
                                     variant="outline"
                                     size="sm"
                                     onClick={handleReset}
-                                    className="text-red-600 border-red-200 bg-red-50 hover:bg-red-100 hover:text-red-700 h-9"
+                                    className="text-red-600 border-red-200 bg-red-50 hover:bg-red-100 hover:text-red-700 h-9 rounded-lg"
                                 >
                                     <RotateCcw className="w-3 h-3" />
                                 </Button>
                             )}
                         </div>
 
-                        {/* Table */}
+                        {/* Table using Shadcn Components */}
                         <div className="overflow-x-auto">
-                            <table className="min-w-full divide-y divide-gray-200">
-                                <thead className="bg-gray-50">
-                                    <tr>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-gray-50/80 border-b border-gray-200">
+                                        <TableHead className="w-[50px] text-center">
                                             No
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Warga
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Periode
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Meteran
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Total
-                                        </th>
-                                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                            Status
-                                        </th>
-                                        <th className="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                        </TableHead>
+                                        <TableHead>Warga</TableHead>
+                                        <TableHead>Periode</TableHead>
+                                        <TableHead>Meteran Air</TableHead>
+                                        <TableHead>Total Tagihan</TableHead>
+                                        <TableHead>Status</TableHead>
+                                        <TableHead className="text-center">
                                             Aksi
-                                        </th>
-                                    </tr>
-                                </thead>
-                                <tbody className="bg-white divide-y divide-gray-200">
+                                        </TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody className="bg-white divide-y divide-gray-100">
                                     {paginatedData.length === 0 ? (
-                                        <tr>
-                                            <td
+                                        <TableRow>
+                                            <TableCell
                                                 colSpan="7"
-                                                className="px-6 py-8 text-center text-gray-500"
+                                                className="px-6 py-12 text-center text-gray-500"
                                             >
-                                                Tidak ada data.
-                                            </td>
-                                        </tr>
+                                                <div className="flex flex-col items-center justify-center">
+                                                    <Banknote className="w-8 h-8 text-gray-300 mb-2" />
+                                                    <p>
+                                                        Tidak ada data tagihan
+                                                        ditemukan.
+                                                    </p>
+                                                </div>
+                                            </TableCell>
+                                        </TableRow>
                                     ) : (
                                         paginatedData.map((item, index) => (
-                                            <tr
+                                            <TableRow
                                                 key={item.id}
-                                                className="hover:bg-gray-50 transition duration-150"
+                                                className="hover:bg-gray-50 transition duration-150 border-0"
                                             >
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                                <TableCell className="text-center text-gray-500">
                                                     {(currentPage - 1) *
                                                         itemsPerPage +
                                                         index +
                                                         1}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <div className="text-sm font-medium text-gray-900">
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="font-medium text-gray-900">
                                                         {item.user?.nm_lengkap}
                                                     </div>
                                                     <div className="text-xs text-gray-500">
                                                         {item.user?.alamat}
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                    <span className="bg-gray-100 px-2 py-1 rounded text-xs font-medium">
-                                                        {item.bulan} /{" "}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-md bg-gray-100 text-xs font-medium text-gray-700">
+                                                        {new Date(
+                                                            0,
+                                                            item.bulan - 1
+                                                        ).toLocaleString(
+                                                            "id-ID",
+                                                            { month: "short" }
+                                                        )}{" "}
                                                         {item.tahun}
                                                     </span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
-                                                    <div className="flex items-center gap-1">
-                                                        <span className="text-gray-500">
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex items-center gap-2 text-sm">
+                                                        <span className="text-gray-400">
                                                             {item.mtr_bln_lalu}
                                                         </span>
-                                                        <span>→</span>
-                                                        <span className="font-bold">
+                                                        <ChevronRight className="w-3 h-3 text-gray-300" />
+                                                        <span className="font-semibold text-gray-700">
                                                             {item.mtr_skrg}
                                                         </span>
                                                     </div>
-                                                    <div className="text-xs text-gray-500 mt-0.5">
+                                                    <div className="text-xs text-blue-600 mt-0.5 font-medium">
                                                         Pakai:{" "}
                                                         {item.mtr_skrg -
                                                             item.mtr_bln_lalu}{" "}
                                                         m³
                                                     </div>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-800">
-                                                    {formatRupiah(item.nominal)}
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                    <span
-                                                        className={`px-2.5 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(
-                                                            item.status
-                                                        )}`}
+                                                </TableCell>
+                                                <TableCell>
+                                                    <span className="font-bold text-gray-800">
+                                                        {formatRupiah(
+                                                            item.nominal
+                                                        )}
+                                                    </span>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <Badge
+                                                        variant="secondary"
+                                                        className={`
+                                                            ${
+                                                                item.status ===
+                                                                "approved"
+                                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                                                                    : item.status ===
+                                                                          "pending" ||
+                                                                      item.status ===
+                                                                          "ditagihkan"
+                                                                    ? "bg-orange-50 text-orange-700 border-orange-100" // Orange untuk pending
+                                                                    : "bg-red-50 text-red-700 border-red-100"
+                                                            } border px-2.5 py-0.5 rounded-full font-medium capitalize shadow-none hover:bg-opacity-80
+                                                        `}
                                                     >
                                                         {item.status ===
                                                         "ditagihkan"
-                                                            ? "belum bayar"
+                                                            ? "Belum Bayar"
                                                             : item.status}
-                                                    </span>
-                                                </td>
-                                                <td className="px-6 py-4 whitespace-nowrap text-sm text-center">
-                                                    {/* ACTION BUTTONS WITH ICONS */}
-                                                    <div className="flex justify-center items-center gap-2">
-                                                        {/* Tombol Edit (Icon Only) */}
+                                                    </Badge>
+                                                </TableCell>
+                                                <TableCell>
+                                                    <div className="flex justify-center items-center gap-1">
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
                                                             asChild
-                                                            className="h-8 w-8 text-indigo-600 hover:text-indigo-900 hover:bg-indigo-50"
+                                                            className="h-8 w-8 text-indigo-600 hover:text-indigo-700 hover:bg-indigo-50 rounded-lg"
                                                         >
                                                             <Link
                                                                 href={route(
@@ -393,13 +434,9 @@ export default function IndexRT({ auth, tagihan }) {
                                                                 )}
                                                             >
                                                                 <Pencil className="h-4 w-4" />
-                                                                <span className="sr-only">
-                                                                    Edit
-                                                                </span>
                                                             </Link>
                                                         </Button>
 
-                                                        {/* Tombol Hapus (Icon Only) */}
                                                         <Button
                                                             variant="ghost"
                                                             size="icon"
@@ -410,20 +447,17 @@ export default function IndexRT({ auth, tagihan }) {
                                                                         ?.nm_lengkap
                                                                 )
                                                             }
-                                                            className="h-8 w-8 text-red-600 hover:text-red-900 hover:bg-red-50"
+                                                            className="h-8 w-8 text-red-600 hover:text-red-700 hover:bg-red-50 rounded-lg"
                                                         >
                                                             <Trash2 className="h-4 w-4" />
-                                                            <span className="sr-only">
-                                                                Hapus
-                                                            </span>
                                                         </Button>
                                                     </div>
-                                                </td>
-                                            </tr>
+                                                </TableCell>
+                                            </TableRow>
                                         ))
                                     )}
-                                </tbody>
-                            </table>
+                                </TableBody>
+                            </Table>
                         </div>
 
                         {/* Pagination Controls */}

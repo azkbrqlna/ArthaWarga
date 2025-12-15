@@ -57,11 +57,16 @@ export default function IndexRT({
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 8;
 
+    const date = new Date();
+    date.setMonth(date.getMonth() - 1);
+    const currentMonth = String(date.getMonth() + 1);
+    const currentYear = String(date.getFullYear());
+
     // State Filter
     const [searchQuery, setSearchQuery] = useState("");
     const [filterStatus, setFilterStatus] = useState("all");
-    const [filterBulan, setFilterBulan] = useState("all");
-    const [filterTahun, setFilterTahun] = useState("all");
+    const [filterBulan, setFilterBulan] = useState(currentMonth);
+    const [filterTahun, setFilterTahun] = useState(currentYear);
 
     // State Modal Bukti
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -225,8 +230,8 @@ export default function IndexRT({
     const handleResetFilter = () => {
         setSearchQuery("");
         setFilterStatus("all");
-        setFilterBulan("all");
-        setFilterTahun("all");
+        setFilterBulan(currentMonth);
+        setFilterTahun(currentYear);
     };
 
     return (

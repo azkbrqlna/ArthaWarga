@@ -149,10 +149,10 @@ export default function FormBOP({ tanggal }) {
             {/* Deskripsi */}
             <div className="space-y-2">
                 <Label>
-                    Deskripsi <span className="text-red-500">*</span>
+                    Keterangan <span className="text-red-500">*</span>
                 </Label>
                 <Textarea
-                    placeholder="Deskripsi kegiatan"
+                    placeholder="Tuliskan detail pemasukan..."
                     value={data.ket}
                     onChange={(e) => setData("ket", e.target.value)}
                 />

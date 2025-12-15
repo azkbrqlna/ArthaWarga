@@ -17,10 +17,12 @@ import {
     ChevronsUpDown,
     Banknote,
     Calculator,
-    Clock,
     Database,
     RotateCcw,
     Plus,
+    Wallet,
+    TrendingUp,
+    TrendingDown,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
@@ -158,32 +160,83 @@ export default function Dashboard() {
     const InfoCard = ({
         title,
         value,
+        subtitle,
         icon: Icon,
-        colorClass = "text-gray-600",
-        bgClass = "bg-gray-100", //DEFAULT BG
-        borderColorClass = "border-gray-200", //DEFAULT BORDER
-    }) => (
-        <div
-            className={`${bgClass} border rounded-lg p-4 shadow-sm ${borderColorClass} h-full`}
-        >
-            <div className="flex items-center gap-4">
-                {/* Icon Container: shrink-0 ensures it doesn't squash */}
-                <div className="p-3 rounded-lg shrink-0 ">
-                    <Icon className={`w-6 h-6 ${colorClass}`} />
-                </div>
+        variant = "blue", // default variant
+    }) => {
+        // Konfigurasi warna berdasarkan variant
+        const themes = {
+            blue: {
+                bar: "bg-blue-600",
+                iconBg: "bg-blue-50",
+                iconColor: "text-blue-600",
+            },
+            purple: {
+                bar: "bg-purple-600",
+                iconBg: "bg-purple-50",
+                iconColor: "text-purple-600",
+            },
+            orange: {
+                // Mirip gambar referensi
+                bar: "bg-orange-500",
+                iconBg: "bg-orange-50",
+                iconColor: "text-orange-500",
+            },
+            green: {
+                bar: "bg-emerald-600",
+                iconBg: "bg-emerald-50",
+                iconColor: "text-emerald-600",
+            },
+            red: {
+                bar: "bg-red-600",
+                iconBg: "bg-red-50",
+                iconColor: "text-red-600",
+            },
+            indigo: {
+                bar: "bg-indigo-600",
+                iconBg: "bg-indigo-50",
+                iconColor: "text-indigo-600",
+            },
+        };
 
-                {/* Text Container: flex-1 ensures it takes remaining space */}
-                <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-600 truncate">
-                        {title}
-                    </p>
-                    <p className="font-semibold text-gray-800 text-lg truncate">
-                        {value}
-                    </p>
+        const theme = themes[variant] || themes.blue;
+
+        return (
+            <div className="relative bg-white rounded-xl shadow-[0_2px_10px_-3px_rgba(6,81,237,0.1)] border border-gray-100 p-5 h-full overflow-hidden hover:shadow-md transition-shadow duration-200">
+                {/* Vertical Bar (Accent) */}
+                <div
+                    className={`absolute left-0 top-0 bottom-0 w-[6px] rounded-l-xl ${theme.bar}`}
+                />
+
+                <div className="flex flex-col h-full pl-3">
+                    {/* Icon Container */}
+                    <div
+                        className={`w-12 h-12 rounded-2xl ${theme.iconBg} flex items-center justify-center mb-4`}
+                    >
+                        <Icon
+                            className={`w-6 h-6 ${theme.iconColor}`}
+                            strokeWidth={2}
+                        />
+                    </div>
+
+                    {/* Text Content */}
+                    <div className="mt-auto">
+                        <p className="text-gray-500 text-sm font-medium mb-1 tracking-wide">
+                            {title}
+                        </p>
+                        <h3 className="text-2xl font-bold text-gray-800 tracking-tight">
+                            {value}
+                        </h3>
+                        {subtitle && (
+                            <p className="text-xs text-gray-400 mt-2 font-medium">
+                                {subtitle}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </div>
-        </div>
-    );
+        );
+    };
 
     return (
         <AppLayout user={auth.user}>
@@ -236,42 +289,40 @@ export default function Dashboard() {
                     <div
                         className={`grid grid-cols-1 md:grid-cols-2 ${
                             userRole === 1 ? "lg:grid-cols-4" : "lg:grid-cols-3"
-                        } gap-4 mb-8 w-full`}
+                        } gap-5 mb-8 w-full`}
                     >
                         {/* BAGIAN ADMIN (4 KARTU) */}
                         {userRole === 1 && (
                             <>
                                 <InfoCard
-                                    title="Total KK"
+                                    title="Total Keluarga (KK)"
                                     value={userTotal}
                                     icon={Database}
-                                    colorClass="text-blue-600"
-                                    bgClass="bg-blue-100"
-                                    borderColorClass="border-blue-200"
+                                    variant="indigo"
+                                    subtitle="Data terdaftar sistem"
                                 />
                                 <InfoCard
                                     title="Sisa Dana BOP"
                                     value={formatRupiah(sisaBop)}
-                                    icon={Banknote}
-                                    colorClass="text-purple-600"
-                                    bgClass="bg-purple-100"
-                                    borderColorClass="border-purple-200"
+                                    icon={Wallet}
+                                    variant="purple"
+                                    subtitle={`BOP: ${formatRupiah(sisaBop)}`} // Style mirip gambar
                                 />
                                 <InfoCard
                                     title="Sisa Dana Iuran"
                                     value={formatRupiah(sisaIuran)}
                                     icon={Banknote}
-                                    colorClass="text-yellow-600"
-                                    bgClass="bg-yellow-100"
-                                    borderColorClass="border-yellow-200"
+                                    variant="orange" // Sesuai warna gambar referensi
+                                    subtitle={`Iuran: ${formatRupiah(
+                                        sisaIuran
+                                    )}`}
                                 />
                                 <InfoCard
-                                    title="Total Saldo"
+                                    title="Total Saldo Aktif"
                                     value={formatRupiah(sisaSaldo)}
                                     icon={Calculator}
-                                    colorClass="text-green-600"
-                                    bgClass="bg-green-100"
-                                    borderColorClass="border-green-200"
+                                    variant="green"
+                                    subtitle="Akumulasi seluruh dana"
                                 />
                             </>
                         )}
@@ -285,26 +336,23 @@ export default function Dashboard() {
                                 <InfoCard
                                     title="Total Pemasukan"
                                     value={formatRupiah(saldoAwal)}
-                                    icon={Banknote}
-                                    colorClass="text-emerald-600"
-                                    bgClass="bg-emerald-100"
-                                    borderColorClass="border-emerald-200" // Border Emerald Tipis
+                                    icon={TrendingUp}
+                                    variant="green"
                                 />
                                 <InfoCard
                                     title="Total Pengeluaran"
                                     value={formatRupiah(totalPengeluaran)}
-                                    icon={Clock}
-                                    colorClass="text-red-600"
-                                    bgClass="bg-red-100"
-                                    borderColorClass="border-red-200" // Border Merah Tipis
+                                    icon={TrendingDown}
+                                    variant="red"
                                 />
                                 <InfoCard
                                     title="Saldo Sekarang"
                                     value={formatRupiah(sisaSaldo)}
-                                    icon={Calculator}
-                                    colorClass="text-blue-600"
-                                    bgClass="bg-blue-100"
-                                    borderColorClass="border-blue-200" // Border Biru Tipis
+                                    icon={Wallet}
+                                    variant="blue"
+                                    subtitle={`Sisa: ${formatRupiah(
+                                        sisaSaldo
+                                    )}`}
                                 />
                             </>
                         )}

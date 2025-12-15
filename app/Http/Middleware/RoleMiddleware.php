@@ -145,18 +145,10 @@ class RoleMiddleware
                 'profil.update',
                 'profil.updatePhoto',
                 'profil.deletePhoto',
-
-                'masuk-iuran.index',
-                'masuk-iuran.show',
-                'masuk-iuran.store',
-
                 'tagihan.upload',
                 'tagihan.warga.index',
                 'tagihan.warga.show',
                 'tagihan.bayar',
-
-                'kegiatan.index',
-                'kegiatan.show',
             ],
         ];
 

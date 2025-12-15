@@ -263,7 +263,7 @@ export default function FormIuran({ tanggal, kategori_iuran = [] }) {
                     Keterangan <span className="text-red-500">*</span>
                 </Label>
                 <Textarea
-                    placeholder="Contoh: Iuran kebersihan bulan Oktober"
+                    placeholder="Tuliskan detail pemasukan..."
                     value={data.ket}
                     onChange={(e) => setData("ket", e.target.value)}
                 />
