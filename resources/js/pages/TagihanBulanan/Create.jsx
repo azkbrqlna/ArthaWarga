@@ -269,7 +269,7 @@ export default function Create({ auth, wargaList, masterHarga }) {
                                         variant="secondary"
                                         className="w-full md:w-auto px-6 h-11 bg-gray-500 text-white hover:bg-gray-600"
                                     >
-                                        <Link href={route("dashboard")}>
+                                        <Link href={route("tagihan.rt.index")}>
                                             Batal
                                         </Link>
                                     </Button>

@@ -125,7 +125,7 @@ export default function MasterData({ auth, kategoriIurans }) {
                     {/* 3. INPUT HARGA METERAN */}
                     <div className="space-y-2">
                         <Label>
-                            Harga/meter persegi{" "}
+                            Harga/meter perkubik{" "}
                             <span className="text-red-500">*</span>
                         </Label>
                         <Input

@@ -46,8 +46,7 @@ export default function Edit({ auth, tagihan, wargaList, masterHarga }) {
     const formatRupiah = (num) => new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', minimumFractionDigits: 0 }).format(num || 0);
 
     const breadcrumbItems = [
-        { label: 'Dashboard', href: '/dashboard' },
-        { label: 'Monitoring Tagihan', href: route('tagihan.rt.index') },
+        { label: 'Tagihan Bulanan', href: route('tagihan.rt.index') },
         { label: 'Edit Tagihan', href: null }
     ];
 

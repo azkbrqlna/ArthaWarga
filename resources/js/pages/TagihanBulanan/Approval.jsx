@@ -432,7 +432,7 @@ export default function IndexRT({
                                                                 : "text-gray-400 italic"
                                                         }`}
                                                     >
-                                                        <span>Skrg:</span>
+                                                        <span>Sekarang:</span>
                                                         <span>
                                                             {item.mtr_skrg ||
                                                                 "-"}
