@@ -62,6 +62,7 @@ class DownloaderController extends Controller
 
         // --- QUERY DATA ---
 
+
         // A. BOP Masuk (Tabel: masuk_bop)
         // Kolom: id, tgl, nominal, ket, bkt_nota, created_at
         $bopMasuk = PemasukanBOP::whereBetween('tgl', [$startDate, $endDate])
