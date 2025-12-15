@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import AppLayout from "../../Layouts/AppLayout";
 import { Head, useForm, Link } from "@inertiajs/react";
 import Breadcrumbs from "@/Components/Breadcrumbs";
+import Swal from "sweetalert2"; // IMPORT SWEETALERT2
 
 // --- SHADCN IMPORTS ---
 import { Input } from "@/components/ui/input";
@@ -72,7 +73,18 @@ export default function Create({ auth, wargaList, masterHarga }) {
 
     const submit = (e) => {
         e.preventDefault();
-        post(route("tagihan.store"));
+        post(route("tagihan.store"), {
+            onSuccess: () => {
+                // Tampilkan SweetAlert ketika berhasil
+                Swal.fire({
+                    title: "Berhasil!",
+                    text: "Data tagihan berhasil disimpan.",
+                    icon: "success",
+                    confirmButtonText: "OK",
+                    confirmButtonColor: "#2563eb", // Sesuai warna blue-600
+                });
+            },
+        });
     };
 
     const formatRupiah = (num) =>
@@ -93,7 +105,7 @@ export default function Create({ auth, wargaList, masterHarga }) {
                 <h1 className="text-3xl font-bold mb-10">TAMBAH TAGIHAN</h1>
                 <Breadcrumbs items={breadcrumbItems} />
 
-                {/* Menggunakan Card sebagai wrapper form agar lebih rapi (opsional, sesuai style Shadcn) */}
+                {/* Menggunakan Card sebagai wrapper form agar lebih rapi */}
                 <Card className="border-0 shadow-none p-0">
                     <CardContent className="p-0">
                         <form onSubmit={submit} className="space-y-6">
@@ -178,7 +190,7 @@ export default function Create({ auth, wargaList, masterHarga }) {
                                     </Label>
                                     <Input
                                         type="number"
-                                        className="h-11 bg-white border-gray-300 bg-gray-50"
+                                        className="h-11 bg-white border-gray-300 "
                                         value={data.mtr_bln_lalu}
                                         onChange={(e) =>
                                             setData(
