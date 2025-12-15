@@ -89,7 +89,7 @@ class UserSeeder extends Seeder
             return [
                 'role_id'      => $roleId,
                 'email'        => strtolower($emailPrefix) . '@example.com',
-                'no_kk'        => $faker->unique()->numerify('3374##########'),
+                'no_kk'        => $faker->unique()->numerify('3374############'),
                 'password'     => Hash::make('password123'),
                 'nm_lengkap'   => $faker->name(),
                 'foto_profil'  => null,
