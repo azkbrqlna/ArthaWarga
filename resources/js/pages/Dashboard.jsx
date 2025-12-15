@@ -350,9 +350,6 @@ export default function Dashboard() {
                                     value={formatRupiah(sisaSaldo)}
                                     icon={Wallet}
                                     variant="blue"
-                                    subtitle={`Sisa: ${formatRupiah(
-                                        sisaSaldo
-                                    )}`}
                                 />
                             </>
                         )}
