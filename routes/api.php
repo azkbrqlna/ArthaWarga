@@ -101,4 +101,5 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::post('/{id}/approve', [TagihanBulananApiController::class, 'approve'])->name('tagihan.approve.api'); 
         Route::post('/{id}/decline', [TagihanBulananApiController::class, 'decline'])->name('tagihan.decline.api'); 
     });
+    Route::get('/laporan/header', [LaporanController::class, 'header']);
 });
